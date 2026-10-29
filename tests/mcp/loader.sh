@@ -12,6 +12,7 @@ ping() { code -u "$AUTH" -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0
 running() { wpe 'echo MONKS_CENTRAL_CONNECTOR_VERSION, " ", Monks_Central_Connector::host()["name"];'; }
 
 LIB=$(sed -n "s/^return '\(.*\)';/\1/p" "$P/monks-central/connector/version.php")
+MC=$(sed -n "s/^define( 'MONKS_CENTRAL_VERSION', '\(.*\)' );/\1/p" "$P/monks-central/monks-central.php")
 mkdir -p "$FX"
 cp -r "$P/monks-central/connector" "$FX/connector"
 echo "<?php if ( ! defined( 'ABSPATH' ) ) { exit; } return '9.9.9';" >"$FX/connector/version.php"
@@ -35,7 +36,7 @@ wpcli plugin activate mc-fixture
 check 'both active: the newer copy runs'       "$(running)" '9.9.9 MC Fixture'
 check '... from its own folder'                "$(wpe 'echo MONKS_CENTRAL_CONNECTOR_DIR;')" "$FX/connector/"
 check '... the older copy sleeps'              "$(wpe 'echo in_array(WP_PLUGIN_DIR . "/monks-central/connector/connector.php", get_included_files(), true) ? "loaded" : "asleep";')" asleep
-check 'hosts keep their own versions'          "$(wpe 'echo wp_json_encode(array_map(function ($h) { return [$h["name"], $h["version"], $h["connector"]]; }, Monks_Central_Connector::state()["hosts"]));')" '[["MC Fixture","0.1.0","9.9.9"],["Monks Central","0.1.0","'"$LIB"'"]]'
+check 'hosts keep their own versions'          "$(wpe 'echo wp_json_encode(array_map(function ($h) { return [$h["name"], $h["version"], $h["connector"]]; }, Monks_Central_Connector::state()["hosts"]));')" '[["MC Fixture","0.1.0","9.9.9"],["Monks Central","'"$MC"'","'"$LIB"'"]]'
 check 'host abilities registered via the hook' "$(wpe 'echo wp_get_ability("mc-fixture/hello")->execute();')" 9.9.9
 check 'existing grant still works'             "$(ping)" 200
 HQ=$(call get-hq-status)
