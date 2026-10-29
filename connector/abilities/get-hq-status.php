@@ -67,55 +67,63 @@ function cm_execute_get_hq_status( $input = array() ) {
 	$mcp        = class_exists( 'CM_MCP_Server' );
 	$connection = $mcp ? CM_MCP_Server::current_connection() : null;
 
-	return array(
-		'plugin'            => array(
-			'name'    => Monks_Central_Connector::host()['name'],
-			'version' => Monks_Central_Connector::host()['version'],
-		),
-		'connector'         => array(
-			'version' => MONKS_CENTRAL_CONNECTOR_VERSION,
-			'hosts'   => Monks_Central_Connector::state()['hosts'],
-		),
-		'wordpress'         => array(
-			'version'     => get_bloginfo( 'version' ),
-			'multisite'   => is_multisite(),
-			'environment' => wp_get_environment_type(),
-		),
-		'php'               => array( 'version' => PHP_VERSION ),
-		'mcp'               => array(
-			'enabled'           => $mcp,
-			'protocol_versions' => $mcp ? array_merge( CM_MCP_Server::MODERN_VERSIONS, CM_MCP_Server::PROTOCOL_VERSIONS ) : array(),
-			// Approvals, undo and the activity log need the 7.1 ability hooks.
-			'approvals'         => version_compare( get_bloginfo( 'version' ), '7.1', '>=' ),
-		),
-		/**
-		 * Filters which integrations are on. A plugin that bundles the connector can report its own modules.
-		 *
-		 * @param array $modules Module => on.
-		 */
-		'modules'           => apply_filters(
-			'monks_central_hq_modules',
-			array(
-				'woocommerce' => class_exists( 'WooCommerce' ),
-				'bricks'      => defined( 'BRICKS_VERSION' ),
-			)
-		),
-		'user'              => array(
-			'id'                 => $user->ID,
-			'login'              => $user->user_login,
-			'roles'              => array_values( $user->roles ),
-			'can_manage_options' => current_user_can( 'manage_options' ),
-		),
-		'connection'        => $connection ? array(
-			'kind'                      => $connection['kind'],
-			'label'                     => $connection['label'],
-			'scope'                     => $connection['scope'],
-			'toolsets'                  => array_values( $connection['toolsets'] ),
-			'trusted'                   => $connection['trusted'],
-			// Monks Central operator grant (M2), and whether it also skips the always-ask tools.
-			'operator'                  => null !== $connection['operator'],
-			'operator_skips_always_ask' => true === $connection['operator'],
-		) : null,
-		'pending_approvals' => class_exists( 'CM_MCP_Approvals' ) ? count( CM_MCP_Approvals::pending_for_current_user() ) : 0,
+	/**
+	 * Filters the whole status. A plugin that bundles the connector can add its own fields (a licence state).
+	 *
+	 * @param array $status The status.
+	 */
+	return apply_filters(
+		'monks_central_hq_status',
+		array(
+			'plugin'            => array(
+				'name'    => Monks_Central_Connector::host()['name'],
+				'version' => Monks_Central_Connector::host()['version'],
+			),
+			'connector'         => array(
+				'version' => MONKS_CENTRAL_CONNECTOR_VERSION,
+				'hosts'   => Monks_Central_Connector::state()['hosts'],
+			),
+			'wordpress'         => array(
+				'version'     => get_bloginfo( 'version' ),
+				'multisite'   => is_multisite(),
+				'environment' => wp_get_environment_type(),
+			),
+			'php'               => array( 'version' => PHP_VERSION ),
+			'mcp'               => array(
+				'enabled'           => $mcp,
+				'protocol_versions' => $mcp ? array_merge( CM_MCP_Server::MODERN_VERSIONS, CM_MCP_Server::PROTOCOL_VERSIONS ) : array(),
+				// Approvals, undo and the activity log need the 7.1 ability hooks.
+				'approvals'         => version_compare( get_bloginfo( 'version' ), '7.1', '>=' ),
+			),
+			/**
+			 * Filters which integrations are on. A plugin that bundles the connector can report its own modules.
+			 *
+			 * @param array $modules Module => on.
+			 */
+			'modules'           => apply_filters(
+				'monks_central_hq_modules',
+				array(
+					'woocommerce' => class_exists( 'WooCommerce' ),
+					'bricks'      => defined( 'BRICKS_VERSION' ),
+				)
+			),
+			'user'              => array(
+				'id'                 => $user->ID,
+				'login'              => $user->user_login,
+				'roles'              => array_values( $user->roles ),
+				'can_manage_options' => current_user_can( 'manage_options' ),
+			),
+			'connection'        => $connection ? array(
+				'kind'                      => $connection['kind'],
+				'label'                     => $connection['label'],
+				'scope'                     => $connection['scope'],
+				'toolsets'                  => array_values( $connection['toolsets'] ),
+				'trusted'                   => $connection['trusted'],
+				// Monks Central operator grant (M2), and whether it also skips the always-ask tools.
+				'operator'                  => null !== $connection['operator'],
+				'operator_skips_always_ask' => true === $connection['operator'],
+			) : null,
+			'pending_approvals' => class_exists( 'CM_MCP_Approvals' ) ? count( CM_MCP_Approvals::pending_for_current_user() ) : 0,
+		)
 	);
 }

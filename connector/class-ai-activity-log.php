@@ -107,10 +107,16 @@ class CM_AI_Activity_Log {
 		}
 
 		if ( defined( 'REST_REQUEST' ) && REST_REQUEST && is_user_logged_in() ) {
-			return array(
-				'source' => 'rest',
-				'uuid'   => '',
-				'label'  => __( 'REST API', 'monks-central' ),
+			/**
+			 * A signed-in user's own REST call. Hosts that run abilities over REST for their own UI (a chat) name it.
+			 */
+			return apply_filters(
+				'monks_central_activity_caller',
+				array(
+					'source' => 'rest',
+					'uuid'   => '',
+					'label'  => __( 'REST API', 'monks-central' ),
+				)
 			);
 		}
 
@@ -579,7 +585,7 @@ class CM_AI_Activity_Log {
 	/**
 	 * Log rows, newest first, for the connection screen.
 	 *
-	 * @param array $args filter ('' = all, or a connection id), ability, status, limit (max 100), offset.
+	 * @param array $args filter ('' = all, a source such as chat, or a connection id), ability, status, limit (max 100), offset.
 	 * @return array{total: int, rows: array[]}
 	 */
 	public static function list_rows( array $args = array() ) {
@@ -588,7 +594,10 @@ class CM_AI_Activity_Log {
 		$where  = array( '1=1' );
 		$params = array( self::table() );
 
-		if ( '' !== $filter ) {
+		if ( in_array( $filter, array( 'chat', 'rest', 'cli', 'php' ), true ) ) {
+			$where[]  = 'source = %s';
+			$params[] = $filter;
+		} elseif ( '' !== $filter ) {
 			$where[]  = 'connection_uuid = %s';
 			$params[] = $filter;
 		}

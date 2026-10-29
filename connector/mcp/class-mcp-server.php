@@ -100,21 +100,42 @@ class CM_MCP_Server {
 	}
 
 	public static function scope_descriptions() {
-		return array(
-			'read'    => __( 'Can look but not change anything.', 'monks-central' ),
-			'content' => __( 'Posts, pages, media, terms and comments.', 'monks-central' ),
-			'site'    => __( 'Content, plus plugins, themes, updates and site info.', 'monks-central' ),
-			'full'    => __( 'Every enabled tool, including user tools.', 'monks-central' ),
+		/**
+		 * What each scope allows, in the host's words (its tool groups may add more than the connector's).
+		 */
+		return apply_filters(
+			'monks_central_scope_descriptions',
+			array(
+				'read'    => __( 'Can look but not change anything.', 'monks-central' ),
+				'content' => __( 'Posts, pages, media, terms and comments.', 'monks-central' ),
+				'site'    => __( 'Content, plus plugins, themes, updates and site info.', 'monks-central' ),
+				'full'    => __( 'Every enabled tool, including user tools.', 'monks-central' ),
+			)
 		);
 	}
 
 	public static function toolsets() {
-		return array(
-			'content' => __( 'Content', 'monks-central' ),
-			'media'   => __( 'Media', 'monks-central' ),
-			'modules' => __( 'Monks Central status', 'monks-central' ),
-			'site'    => __( 'Site admin', 'monks-central' ),
+		/**
+		 * Tool groups a connection can pick (key => label). Hosts add groups for their abilities' categories (see TOOLSET_OF_CATEGORY).
+		 */
+		return apply_filters(
+			'monks_central_toolsets',
+			array(
+				'content' => __( 'Content', 'monks-central' ),
+				'media'   => __( 'Media', 'monks-central' ),
+				'modules' => __( 'Monks Central status', 'monks-central' ),
+				'site'    => __( 'Site admin', 'monks-central' ),
+			)
 		);
+	}
+
+	/**
+	 * Groups a new connection starts with, and what a connection without saved groups gets.
+	 *
+	 * @return string[]
+	 */
+	public static function default_toolsets() {
+		return array_values( array_intersect( (array) apply_filters( 'monks_central_default_toolsets', self::DEFAULT_TOOLSETS ), array_keys( self::toolsets() ) ) );
 	}
 
 	/**
@@ -122,7 +143,7 @@ class CM_MCP_Server {
 	 */
 	public static function connection_toolsets( $user_id, $uuid ) {
 		$all = get_user_meta( $user_id, self::TOOLSETS_META, true );
-		return is_array( $all ) && isset( $all[ $uuid ] ) ? (array) $all[ $uuid ] : self::DEFAULT_TOOLSETS;
+		return is_array( $all ) && isset( $all[ $uuid ] ) ? (array) $all[ $uuid ] : self::default_toolsets();
 	}
 
 	private static function in_toolsets( WP_Ability $ability, array $toolsets ) {
@@ -661,11 +682,17 @@ class CM_MCP_Server {
 	}
 
 	private static function instructions() {
-		return sprintf(
+		/**
+		 * What the agent is told on initialize. Hosts add their own tools' guidance.
+		 */
+		return apply_filters(
+			'monks_central_instructions',
+			sprintf(
 			/* translators: 1: site URL, 2: username */
-			__( 'These tools act on the WordPress site %1$s as the user "%2$s", with that user\'s permissions. Destructive tools need the user\'s approval: give the user approve_url, then call the same tool again with the same arguments.', 'monks-central' ),
-			home_url(),
-			wp_get_current_user()->user_login
+				__( 'These tools act on the WordPress site %1$s as the user "%2$s", with that user\'s permissions. Destructive tools need the user\'s approval: give the user approve_url, then call the same tool again with the same arguments.', 'monks-central' ),
+				home_url(),
+				wp_get_current_user()->user_login
+			)
 		);
 	}
 
@@ -687,6 +714,9 @@ class CM_MCP_Server {
 		$exposed   = array();
 		foreach ( $cm + self::external_abilities( $namespaces ) as $name => $ability ) {
 			$own = 0 === strpos( $name, self::ABILITY_PREFIX );
+			if ( $own && ! self::tool_enabled( $name ) ) {
+				continue;
+			}
 			if ( self::scope_allows( $scope, $ability ) && ( ! $own || self::in_toolsets( $ability, $toolsets ) ) && ! self::lacks_approval_gate( $ability ) && ( $operator || ! $ability->get_meta_item( 'cm_operator_only' ) ) ) {
 				$exposed[ $name ] = $ability;
 			}
@@ -791,7 +821,7 @@ class CM_MCP_Server {
 
 		$connection = self::current_connection();
 		$hidden     = $ability && $ability->get_meta_item( 'cm_operator_only' ) && ! ( $connection && null !== $connection['operator'] );
-		if ( ! $ability || $hidden || ( ! $external && ! self::in_toolsets( $ability, self::current_toolsets() ) ) || self::lacks_approval_gate( $ability ) ) {
+		if ( ! $ability || $hidden || ( ! $external && ( ! self::tool_enabled( $name ) || ! self::in_toolsets( $ability, self::current_toolsets() ) ) ) || self::lacks_approval_gate( $ability ) ) {
 			return self::error( $id, -32602, sprintf( 'Unknown tool: %s', (string) ( $params['name'] ?? '' ) ) );
 		}
 
@@ -883,6 +913,13 @@ class CM_MCP_Server {
 	/**
 	 * Without WP 7.1's pre-execute hook, destructive tools can't be gated, so MCP doesn't offer them.
 	 */
+	/**
+	 * Whether a classic-monks/* ability is offered at all. Hosts with their own per-tool switches turn some off.
+	 */
+	private static function tool_enabled( $name ) {
+		return (bool) apply_filters( 'monks_central_tool_enabled', true, $name );
+	}
+
 	private static function lacks_approval_gate( WP_Ability $ability ) {
 		return ! CM_MCP_Approvals::supported() && CM_MCP_Approvals::needs_approval( $ability );
 	}
@@ -891,7 +928,7 @@ class CM_MCP_Server {
 	 * Tell the agent why a call failed and whether retrying can help.
 	 */
 	private static function describe_error( WP_Error $error ) {
-		$causes                          = array(
+		$causes = array(
 			'cm_mcp_scope_denied'         => array( 'scope', false, 'This connection may not use this tool. Do not retry; tell the user.' ),
 			'ability_invalid_permissions' => array( 'capability', false, 'The connected WordPress user lacks the capability for this. Do not retry.' ),
 			'ability_invalid_input'       => array( 'validation', true, 'Fix the arguments to match the tool input schema, then retry.' ),
@@ -902,6 +939,10 @@ class CM_MCP_Server {
 			'cm_undo_forbidden'           => array( 'capability', false, 'Undo needs the permissions of the original change. Do not retry.' ),
 			'cm_undo_drift'               => array( 'tool', false, 'The target was edited again after this change. Undo the newer change first or tell the user.' ),
 		);
+		/**
+		 * Error code => array( cause, retry_ok, hint ) for the agent. Hosts add their abilities' codes.
+		 */
+		$causes                          = apply_filters( 'monks_central_error_hints', $causes );
 		$code                            = (string) $error->get_error_code();
 		list( $cause, $retry_ok, $hint ) = $causes[ $code ] ?? array( 'tool', true, 'Check the message; retry once if it looks transient.' );
 
@@ -965,7 +1006,7 @@ class CM_MCP_Server {
 	/**
 	 * @param string[]|null $namespaces Null forgets the connection.
 	 */
-	private static function save_namespaces( $user_id, $uuid, $namespaces ) {
+	public static function save_namespaces( $user_id, $uuid, $namespaces ) {
 		$all = get_user_meta( $user_id, self::NAMESPACES_META, true );
 		$all = is_array( $all ) ? $all : array();
 		if ( null === $namespaces ) {
@@ -979,7 +1020,7 @@ class CM_MCP_Server {
 	/**
 	 * @param string[]|null $toolsets Null forgets the connection.
 	 */
-	private static function save_toolsets( $user_id, $uuid, $toolsets ) {
+	public static function save_toolsets( $user_id, $uuid, $toolsets ) {
 		$all = get_user_meta( $user_id, self::TOOLSETS_META, true );
 		$all = is_array( $all ) ? $all : array();
 		if ( null === $toolsets ) {
@@ -993,7 +1034,7 @@ class CM_MCP_Server {
 	/**
 	 * @param string|null $scope Null forgets the connection.
 	 */
-	private static function save_scope( $user_id, $uuid, $scope ) {
+	public static function save_scope( $user_id, $uuid, $scope ) {
 		$scopes = get_user_meta( $user_id, self::SCOPES_META, true );
 		$scopes = is_array( $scopes ) ? $scopes : array();
 		if ( null === $scope ) {

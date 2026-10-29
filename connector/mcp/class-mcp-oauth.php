@@ -619,7 +619,7 @@ class CM_MCP_OAuth {
 			'scopes'           => $scopes,
 			'default_scope'    => 'content',
 			'toolsets'         => CM_MCP_Server::toolsets(),
-			'default_toolsets' => CM_MCP_Server::DEFAULT_TOOLSETS,
+			'default_toolsets' => CM_MCP_Server::default_toolsets(),
 			'operator'         => current_user_can( 'manage_options' ) && self::operator_possible( $ctx['redirect_uri'] ),
 		);
 	}
