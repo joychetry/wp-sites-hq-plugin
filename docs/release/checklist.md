@@ -15,14 +15,15 @@ Joy says so.
      licensed Bricks zip), keys or tokens. The only token-like strings are the
      fake ones the redaction tests use. Going public also publishes `docs/`
      and `tests/`.
-2. **Version number.** Prepared as **1.0.0** (the plugin header, the
-   `MONKS_CENTRAL_VERSION` constant, readme.txt `Stable tag`, `package.json`,
-   the PHP test bootstraps and the `CHANGELOG.md` heading). Sites running the
-   0.1.0 development build (mc-c) see any higher version as an update. For
-   another number, change those places together; the release workflow refuses
-   a tag that does not match the header and the Stable tag.
-3. **Release date.** `CHANGELOG.md` says `1.0.0 - Unreleased`. Put the date
-   in before tagging.
+2. **Version number.** Decided: **0.1.0** (Joy, 2026-10-29), in the plugin
+   header, the `MONKS_CENTRAL_VERSION` constant, readme.txt `Stable tag` and
+   changelog, `package.json` and its lock, the PHP test bootstraps and the
+   `CHANGELOG.md` heading. The 0.1.0 development build on mc-c has the same
+   number, so its updater does not offer this release; install the zip there
+   by hand. For another number, change those places together; the release
+   workflow refuses a tag that does not match the header and the Stable tag.
+3. **Release date.** `CHANGELOG.md` says `0.1.0 - 2026-10-29`. Change it if
+   the tag goes out on another day.
 4. **GitHub Actions.** The release workflow needs Actions, which were blocked
    by billing during the scaffold step. If they still are, build locally and
    make the draft by hand (below).
@@ -49,8 +50,8 @@ own without them; merging them is a separate decision.
    `npm run lint:js`, `npm run lint:css`, `npm run build`, `npm run test:e2e`,
    `bash tests/mcp/ci.sh`, then `bin/build-zip.sh` and
    `bash tests/release/fresh-site.sh <monks-central app checkout>`.
-2. Set the release date in `CHANGELOG.md`, commit and push.
-3. Tag and push: `git tag v1.0.0 && git push origin v1.0.0`.
+2. Check the release date in `CHANGELOG.md`; if it changes, commit and push.
+3. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
 4. `.github/workflows/release.yml` checks the tag against the version, runs
    Plugin Check on the wp.org build, builds `monks-central.zip` and
    `monks-central.zip.sha256`, and creates a **draft** release with both and
@@ -62,6 +63,6 @@ own without them; merging them is a separate decision.
    pre-releases.
 
 Without Actions, steps 3 and 4 by hand: `bin/build-zip.sh`, then
-`gh release create v1.0.0 dist/monks-central.zip dist/monks-central.zip.sha256
---draft --verify-tag --title "Monks Central 1.0.0" --notes-file <the 1.0.0
+`gh release create v0.1.0 dist/monks-central.zip dist/monks-central.zip.sha256
+--draft --verify-tag --title "Monks Central 0.1.0" --notes-file <the 0.1.0
 section of CHANGELOG.md>`.

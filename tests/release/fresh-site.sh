@@ -60,7 +60,7 @@ for _ in $(seq 50); do curl -s -o /dev/null "$SITE/" && curl -s -o /dev/null "ht
 
 echo "== Install the built zip"
 w plugin install "$ZIP" --activate --quiet
-check 'installed from the zip, active' "$(w plugin get monks-central --field=status) $(w plugin get monks-central --field=version)" 'active 1.0.0'
+check 'installed from the zip, active' "$(w plugin get monks-central --field=status) $(w plugin get monks-central --field=version)" 'active 0.1.0'
 # WP-CLI's own deprecation notices land in debug.log as well; only the site's count.
 site_errors() { grep -v 'phar://' "$ROOT/wp-content/debug.log" 2>/dev/null || true; }
 check 'no PHP errors on activation' "$(site_errors)" ''
@@ -91,15 +91,15 @@ echo "$connect"
 has 'the app connected through OAuth as operator' "$connect" 'operator true'
 check 'the site has one connection' "$(w --user=admin eval 'echo count( Monks_Central_Connector::connections() );')" 1
 plugins=$(drive plugins 2>&1) || true
-has 'the app sees Monks Central 1.0.0 and connector 1.1.0' "$plugins" 'plugin Monks Central 1.0.0  connector 1.1.0'
+has 'the app sees Monks Central 0.1.0 and connector 1.1.0' "$plugins" 'plugin Monks Central 0.1.0  connector 1.1.0'
 has 'the app check succeeds' "$(drive check 2>&1)" 'health Ok'
 
 echo "== Update from a fake release"
-# Version 1.0.1 of the same build, served like GitHub serves a release.
+# Version 0.1.1 of the same build, served like GitHub serves a release.
 mkdir -p "$WORK/next" && unzip -q "$ZIP" -d "$WORK/next"
-sed -i -e 's/^\( \* Version: *\)1\.0\.0$/\11.0.1/' -e "s/'MONKS_CENTRAL_VERSION', '1\.0\.0'/'MONKS_CENTRAL_VERSION', '1.0.1'/" "$WORK/next/monks-central/monks-central.php"
+sed -i -e 's/^\( \* Version: *\)0\.1\.0$/\10.1.1/' -e "s/'MONKS_CENTRAL_VERSION', '0\.1\.0'/'MONKS_CENTRAL_VERSION', '0.1.1'/" "$WORK/next/monks-central/monks-central.php"
 (cd "$WORK/next" && zip -qr "$REL/monks-central.zip" monks-central)
-jq -n --arg u "http://127.0.0.1:$RPORT" '{tag_name: "v1.0.1", draft: false, prerelease: false, html_url: ($u + "/release"), body: "Fake release for the update test.",
+jq -n --arg u "http://127.0.0.1:$RPORT" '{tag_name: "v0.1.1", draft: false, prerelease: false, html_url: ($u + "/release"), body: "Fake release for the update test.",
     assets: [{name: "monks-central.zip", browser_download_url: ($u + "/monks-central.zip")}, {name: "monks-central.zip.sha256", browser_download_url: ($u + "/monks-central.zip.sha256")}]}' >"$REL/releases/latest"
 # The site asks api.github.com; a test-only mu-plugin sends that one request to the fake and lets WordPress download from it.
 mkdir -p "$ROOT/wp-content/mu-plugins"
@@ -115,19 +115,19 @@ fresh() { w transient delete monks_central_release --network --quiet; w transien
 
 echo "0000000000000000000000000000000000000000000000000000000000000000  monks-central.zip" >"$REL/monks-central.zip.sha256"
 fresh
-check 'wp-admin offers 1.0.1' "$(w plugin list --name=monks-central --field=update_version)" 1.0.1
+check 'wp-admin offers 0.1.1' "$(w plugin list --name=monks-central --field=update_version)" 0.1.1
 bad=$(w plugin update monks-central 2>&1 || true)
 has 'a zip that does not match its checksum is refused' "$bad" 'does not match its SHA-256 checksum'
-check '... and 1.0.0 stays' "$(w plugin get monks-central --field=version)" 1.0.0
+check '... and 0.1.0 stays' "$(w plugin get monks-central --field=version)" 0.1.0
 
 (cd "$REL" && sha256sum monks-central.zip >monks-central.zip.sha256)
 fresh
 w plugin update monks-central --quiet
-check 'the matching zip installs 1.0.1' "$(w plugin get monks-central --field=status) $(w plugin get monks-central --field=version)" 'active 1.0.1'
+check 'the matching zip installs 0.1.1' "$(w plugin get monks-central --field=status) $(w plugin get monks-central --field=version)" 'active 0.1.1'
 check 'the connector stays on' "$(w option get cm_mcp_enabled)" 1
 check 'the connection survives the update' "$(w --user=admin eval 'echo count( Monks_Central_Connector::connections() );')" 1
 has 'the app still checks the site' "$(drive check 2>&1)" 'health Ok'
-has 'the app sees 1.0.1' "$(drive plugins 2>&1)" 'plugin Monks Central 1.0.1  connector 1.1.0'
+has 'the app sees 0.1.1' "$(drive plugins 2>&1)" 'plugin Monks Central 0.1.1  connector 1.1.0'
 check 'no PHP errors' "$(site_errors)" ''
 
 ((FAIL)) && { echo "FAILED"; exit 1; }

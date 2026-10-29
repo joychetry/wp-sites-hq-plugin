@@ -4,7 +4,7 @@ Tags: site management, remote management, updates, mcp, oauth
 Requires at least: 7.1
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.0
+Stable tag: 0.1.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,7 +71,7 @@ Other requests happen only when a connected app or you ask for them, and only to
 
 == Changelog ==
 
-= 1.0.0 =
+= 0.1.0 =
 * First release: the Monks Central site connector (connector 1.1.0) with OAuth 2.1 sign-in, the MCP endpoint, approvals, the activity log with Undo, login links, and tools for plugins, themes, updates, content, media, custom fields, users, comments and site snapshots.
 * Settings > Monks Central: connected apps and their permissions, changes waiting for approval, and activity.
 * Its own consent page for apps signing in.

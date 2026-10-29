@@ -3,7 +3,7 @@
 All notable changes to the Monks Central plugin. Versions follow semver. The
 connector library in `connector/` has its own version, named in each entry.
 
-## 1.0.0 - Unreleased
+## 0.1.0 - 2026-10-29
 
 First release: the site connector for the Monks Central app.
 

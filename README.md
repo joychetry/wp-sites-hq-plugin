@@ -81,7 +81,7 @@ with `WP_DEBUG` on.
 
 ## Releasing
 
-Pushing a `v*` tag (for example `v1.0.0`, matching the plugin's `Version`) runs
+Pushing a `v*` tag (for example `v0.1.0`, matching the plugin's `Version`) runs
 `.github/workflows/release.yml`: it builds the zip, writes its SHA-256 and
 creates a draft release with both files and the version's `CHANGELOG.md`
 section. Nothing is public until someone publishes the draft. See
