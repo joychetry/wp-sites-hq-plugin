@@ -230,7 +230,7 @@ function cm_execute_get_media( $input = array() ) {
 		$item['description'] = $post->post_content;
 		$item['file_name']   = $file_path ? wp_basename( $file_path ) : '';
 		$item['author_id']   = (int) $post->post_author;
-		$item['author']      = (string) get_the_author_meta( 'display_name', $post->post_author );
+		$item['author']      = (string) get_the_author_meta( 'display_name', (int) $post->post_author );
 		$item['usage']       = empty( $input['usage'] ) ? null : cm_media_usage_count( $post->ID, $metadata );
 
 		$media[] = $item;

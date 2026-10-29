@@ -128,7 +128,14 @@ function cm_ai_error_log_since( $offset = null ) {
 	if ( $start > $from ) {
 		array_shift( $lines ); // Partial first line: more than 64 KB was written.
 	}
-	$lines = array_values( array_filter( $lines, 'strlen' ) );
+	$lines = array_values(
+		array_filter(
+			$lines,
+			function ( $line ) {
+				return '' !== $line;
+			}
+		)
+	);
 	foreach ( $lines as $line ) {
 		if ( false !== strpos( $line, 'PHP Fatal error' ) || false !== strpos( $line, 'PHP Parse error' ) ) {
 			++$out['fatal'];

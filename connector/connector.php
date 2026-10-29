@@ -106,7 +106,16 @@ final class Monks_Central_Connector {
 	}
 
 	/**
-	 * The running copy: dir, file, name, version (the host's), ui. Its library version is MONKS_CENTRAL_CONNECTOR_VERSION.
+	 * Whether the endpoint and abilities are loaded on this request (enabled() can turn true mid-request).
+	 *
+	 * @return bool
+	 */
+	private static function running() {
+		return self::enabled() && class_exists( 'CM_MCP_Server' );
+	}
+
+	/**
+	 * The running copy: dir, file, name, version (the host's), ui, connector (the library version).
 	 *
 	 * @return array
 	 */
@@ -143,7 +152,7 @@ final class Monks_Central_Connector {
 					return array(
 						'name'      => $copy['name'],
 						'version'   => $copy['version'],
-						'connector' => (string) include $copy['dir'] . '/version.php',
+						'connector' => $copy['connector'],
 					);
 				},
 				monks_central_connector_copies()
@@ -153,7 +162,7 @@ final class Monks_Central_Connector {
 			'supported' => self::supported(),
 			'enabled'   => $enabled,
 			'site'      => home_url(),
-			'endpoint'  => $enabled ? CM_MCP_Server::endpoint_url() : '',
+			'endpoint'  => self::running() ? CM_MCP_Server::endpoint_url() : '',
 			'https'     => wp_is_application_passwords_supported(),
 		);
 	}
@@ -183,7 +192,7 @@ final class Monks_Central_Connector {
 	 * @return array[]
 	 */
 	public static function connections() {
-		if ( ! self::enabled() || ! current_user_can( 'manage_options' ) ) {
+		if ( ! self::running() || ! current_user_can( 'manage_options' ) ) {
 			return array();
 		}
 		$scopes = CM_MCP_Server::scopes();
@@ -204,7 +213,7 @@ final class Monks_Central_Connector {
 	 * @return true|WP_Error
 	 */
 	private static function check_connection( $user_id, $id, $cap ) {
-		if ( ! self::enabled() || ! current_user_can( 'manage_options' ) || ! CM_MCP_Server::connection_exists( $user_id, $id ) ) {
+		if ( ! self::running() || ! current_user_can( 'manage_options' ) || ! CM_MCP_Server::connection_exists( $user_id, $id ) ) {
 			return new WP_Error( 'cm_connection_not_found', __( 'That connection no longer exists, or you cannot change it.', 'monks-central' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( $cap, $user_id, $id ) ) {
@@ -261,7 +270,7 @@ final class Monks_Central_Connector {
 	 * @return array[]
 	 */
 	public static function pending() {
-		if ( ! self::enabled() ) {
+		if ( ! self::running() ) {
 			return array();
 		}
 		$out = array();
@@ -286,7 +295,7 @@ final class Monks_Central_Connector {
 	 * @return array{rows: array[], total: int}
 	 */
 	public static function activity( array $args = array() ) {
-		if ( ! self::enabled() || ! current_user_can( 'manage_options' ) ) {
+		if ( ! self::running() || ! current_user_can( 'manage_options' ) ) {
 			return array(
 				'rows'  => array(),
 				'total' => 0,
@@ -302,7 +311,7 @@ final class Monks_Central_Connector {
 	 * @return true|WP_Error
 	 */
 	public static function undo( $id ) {
-		if ( ! self::enabled() || ! current_user_can( 'manage_options' ) ) {
+		if ( ! self::running() || ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error( 'cm_forbidden', __( 'You are not allowed to undo changes.', 'monks-central' ), array( 'status' => 403 ) );
 		}
 		return CM_AI_Activity_Log::undo( $id );

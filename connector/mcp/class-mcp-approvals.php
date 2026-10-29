@@ -179,8 +179,8 @@ class CM_MCP_Approvals {
 		global $wpdb;
 		$table = CM_AI_Activity_Log::table();
 		$hash  = self::hash( $uuid, $name, $input );
-		$rows  = $wpdb->get_results(
-			$wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
+		$rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
+			$wpdb->prepare(
 				"SELECT id, status, approval_json FROM %i WHERE connection_uuid = %s AND ability = %s AND status IN ('pending', 'approved') ORDER BY id DESC LIMIT 20",
 				$table,
 				$uuid,
@@ -211,6 +211,7 @@ class CM_MCP_Approvals {
 				return new WP_Error( 'cm_approval_drift', $message, array( 'status' => 409 ) );
 			}
 			// Conditional, so parallel retries can't both spend one approval; the loser asks again.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
 			if ( 1 !== (int) $wpdb->update(
 				$table,
 				array( 'status' => 'used' ),
@@ -412,6 +413,7 @@ class CM_MCP_Approvals {
 				$row['approval']['approved_by'] = wp_get_current_user()->user_login;
 				$update['approval_json']        = wp_json_encode( $row['approval'] );
 			}
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
 			$decided = $wpdb->update(
 				CM_AI_Activity_Log::table(),
 				$update,

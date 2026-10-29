@@ -278,7 +278,7 @@ function cm_content_write_after( $post_id, $input ) {
  * Every term on a post, by taxonomy.
  *
  * @param WP_Post $post Post.
- * @return array<string, array{id:int, name:string, slug:string}[]>
+ * @return object Taxonomy => array{id:int, name:string, slug:string}[]; an object so no terms encode as {}.
  */
 function cm_content_post_terms( $post ) {
 	$out = array();

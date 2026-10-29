@@ -132,7 +132,7 @@ function cm_mcp_app_passwords() {
 	$found = array();
 	foreach ( get_users(
 		array(
-			'meta_key'     => WP_Application_Passwords::USERMETA_KEY_APPLICATION_PASSWORDS,
+			'meta_key'     => WP_Application_Passwords::USERMETA_KEY_APPLICATION_PASSWORDS, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- one query over the users who have app passwords
 			'meta_compare' => 'EXISTS',
 			'fields'       => 'ID',
 			'blog_id'      => 0,

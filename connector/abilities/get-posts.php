@@ -212,7 +212,7 @@ function cm_execute_get_posts( $input = array() ) {
 		if ( ! current_user_can( 'read_post', $post->ID ) ) {
 			continue;
 		}
-		$author = get_userdata( $post->post_author );
+		$author = get_userdata( (int) $post->post_author );
 
 		$posts[] = array(
 			'id'        => $post->ID,

@@ -770,6 +770,7 @@ class CM_MCP_OAuth {
 		}
 		// Rotation: the conditional update lets exactly one caller spend it. A second use means the token leaked,
 		// unless it is a replay grace retry (the client lost the response).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; tokens must never be read from a cache
 		if ( 1 !== (int) $wpdb->update(
 			$table,
 			array(
@@ -805,7 +806,7 @@ class CM_MCP_OAuth {
 		// A rotation still running hasn't inserted its tokens: wait for them (2 s at most). Granting now would
 		// hand out a second live chain beside the one that rotation is about to insert. None came: no grace.
 		$issued = "SELECT 1 FROM {$table} WHERE family = %s AND id > %d AND type = 'refresh' LIMIT 1";
-		for ( $i = 0; ! $wpdb->get_var( $wpdb->prepare( $issued, $family, $id ) ); $i++ ) { // phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- $issued is a fixed query string prepared here; own token table
+		for ( $i = 0; ! $wpdb->get_var( $wpdb->prepare( $issued, $family, $id ) ); $i++ ) { // phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $issued is a fixed query string prepared here; own token table
 			if ( $i >= 20 ) {
 				return false;
 			}
@@ -981,8 +982,9 @@ class CM_MCP_OAuth {
 	public static function family_exists( $user_id, $id ) {
 		global $wpdb;
 		$table = self::table();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; tokens must never be read from a cache
 		return self::is_oauth_id( $id ) && (bool) $wpdb->get_var(
-			$wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; tokens must never be read from a cache
+			$wpdb->prepare(
 				'SELECT 1 FROM %i WHERE family = %s AND user_id = %d AND expires_at > %d LIMIT 1',
 				$table,
 				substr( $id, strlen( self::ID_PREFIX ) ),
@@ -998,8 +1000,9 @@ class CM_MCP_OAuth {
 	public static function grants() {
 		global $wpdb;
 		$table = self::table();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; tokens must never be read from a cache
 		return $wpdb->get_results(
-			$wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; tokens must never be read from a cache
+			$wpdb->prepare(
 				'SELECT family, user_id, MAX(client_name) AS client_name, MIN(created_at) AS created, MAX(last_used) AS last_used FROM %i WHERE expires_at > %d GROUP BY family, user_id ORDER BY created',
 				$table,
 				time()

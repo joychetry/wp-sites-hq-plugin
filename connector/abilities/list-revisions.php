@@ -125,7 +125,7 @@ function cm_execute_list_revisions( $input ) {
 		$out[] = array(
 			'id'     => $r->ID,
 			'date'   => $r->post_modified,
-			'author' => get_the_author_meta( 'display_name', $r->post_author ),
+			'author' => get_the_author_meta( 'display_name', (int) $r->post_author ),
 			'title'  => $r->post_title,
 		);
 	}

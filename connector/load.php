@@ -29,11 +29,12 @@ if ( ! function_exists( 'monks_central_connector_register' ) ) {
 	 *     @type string $version Its own version.
 	 *     @type string $ui      Class implementing Monks_Central_Connector_UI, which renders its screens.
 	 * }
+	 * The copy's library version (version.php) is stored as 'connector'.
 	 */
 	function monks_central_connector_register( array $host ) {
-		$dir             = rtrim( (string) $host['dir'], '/\\' );
-		$host['dir']     = $dir;
-		$host['version'] = (string) include $dir . '/version.php';
+		$dir               = rtrim( (string) $host['dir'], '/\\' );
+		$host['dir']       = $dir;
+		$host['connector'] = (string) include $dir . '/version.php';
 		monks_central_connector_copies( $host );
 	}
 
@@ -60,7 +61,7 @@ if ( ! function_exists( 'monks_central_connector_register' ) ) {
 	function monks_central_connector_pick( array $copies ) {
 		$winner = null;
 		foreach ( $copies as $copy ) {
-			if ( null === $winner || version_compare( $copy['version'], $winner['version'], '>' ) ) {
+			if ( null === $winner || version_compare( $copy['connector'], $winner['connector'], '>' ) ) {
 				$winner = $copy;
 			}
 		}
@@ -75,7 +76,7 @@ if ( ! function_exists( 'monks_central_connector_register' ) ) {
 		if ( null === $copy || defined( 'MONKS_CENTRAL_CONNECTOR_VERSION' ) ) {
 			return;
 		}
-		define( 'MONKS_CENTRAL_CONNECTOR_VERSION', $copy['version'] );
+		define( 'MONKS_CENTRAL_CONNECTOR_VERSION', $copy['connector'] );
 		define( 'MONKS_CENTRAL_CONNECTOR_DIR', $copy['dir'] . '/' );
 		require $copy['dir'] . '/connector.php';
 		Monks_Central_Connector::boot( $copy );

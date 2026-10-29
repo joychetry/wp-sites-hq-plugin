@@ -196,7 +196,7 @@ function cm_execute_get_post_by_id( $input ) {
 		'date_gmt'          => $post->post_date_gmt,
 		'modified'          => $post->post_modified,
 		'modified_gmt'      => $post->post_modified_gmt,
-		'author'            => get_the_author_meta( 'display_name', $post->post_author ),
+		'author'            => get_the_author_meta( 'display_name', (int) $post->post_author ),
 		'author_id'         => (int) $post->post_author,
 		'permalink'         => get_permalink( $post->ID ),
 		'edit_link'         => admin_url( 'post.php?post=' . $post->ID . '&action=edit' ),

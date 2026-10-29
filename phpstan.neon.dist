@@ -4,5 +4,55 @@ parameters:
 		- monks-central.php
 		- uninstall.php
 		- src
+		- connector
+	excludePaths:
+		- connector/tests (?)
 	bootstrapFiles:
 		- tests/php/phpstan-bootstrap.php
+	scanFiles:
+		- tests/php/phpstan-stubs.php
+	ignoreErrors:
+		# The connector keeps Classic Monks' untyped procedural code; every other level 6 rule applies to it.
+		-
+			identifier: missingType.parameter
+			path: connector/*
+		-
+			identifier: missingType.return
+			path: connector/*
+		-
+			identifier: missingType.iterableValue
+			path: connector/*
+		# Defensive checks the WordPress stubs call redundant: Application Passwords from older cores have
+		# no app_id, constants are set per site, plugins_api()/themes_api() return objects for these actions.
+		-
+			identifier: nullCoalesce.offset
+			path: connector/*
+		-
+			identifier: booleanAnd.leftAlwaysFalse
+			path: connector/abilities/get-error-log-since.php
+		-
+			identifier: function.impossibleType
+			path: connector/*
+		-
+			identifier: function.alreadyNarrowedType
+			path: connector/*
+		-
+			identifier: property.nonObject
+			path: connector/*
+		-
+			identifier: phpstanWP.wpConstant.fetch
+			path: connector/abilities/get-site-snapshot.php
+		# get_pages() accepts a post_status array (core casts it); str_replace() maps over error_get_last()'s values.
+		-
+			identifier: argument.type
+			path: connector/abilities/content-write-helpers.php
+		-
+			identifier: argument.type
+			path: connector/abilities/get-http-status.php
+		# $uris is set on the only branch that reaches it; get_param() of a dynamic key.
+		-
+			identifier: variable.undefined
+			path: connector/mcp/class-mcp-oauth.php
+		-
+			identifier: argument.templateType
+			path: connector/mcp/class-mcp-oauth.php

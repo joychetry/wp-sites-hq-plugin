@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
-	bootstrap="vendor/autoload.php"
+	bootstrap="tests/php/bootstrap.php"
 	cacheDirectory=".phpunit.cache"
 	colors="true"
 	failOnWarning="true"
@@ -9,6 +9,9 @@
 	<testsuites>
 		<testsuite name="unit">
 			<directory suffix="Test.php">tests/php</directory>
+		</testsuite>
+		<testsuite name="connector">
+			<directory suffix="Test.php">connector/tests</directory>
 		</testsuite>
 	</testsuites>
 	<source>

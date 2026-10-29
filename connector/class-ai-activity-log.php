@@ -340,6 +340,7 @@ class CM_AI_Activity_Log {
 		$undo = $target['undo'];
 
 		// Claim the row first so a double click or a second admin can't run the undo twice.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
 		if ( 1 !== (int) $wpdb->update(
 			$table,
 			array( 'status' => 'undone' ),
@@ -347,7 +348,7 @@ class CM_AI_Activity_Log {
 				'id'     => $row['id'],
 				'status' => 'ok',
 			)
-		) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
+		) ) {
 			return new WP_Error( 'cm_undo_unavailable', __( 'This change can no longer be undone.', 'monks-central' ) );
 		}
 

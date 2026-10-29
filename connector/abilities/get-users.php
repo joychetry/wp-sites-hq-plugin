@@ -128,7 +128,7 @@ function cm_register_get_users_ability() {
  *
  * @since 1.2.0
  * @param array $input Input parameters.
- * @return array Users and total count.
+ * @return array|WP_Error Users and total count.
  */
 function cm_execute_get_users( $input = array() ) {
 	$args = array(

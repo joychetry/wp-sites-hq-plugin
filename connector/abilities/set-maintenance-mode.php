@@ -76,6 +76,6 @@ function cm_execute_set_maintenance_mode( $input ) {
 	$upgrading = (int) cm_ai_maintenance_upgrading();
 	return array(
 		'on'     => true,
-		'bypass' => 'wp_scrape_key=' . md5( $upgrading ) . '&wp_scrape_nonce=' . $upgrading,
+		'bypass' => 'wp_scrape_key=' . md5( (string) $upgrading ) . '&wp_scrape_nonce=' . $upgrading,
 	);
 }
