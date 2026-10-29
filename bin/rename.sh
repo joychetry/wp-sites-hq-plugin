@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Rename the starter for a new plugin. Run once, right after cloning.
 #   bin/rename.sh <new-slug> "<New Name>" [prefix]
+# A prefix with underscores (acme_tools) becomes acme-tools in handles, CSS classes and
+# the REST namespace, and acmeTools in JS globals.
 # Rewrites slug, text domain, plugin name, PHP namespace, the WPS_ constants, the
 # wps_/wps-/wps/ prefix and the main plugin file name in code files. docs/ and
 # CHANGELOG.md are left alone because they describe the starter and are shared with it.
@@ -19,8 +21,8 @@ fi
 initials=$(echo "$slug" | perl -pe 's/(?:^|-)([a-z])[a-z0-9]*/$1/g')
 [ ${#initials} -ge 3 ] || initials=${slug//-/}
 prefix=${3:-$initials}
-if [[ ! $prefix =~ ^[a-z][a-z0-9]{2,}$ ]]; then
-	echo "Prefix must be 3+ lowercase letters and digits: $prefix" >&2
+if [[ ! $prefix =~ ^[a-z][a-z0-9]*(_[a-z0-9]+)*$ ]] || [ ${#prefix} -lt 3 ]; then
+	echo "Prefix must be 3+ lowercase letters, digits and single underscores: $prefix" >&2
 	exit 1
 fi
 
@@ -29,6 +31,9 @@ cd "$(dirname "$0")/.."
 export SLUG=$slug NAME=$name PREFIX=$prefix
 export UNDER=${slug//-/_}
 export UPPER=${prefix^^}
+export HYPHEN=${prefix//_/-}
+CAMEL=$(echo "$prefix" | perl -pe 's/_([a-z0-9])/\U$1/g')
+export CAMEL
 PASCAL=$(echo "$slug" | perl -pe 's/(?:^|-)([a-z0-9])/\U$1/g')
 export PASCAL
 
@@ -56,8 +61,9 @@ while IFS= read -r file; do
 		s/wp_plugin_starter/$ENV{UNDER}/g;
 		s/WP Plugin Starter/$ENV{NAME}/g;
 		s/\bWPS_(?=[A-Z])/$ENV{UPPER}_/g;
-		s/\bwps(?=[_\/-])/$ENV{PREFIX}/g;
-		s/\bwps(?=[A-Z][a-z])/$ENV{PREFIX}/g;
+		s/\bwps(?=_)/$ENV{PREFIX}/g;
+		s/\bwps(?=[\/-])/$ENV{HYPHEN}/g;
+		s/\bwps(?=[A-Z][a-z])/$ENV{CAMEL}/g;
 	' "$file"
 	count=$((count + 1))
 done <<< "$files"
@@ -84,6 +90,6 @@ else
 	format_note='Run `npm install && npm run format` next: Prettier rewraps lines whose names changed length.'
 fi
 
-echo "Renamed to $NAME ($SLUG), namespace $PASCAL, prefix ${PREFIX}_ / ${PREFIX}- / ${UPPER}_, in $count files."
+echo "Renamed to $NAME ($SLUG), namespace $PASCAL, prefix ${PREFIX}_ / ${HYPHEN}- / ${CAMEL} / ${UPPER}_, in $count files."
 [ -z "$format_note" ] || echo "$format_note"
 echo "Review with: git diff --stat"
