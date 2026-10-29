@@ -36,6 +36,31 @@ check 'revoking the refresh token is 200' "$(revoke_tok -d "token=$RT" -d "clien
 check 'its access token is 401 on MCP'  "$(mcp_code "$AT")" 401
 check 'response is no-store'            "$(curl -sk -D - -o /dev/null -d token=x -d "client_id=$CID" "$OA/revoke")" '~Cache-Control: no-store'
 
+# Revoking the last connection of an agent account the host made (cm_mcp_agent) deletes the account; its posts go to the admin.
+A=$(wpe 'echo wp_insert_user(["user_login" => "cm_agent_test", "user_pass" => wp_generate_password(), "role" => "editor"]);')
+wpe "update_user_meta($A, 'cm_mcp_agent', 1);" >/dev/null
+pw() { wpe "echo WP_Application_Passwords::create_new_application_password($1, ['name' => '$2', 'app_id' => CM_MCP_APP_ID])[1]['uuid'];"; }
+P1=$(pw "$A" agent1)
+P2=$(pw "$A" agent2)
+AP=$(wpe "echo wp_insert_post(['post_title' => 'cm agent post', 'post_author' => $A]);")
+flag() { wpe "wp_set_current_user(1); foreach (Monks_Central_Connector::connections() as \$r) { if (\$r['uuid'] === '$1') { echo \$r['agent_user'] ? 'yes' : 'no'; } }"; }
+rv() { wpe "wp_set_current_user(1); \$r = Monks_Central_Connector::revoke($1, '$2'); echo is_wp_error(\$r) ? \$r->get_error_code() : 'ok';"; }
+exists() { wpe "echo get_userdata($1) ? 'yes' : 'no';"; }
+check 'agent with two connections is not flagged' "$(flag "$P1")" no
+check 'revoking one of two connections'           "$(rv "$A" "$P1")" ok
+check '... keeps the agent account'               "$(exists "$A")" yes
+check 'its last connection is flagged'            "$(flag "$P2")" yes
+check 'revoking the last connection'              "$(rv "$A" "$P2")" ok
+check '... deletes the agent account'             "$(exists "$A")" no
+check "... and gives its post to the admin"       "$(wpe "echo get_post_field('post_author', $AP);")" 1
+# A user the host did not make for an agent keeps its account.
+H=$(wpe 'echo wp_insert_user(["user_login" => "cm_human_test", "user_pass" => wp_generate_password(), "role" => "editor"]);')
+P3=$(pw "$H" human1)
+check 'a non-agent connection is not flagged'     "$(flag "$P3")" no
+check 'revoking it'                               "$(rv "$H" "$P3")" ok
+check '... keeps the user'                        "$(exists "$H")" yes
+wpe "wp_delete_post($AP, true); require_once ABSPATH . 'wp-admin/includes/user.php'; wp_delete_user($H);" >/dev/null
+
 # Not tested here: the HTTPS refusal (wp_is_application_passwords_supported() is always true on a local site).
 
 done_checks

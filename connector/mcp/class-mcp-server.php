@@ -31,6 +31,9 @@ class CM_MCP_Server {
 	// User meta on the connection owner: app-password uuid => scope key.
 	const SCOPES_META = 'cm_mcp_scopes';
 
+	// Set by the host on users it creates for an agent; they exist only for their MCP connections.
+	const AGENT_META = 'cm_mcp_agent';
+
 	// Categories each scope adds on top of read-only tools. 'full' allows everything.
 	const SCOPE_CATEGORIES = array(
 		'read'    => array(),
@@ -993,6 +996,30 @@ class CM_MCP_Server {
 		);
 	}
 
+	/**
+	 * An agent account the host created whose only remaining MCP connections are at most $remaining.
+	 */
+	public static function is_lone_agent( $user_id, $remaining = 0 ) {
+		if ( ! get_user_meta( $user_id, self::AGENT_META, true ) ) {
+			return false;
+		}
+		$mine = array_filter(
+			WP_Application_Passwords::get_user_application_passwords( $user_id ),
+			function ( $item ) {
+				return self::APP_ID === ( $item['app_id'] ?? '' );
+			}
+		);
+		if ( count( $mine ) > $remaining ) {
+			return false;
+		}
+		foreach ( CM_MCP_OAuth::grants() as $grant ) {
+			if ( (int) $grant->user_id === (int) $user_id ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private static function is_mcp_password( $user_id, $uuid ) {
 		$item = WP_Application_Passwords::get_user_application_password( $user_id, $uuid );
 		return $item && self::APP_ID === ( $item['app_id'] ?? '' );
@@ -1105,6 +1132,7 @@ class CM_MCP_Server {
 			'toolsets'    => self::connection_toolsets( $user->ID, $id ),
 			'namespaces'  => self::connection_namespaces( $user->ID, $id ),
 			'tool_count'  => self::tool_count( $user->ID, $id ),
+			'agent_user'  => 'app_password' === $kind && self::is_lone_agent( $user->ID, 1 ),
 			'last_action' => class_exists( 'CM_AI_Activity_Log' ) ? CM_AI_Activity_Log::last_for_connection( $id ) : null,
 		);
 	}

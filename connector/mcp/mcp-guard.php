@@ -67,6 +67,17 @@ function cm_mcp_block_xmlrpc( $error, $user, $item ) {
 add_action( 'wp_authenticate_application_password_errors', 'cm_mcp_block_xmlrpc', 10, 3 );
 
 /**
+ * MCP credentials never get unfiltered_html. Otherwise a tool that needs no approval (create-posts,
+ * create-comment) could store a script that runs in an admin's browser and approves the agent's own requests.
+ * Skipped before init: auth can resolve before $wp_rewrite exists and the OAuth check builds a REST URL.
+ * kses_init() runs again on init, before any tool, so the cap is still denied where it matters.
+ */
+function cm_mcp_deny_unfiltered_html( $caps, $cap ) {
+	return 'unfiltered_html' === $cap && did_action( 'init' ) && cm_mcp_is_mcp_credential() ? array( 'do_not_allow' ) : $caps;
+}
+add_filter( 'map_meta_cap', 'cm_mcp_deny_unfiltered_html', 10, 2 );
+
+/**
  * Some hosts strip the Authorization header. Accept the same Basic value from
  * X-CM-Authorization on the MCP route. Runs before core's app-password check (20).
  */

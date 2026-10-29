@@ -194,7 +194,7 @@ final class Monks_Central_Connector {
 	/**
 	 * Connected apps, each with kind, user_id, uuid (the connection id), name, user, role, created,
 	 * last_used, scope, scope_label, trusted, operator (null, or whether it skips the always-ask tools)
-	 * and last_action. Empty while the connector is off.
+	 * last_action and agent_user (revoking it also deletes the host's agent account). Empty while the connector is off.
 	 *
 	 * @return array[]
 	 */
@@ -260,6 +260,8 @@ final class Monks_Central_Connector {
 
 	/**
 	 * Revoke a connection: the app is signed out at once.
+	 * Revoking the last connection of an agent account the host created (CM_MCP_Server::AGENT_META) deletes
+	 * that account too, its content reassigned to the current user.
 	 *
 	 * @param int    $user_id Owner.
 	 * @param string $id      Connection id.
@@ -276,6 +278,11 @@ final class Monks_Central_Connector {
 			// An MCP Application Password left by Classic Monks Pro.
 			WP_Application_Passwords::delete_application_password( $user_id, $id );
 			CM_MCP_Server::forget_connection( $user_id, $id );
+			if ( CM_MCP_Server::is_lone_agent( $user_id ) && current_user_can( 'delete_users' ) && get_current_user_id() !== $user_id ) {
+				require_once ABSPATH . 'wp-admin/includes/user.php';
+				// Its posts go to the admin revoking it; nothing the agent made is lost.
+				wp_delete_user( $user_id, get_current_user_id() );
+			}
 		}
 		return true;
 	}

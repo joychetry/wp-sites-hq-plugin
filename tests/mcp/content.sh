@@ -3,11 +3,12 @@
 . "$(dirname "$0")/lib.sh"
 wpe "update_user_meta(1, 'cm_mcp_trusted', ['$MCP_UUID' => true]);" >/dev/null
 
-# create-post / update-post keep backslashes and admin HTML, and need publish_posts to publish.
-C=$(call create-post '{"title":"cm slash test","content":"<p>a\\b</p><iframe src=\"https://example.com/\"></iframe>"}')
+# create-post / update-post keep backslashes, filter HTML even for admins (MCP has no unfiltered_html), and need publish_posts to publish.
+C=$(call create-post '{"title":"cm slash test","content":"<p>a\\b</p><script>alert(1)</script><iframe src=\"https://example.com/\"></iframe>"}')
 CP=$(sed -E 's/.*"id":([0-9]+).*/\1/' <<<"$C")
-check 'create-post keeps backslashes'        "$(wpe "echo get_post_field('post_content', $CP);")" '<p>a\b</p><iframe src="https://example.com/"></iframe>'
-check 'create-post keeps admin iframe'       "$(wpe "echo get_post_field('post_content', $CP);")" '~<iframe'
+check 'create-post keeps backslashes'        "$(wpe "echo get_post_field('post_content', $CP);")" '~<p>a\b</p>'
+check 'create-post strips admin script'      "$(wpe "echo get_post_field('post_content', $CP);")" '!~<script'
+check 'create-post strips admin iframe'      "$(wpe "echo get_post_field('post_content', $CP);")" '!~<iframe'
 call update-post "{\"post_id\":$CP,\"content\":\"<p>c\\\\d</p>\"}" >/dev/null
 check 'update-post keeps backslashes'        "$(wpe "echo get_post_field('post_content', $CP);")" '<p>c\d</p>'
 U=$(wpe 'echo wp_insert_user(["user_login" => "cm_contrib_test", "user_pass" => wp_generate_password(), "role" => "contributor"]);')

@@ -3,6 +3,15 @@
 All notable changes to the Monks Central plugin. Versions follow semver. The
 connector library in `connector/` has its own version, named in each entry.
 
+## Unreleased
+
+- Connector 1.1.1. MCP credentials never get `unfiltered_html`, so content an
+  agent writes is filtered even for administrators and cannot carry script that
+  approves its own requests. Revoking the last connection of an agent account
+  the host plugin created (`cm_mcp_agent` user meta) deletes that account and
+  gives its content to the administrator revoking it; connection rows carry
+  `agent_user` to say so beforehand.
+
 ## 0.1.0 - 2026-10-29
 
 First release: the site connector for the Monks Central app.
