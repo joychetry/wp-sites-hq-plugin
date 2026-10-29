@@ -3,14 +3,16 @@
 All notable changes to the Monks Central plugin. Versions follow semver. The
 connector library in `connector/` has its own version, named in each entry.
 
-## Unreleased
+## 0.1.1 - 2026-10-29
 
-- Connector 1.1.1. MCP credentials never get `unfiltered_html`, so content an
-  agent writes is filtered even for administrators and cannot carry script that
-  approves its own requests. Revoking the last connection of an agent account
-  the host plugin created (`cm_mcp_agent` user meta) deletes that account and
-  gives its content to the administrator revoking it; connection rows carry
-  `agent_user` to say so beforehand.
+- Connector 1.1.1. MCP credentials can no longer post unfiltered HTML, even for
+  administrators, so content an agent writes cannot carry script that approves
+  its own requests.
+- Connector 1.1.1. Revoking the last connection of an agent account the host
+  plugin created deletes that account and gives its content to the
+  administrator revoking it. Connection rows say so beforehand (`agent_user`).
+- Tests: the pending-approval count no longer fails when a request left over
+  from an earlier suite expires during the test.
 
 ## 0.1.0 - 2026-10-29
 

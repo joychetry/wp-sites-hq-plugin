@@ -3,7 +3,7 @@
  * Plugin Name:       Monks Central
  * Plugin URI:        https://github.com/joychetry/monks-central-wp
  * Description:       Connects this site to the Monks Central app, so you can manage it with your other WordPress sites from one place.
- * Version:           0.1.0
+ * Version:           0.1.1
  * Requires at least: 7.1
  * Requires PHP:      8.1
  * Author:            Good Monks
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MONKS_CENTRAL_VERSION', '0.1.0' );
+define( 'MONKS_CENTRAL_VERSION', '0.1.1' );
 define( 'MONKS_CENTRAL_FILE', __FILE__ );
 define( 'MONKS_CENTRAL_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MONKS_CENTRAL_URL', plugin_dir_url( __FILE__ ) );
