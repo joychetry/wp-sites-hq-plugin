@@ -1,8 +1,8 @@
 <?php
 /**
- * Classic Monks MCP credential guard
+ * Monks Central connector: MCP credential guard
  *
- * Always loaded, even when Connect to Monks Central is off: an MCP Application
+ * Always loaded by the running copy, even when the connector is off: an MCP Application
  * Password minted earlier (by Classic Monks Pro) still exists and core would
  * otherwise accept it on every REST route and over XML-RPC.
  *
@@ -190,13 +190,13 @@ function cm_mcp_revoke_all_connections() {
 		delete_metadata( 'user', 0, $key, '', true );
 	}
 }
-register_deactivation_hook( CM_PLUGIN_FILE, 'cm_mcp_revoke_all_connections' );
 
 /**
  * Warn on the Plugins screen that deactivating disconnects the AI agents.
+ * Only while one plugin bundles the connector: with another one active, connections stay.
  */
 function cm_mcp_deactivation_notice() {
-	if ( ! current_user_can( 'activate_plugins' ) ) {
+	if ( ! current_user_can( 'activate_plugins' ) || count( monks_central_connector_copies() ) > 1 ) {
 		return;
 	}
 	global $wpdb;
@@ -216,7 +216,7 @@ function cm_mcp_deactivation_notice() {
 			$count,
 			'monks-central'
 		),
-		cm_get_plugin_name(),
+		Monks_Central_Connector::host()['name'],
 		$count
 	);
 	if ( is_multisite() ) {

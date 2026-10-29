@@ -22,7 +22,7 @@ function cm_register_get_hq_status_ability() {
 		array(
 			'label'               => __( 'Get HQ Status', 'monks-central' ),
 			'description'         => __(
-				'Returns a short status of this site for a dashboard that manages several sites: Classic Monks, WordPress and PHP versions, MCP protocol versions, whether approvals work, which modules (WooCommerce, Bricks) are on, your role, this connection\'s access level and tool groups, and how many approval requests you can decide.',
+				'Returns a short status of this site for a dashboard that manages several sites: the plugin running the connection, the connector version and every plugin that bundles it, WordPress and PHP versions, MCP protocol versions, whether approvals work, which modules (WooCommerce, Bricks) are on, your role, this connection\'s access level and tool groups, and how many approval requests you can decide.',
 				'monks-central'
 			),
 			'category'            => 'classic-monks',
@@ -35,6 +35,7 @@ function cm_register_get_hq_status_ability() {
 				'type'       => 'object',
 				'properties' => array(
 					'plugin'            => array( 'type' => 'object' ),
+					'connector'         => array( 'type' => 'object' ),
 					'wordpress'         => array( 'type' => 'object' ),
 					'php'               => array( 'type' => 'object' ),
 					'mcp'               => array( 'type' => 'object' ),
@@ -67,7 +68,14 @@ function cm_execute_get_hq_status( $input = array() ) {
 	$connection = $mcp ? CM_MCP_Server::current_connection() : null;
 
 	return array(
-		'plugin'            => array( 'version' => CM_VERSION ),
+		'plugin'            => array(
+			'name'    => Monks_Central_Connector::host()['name'],
+			'version' => Monks_Central_Connector::host()['version'],
+		),
+		'connector'         => array(
+			'version' => MONKS_CENTRAL_CONNECTOR_VERSION,
+			'hosts'   => Monks_Central_Connector::state()['hosts'],
+		),
 		'wordpress'         => array(
 			'version'     => get_bloginfo( 'version' ),
 			'multisite'   => is_multisite(),
@@ -80,9 +88,17 @@ function cm_execute_get_hq_status( $input = array() ) {
 			// Approvals, undo and the activity log need the 7.1 ability hooks.
 			'approvals'         => version_compare( get_bloginfo( 'version' ), '7.1', '>=' ),
 		),
-		'modules'           => array(
-			'woocommerce' => cm_is_tab_enabled_woocommerce(),
-			'bricks'      => cm_is_tab_enabled_bricks(),
+		/**
+		 * Filters which integrations are on. A plugin that bundles the connector can report its own modules.
+		 *
+		 * @param array $modules Module => on.
+		 */
+		'modules'           => apply_filters(
+			'monks_central_hq_modules',
+			array(
+				'woocommerce' => class_exists( 'WooCommerce' ),
+				'bricks'      => defined( 'BRICKS_VERSION' ),
+			)
 		),
 		'user'              => array(
 			'id'                 => $user->ID,

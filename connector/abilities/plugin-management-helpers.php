@@ -279,14 +279,14 @@ function cm_ai_resolve_plugin_install_source( $input ) {
 }
 
 /**
- * Check whether the target plugin is the current Classic Monks plugin.
+ * Check whether the target plugin is the one running the connector.
  *
  * @since 1.2.0
  * @param string $plugin_file Plugin file.
  * @return bool
  */
 function cm_ai_is_current_plugin( $plugin_file ) {
-	return plugin_basename( (string) $plugin_file ) === plugin_basename( CM_PLUGIN_FILE );
+	return plugin_basename( (string) $plugin_file ) === plugin_basename( Monks_Central_Connector::host()['file'] );
 }
 
 /**

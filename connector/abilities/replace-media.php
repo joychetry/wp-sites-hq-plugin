@@ -149,7 +149,7 @@ function cm_execute_replace_media( $input ) {
 
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	require_once ABSPATH . 'wp-admin/includes/image.php';
-	require_once CM_FUNCTIONS_DIR . 'monks-central/media-import-helpers.php';
+	require_once dirname( __DIR__ ) . '/media-import-helpers.php';
 
 	$file = cm_ai_prepare_media_file( $state['path'], $state['name'] );
 	if ( ! is_wp_error( $file ) && ! cm_media_same_family( get_post_mime_type( $id ), $file['type'] ) ) {

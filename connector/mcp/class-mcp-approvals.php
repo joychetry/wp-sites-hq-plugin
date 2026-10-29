@@ -344,7 +344,6 @@ class CM_MCP_Approvals {
 		}
 
 		$ability = wp_get_ability( $row['ability'] );
-		$label   = $ability ? $ability->get_label() : $row['ability'];
 		$user    = get_userdata( (int) $row['user_id'] );
 		$pending = 'pending' === $row['status'] && $row['approval']['expires'] >= time();
 		// Requests made before 'input' was stored fall back to the (possibly truncated) log copy.
@@ -355,76 +354,35 @@ class CM_MCP_Approvals {
 			'declined' => __( 'Declined.', 'monks-central' ),
 			'used'     => __( 'Approved and already run.', 'monks-central' ),
 			'ok'       => __( 'Approved and already run.', 'monks-central' ),
-			'error'    => __( 'Approved and run, but it failed. The activity log on the Monks Central page has the reason.', 'monks-central' ),
+			'error'    => __( 'Approved and run, but it failed. The activity log on the Monks Central connection screen has the reason.', 'monks-central' ),
 			'undone'   => __( 'Approved and run, then undone.', 'monks-central' ),
 			'expired'  => __( 'This request expired. The agent can ask again.', 'monks-central' ),
 		);
-		?>
-		<div class="wrap cm-ai-approve">
-			<h1><?php esc_html_e( 'Approve AI change', 'monks-central' ); ?></h1>
-			<div class="cm-section">
-				<div class="cm-section-content">
-					<p>
-						<?php
-						printf(
-							/* translators: 1: connection name, 2: username, 3: tool name */
-							esc_html__( '%1$s, signed in as %2$s, wants to run %3$s.', 'monks-central' ),
-							'<strong>' . esc_html( $row['client_label'] ) . '</strong>',
-							'<strong>' . esc_html( $user ? $user->user_login : '?' ) . '</strong>',
-							'<strong>' . esc_html( $label ) . '</strong>'
-						);
-						?>
-					</p>
 
-					<h2><?php esc_html_e( 'Arguments', 'monks-central' ); ?></h2>
-					<pre class="cm-ai-approve__json"><?php echo esc_html( $input ); ?></pre>
-
-					<?php if ( null !== $row['approval']['preview'] ) : ?>
-					<h2><?php esc_html_e( 'What it affects now', 'monks-central' ); ?></h2>
-					<pre class="cm-ai-approve__json"><?php echo esc_html( wp_json_encode( $row['approval']['preview'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) ); ?></pre>
-					<?php else : ?>
-					<p class="cm-ai-approve__no-preview">
-						<?php
-						printf(
-							/* translators: %d: minutes */
-							esc_html__( 'No live preview for this tool. You are approving these arguments only, and the site may have changed since the request. Once approved, it must run within %d minutes.', 'monks-central' ),
-							(int) ( self::BLIND_RUN_TTL / MINUTE_IN_SECONDS )
-						);
-						?>
-					</p>
-					<?php endif; ?>
-
-					<?php if ( $pending ) : ?>
-					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-						<input type="hidden" name="action" value="cm_ai_decide">
-						<input type="hidden" name="op" value="<?php echo esc_attr( $id ); ?>">
-						<?php wp_nonce_field( 'cm_ai_decide_' . $id ); ?>
-						<?php if ( ! ( $ability && self::always_asks( $ability, $row['approval']['input'] ?? array() ) ) ) : ?>
-						<p>
-							<label>
-								<input type="checkbox" name="similar" value="1">
-								<?php
-								printf(
-									/* translators: %d: number of calls */
-									esc_html__( 'Also approve this tool for this connection for 30 minutes (up to %d calls).', 'monks-central' ),
-									(int) self::SIMILAR_MAX
-								);
-								?>
-							</label>
-						</p>
-						<?php endif; ?>
-						<p>
-							<button type="submit" name="decision" value="approve" class="button button-primary"><?php esc_html_e( 'Approve', 'monks-central' ); ?></button>
-							<button type="submit" name="decision" value="decline" class="button"><?php esc_html_e( 'Decline', 'monks-central' ); ?></button>
-						</p>
-					</form>
-					<?php else : ?>
-					<div class="notice notice-info inline"><p><?php echo esc_html( $states[ $row['status'] ] ?? $states['expired'] ); ?></p></div>
-					<?php endif; ?>
-				</div>
-			</div>
-		</div>
-		<?php
+		$ui = Monks_Central_Connector::ui();
+		if ( ! $ui ) {
+			wp_die( esc_html__( 'The plugin running the connection has no approval page.', 'monks-central' ), '', 500 );
+		}
+		$ui->render_approval(
+			array(
+				'id'          => $id,
+				'client'      => $row['client_label'],
+				'user'        => $user ? $user->user_login : '?',
+				'tool'        => $ability ? $ability->get_label() : $row['ability'],
+				'input'       => $input,
+				'preview'     => null !== $row['approval']['preview'] ? wp_json_encode( $row['approval']['preview'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) : null,
+				'blind_ttl'   => (int) ( self::BLIND_RUN_TTL / MINUTE_IN_SECONDS ),
+				'pending'     => $pending,
+				'status'      => $states[ $row['status'] ] ?? $states['expired'],
+				'similar_max' => $ability && self::always_asks( $ability, $row['approval']['input'] ?? array() ) ? 0 : self::SIMILAR_MAX,
+				'action'      => admin_url( 'admin-post.php' ),
+				'fields'      => array(
+					'action'   => 'cm_ai_decide',
+					'op'       => $id,
+					'_wpnonce' => wp_create_nonce( 'cm_ai_decide_' . $id ),
+				),
+			)
+		);
 	}
 
 	public static function handle_decision() {

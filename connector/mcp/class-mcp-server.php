@@ -112,7 +112,7 @@ class CM_MCP_Server {
 		return array(
 			'content' => __( 'Content', 'monks-central' ),
 			'media'   => __( 'Media', 'monks-central' ),
-			'modules' => __( 'Classic Monks status', 'monks-central' ),
+			'modules' => __( 'Monks Central status', 'monks-central' ),
 			'site'    => __( 'Site admin', 'monks-central' ),
 		);
 	}
@@ -654,9 +654,9 @@ class CM_MCP_Server {
 
 	private static function server_info() {
 		return array(
-			'name'    => sanitize_title( cm_get_plugin_name() ),
-			'title'   => cm_get_plugin_name(),
-			'version' => CM_VERSION,
+			'name'    => sanitize_title( Monks_Central_Connector::host()['name'] ),
+			'title'   => Monks_Central_Connector::host()['name'],
+			'version' => MONKS_CENTRAL_CONNECTOR_VERSION,
 		);
 	}
 
@@ -898,6 +898,9 @@ class CM_MCP_Server {
 			'cm_approval_required'        => array( 'approval', true, 'Give the user approve_url. After they approve, call the same tool again with exactly the same arguments.' ),
 			'cm_approval_drift'           => array( 'approval', true, 'The target changed after approval. Re-read it, then call again to request a new approval.' ),
 			'cm_approval_declined'        => array( 'approval', false, 'The user declined. Do not retry unless they ask again.' ),
+			'cm_undo_unavailable'         => array( 'validation', false, 'Only rows with can_undo true in list-ai-activity can be undone. Do not retry.' ),
+			'cm_undo_forbidden'           => array( 'capability', false, 'Undo needs the permissions of the original change. Do not retry.' ),
+			'cm_undo_drift'               => array( 'tool', false, 'The target was edited again after this change. Undo the newer change first or tell the user.' ),
 		);
 		$code                            = (string) $error->get_error_code();
 		list( $cause, $retry_ok, $hint ) = $causes[ $code ] ?? array( 'tool', true, 'Check the message; retry once if it looks transient.' );
@@ -1016,7 +1019,7 @@ class CM_MCP_Server {
 					continue;
 				}
 				// The prefix labels it on the profile screen; redundant inside the MCP table.
-				$name   = preg_replace( '/^' . preg_quote( cm_get_plugin_name() . ' MCP · ', '/' ) . '/u', '', $item['name'] );
+				$name   = preg_replace( '/^.+? MCP · /u', '', $item['name'] );
 				$rows[] = self::connection_row( 'app_password', $user, $item['uuid'], $name, $item['created'], $item['last_used'] );
 			}
 		}

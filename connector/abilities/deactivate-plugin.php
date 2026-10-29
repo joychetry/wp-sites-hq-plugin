@@ -69,7 +69,7 @@ function cm_register_deactivate_plugin_ability() {
 					'readonly'     => false,
 					'destructive'  => true,
 					'idempotent'   => true,
-					'instructions' => 'Deactivates an installed plugin. Do not use this on the active Classic Monks plugin.',
+					'instructions' => 'Deactivates an installed plugin. Do not use this on the plugin that runs the connection.',
 				),
 				'show_in_rest' => true,
 			),
@@ -100,7 +100,7 @@ function cm_execute_deactivate_plugin( $input ) {
 	if ( cm_ai_is_current_plugin( $plugin_file ) ) {
 		return new WP_Error(
 			'cm_plugin_protected',
-			__( 'Classic Monks cannot deactivate itself from the AI chat session.', 'monks-central' ),
+			__( 'This plugin runs the connection, so it cannot be deactivated over it.', 'monks-central' ),
 			array( 'status' => 409 )
 		);
 	}

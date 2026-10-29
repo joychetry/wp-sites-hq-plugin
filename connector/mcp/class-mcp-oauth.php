@@ -557,15 +557,71 @@ class CM_MCP_OAuth {
 			? self::validate_request( wp_unslash( $_GET ) ) // phpcs:ignore WordPress.Security.NonceVerification -- read-only render; the decision is nonce-checked
 			: new WP_Error( 'access_denied', __( 'Your account cannot connect AI apps to this site. Sign in as an author, editor or administrator.', 'monks-central' ) );
 
-		$suffix = cm_asset_min_suffix();
-		wp_register_style( 'cm-framework', CM_PLUGIN_URL . 'assets/css/cm-framework' . $suffix . '.css', array(), CM_VERSION );
-		wp_register_style( 'cm-mcp-oauth', CM_PLUGIN_URL . 'functions/monks-central/mcp/assets/oauth-consent.css', array( 'cm-framework' ), CM_VERSION );
-
+		$ui = Monks_Central_Connector::ui();
+		if ( ! $ui ) {
+			wp_die( esc_html__( 'The plugin running the connection has no consent page.', 'monks-central' ), '', 500 );
+		}
 		nocache_headers();
 		header( 'X-Frame-Options: DENY' );
 		header( 'Content-Security-Policy: frame-ancestors \'none\'' );
-		require __DIR__ . '/views/oauth-consent.php';
+		$ui->render_consent( self::consent_view( $ctx, wp_unslash( $_GET ) ) ); // phpcs:ignore WordPress.Security.NonceVerification -- read-only render; the decision is nonce-checked
 		exit;
+	}
+
+	/**
+	 * What the host's consent page shows and posts.
+	 *
+	 * @param array|WP_Error $ctx Validated authorization request, or why it can't proceed.
+	 * @param array          $q   The request's query.
+	 * @return array See Monks_Central_Connector_UI::render_consent().
+	 */
+	private static function consent_view( $ctx, array $q ) {
+		$view = array(
+			'error' => is_wp_error( $ctx ) ? $ctx->get_error_message() : null,
+			'site'  => get_bloginfo( 'name' ),
+			'user'  => wp_get_current_user()->user_login,
+		);
+		if ( is_wp_error( $ctx ) ) {
+			return $view;
+		}
+		$client = $ctx['client'];
+		$host   = (string) wp_parse_url( $ctx['redirect_uri'], PHP_URL_HOST );
+		$scheme = strtolower( (string) wp_parse_url( $ctx['redirect_uri'], PHP_URL_SCHEME ) );
+		$local  = 'http' === $scheme;
+		$app    = ! in_array( $scheme, array( 'http', 'https' ), true );
+		$fields = array( 'action' => 'cm_mcp_oauth_decide' );
+		foreach ( array( 'client_id', 'redirect_uri', 'state', 'code_challenge', 'code_challenge_method', 'resource', 'response_type' ) as $key ) {
+			if ( isset( $q[ $key ] ) && is_string( $q[ $key ] ) ) {
+				$fields[ $key ] = $q[ $key ];
+			}
+		}
+		$fields['_wpnonce'] = wp_create_nonce( self::nonce_action( $q ) );
+		$scopes             = array();
+		foreach ( CM_MCP_Server::scopes() as $key => $label ) {
+			$scopes[ $key ] = array(
+				'label'       => $label,
+				'description' => CM_MCP_Server::scope_descriptions()[ $key ] ?? '',
+			);
+		}
+		$warning = '';
+		if ( $local ) {
+			$warning = __( 'This app returns to a program on your own computer. Only continue if you just started this connection yourself, from an app you trust.', 'monks-central' );
+		} elseif ( $app ) {
+			$warning = __( 'This app returns to an app installed on your computer. Only continue if you just started this connection yourself.', 'monks-central' );
+		}
+		return $view + array(
+			'app'              => $client['name'] ? $client['name'] : ( $host ? $host : $scheme ),
+			'verified_host'    => (string) $client['verified_host'],
+			'returns_to'       => $app ? $scheme . '://' . $host : $host,
+			'warning'          => $warning,
+			'action'           => admin_url( 'admin-post.php' ),
+			'fields'           => $fields,
+			'scopes'           => $scopes,
+			'default_scope'    => 'content',
+			'toolsets'         => CM_MCP_Server::toolsets(),
+			'default_toolsets' => CM_MCP_Server::DEFAULT_TOOLSETS,
+			'operator'         => current_user_can( 'manage_options' ) && self::operator_possible( $ctx['redirect_uri'] ),
+		);
 	}
 
 	public static function handle_decision() {
