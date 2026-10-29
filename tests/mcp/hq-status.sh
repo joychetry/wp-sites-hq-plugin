@@ -26,7 +26,10 @@ check 'caller role reported'            "$(sc .user.roles)" '["administrator"]'
 check 'caller can manage options'       "$(sc .user.can_manage_options)" true
 check 'connection kind'                 "$(sc .connection.kind)" '"app_password"'
 check 'connection scope'                "$(sc .connection.scope)" '"full"'
-P0=$(sc .pending_approvals) # earlier suites may leave requests pending
+# Requests earlier suites left pending can expire between the two reads below and skew the count, so expire them now.
+wpe "global \$wpdb; \$wpdb->query(\"UPDATE {\$wpdb->prefix}cm_ai_log SET status = 'expired' WHERE status = 'pending'\");" >/dev/null
+S=$(call get-hq-status)
+P0=$(sc .pending_approvals)
 check 'pending approvals is a count'    "$P0" '!null'
 
 # A pending approval the caller may decide is counted.
