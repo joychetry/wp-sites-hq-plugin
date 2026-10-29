@@ -6,5 +6,11 @@
 const [ scripts ] = require( '@wordpress/scripts/config/webpack.config' );
 
 module.exports = [
-	{ ...scripts, entry: { admin: './assets-src/admin/index.js' } },
+	{
+		...scripts,
+		entry: {
+			admin: './assets-src/admin/index.js',
+			consent: './assets-src/consent/index.js',
+		},
+	},
 ];

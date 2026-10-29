@@ -25,4 +25,16 @@ define( 'MONKS_CENTRAL_URL', plugin_dir_url( __FILE__ ) );
 if ( is_readable( MONKS_CENTRAL_DIR . 'vendor/autoload.php' ) ) {
 	require MONKS_CENTRAL_DIR . 'vendor/autoload.php';
 	add_action( 'plugins_loaded', array( MonksCentral\Plugin::class, 'boot' ) );
+
+	// The shared connector: every plugin that bundles it registers its copy; the highest version runs.
+	require_once MONKS_CENTRAL_DIR . 'connector/load.php';
+	monks_central_connector_register(
+		array(
+			'dir'     => MONKS_CENTRAL_DIR . 'connector',
+			'file'    => __FILE__,
+			'name'    => 'Monks Central',
+			'version' => MONKS_CENTRAL_VERSION,
+			'ui'      => MonksCentral\Connector\Ui::class,
+		)
+	);
 }

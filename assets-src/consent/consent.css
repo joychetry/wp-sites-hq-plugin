@@ -1,0 +1,152 @@
+/* OAuth consent page. Everything is scoped under .monks-central-consent. */
+.monks-central-consent {
+	--monks-central-consent-accent: var(--wp-admin-theme-color, #3858e9);
+	--monks-central-consent-text: #1e1e1e;
+	--monks-central-consent-muted: #757575;
+	--monks-central-consent-border: #e0e0e0;
+	--monks-central-consent-bg: #f0f0f1;
+	--monks-central-consent-radius: 8px;
+
+	margin: 0;
+	min-height: 100vh;
+	background: var(--monks-central-consent-bg);
+	color: var(--monks-central-consent-text);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.monks-central-consent__card {
+	box-sizing: border-box;
+	max-width: 480px;
+	margin: clamp(16px, 8vh, 72px) auto;
+	padding: 32px;
+	background: #fff;
+	border: 1px solid var(--monks-central-consent-border);
+	border-radius: var(--monks-central-consent-radius);
+}
+
+.monks-central-consent h1 {
+	margin: 0 0 8px;
+	font-size: 22px;
+	font-weight: 600;
+	line-height: 1.25;
+	text-wrap: balance;
+}
+
+.monks-central-consent__site {
+	margin: 0 0 20px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--monks-central-consent-muted);
+}
+
+.monks-central-consent__app {
+	color: var(--monks-central-consent-accent);
+}
+
+.monks-central-consent__lede {
+	margin: 0 0 24px;
+	color: var(--monks-central-consent-muted);
+}
+
+.monks-central-consent__facts {
+	margin: 0 0 20px;
+	border-top: 1px solid var(--monks-central-consent-border);
+}
+
+.monks-central-consent__facts > div {
+	display: flex;
+	gap: 16px;
+	justify-content: space-between;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--monks-central-consent-border);
+}
+
+.monks-central-consent__facts dt {
+	flex-shrink: 0;
+	color: var(--monks-central-consent-muted);
+}
+
+.monks-central-consent__facts dd {
+	margin: 0;
+	text-align: end;
+	overflow-wrap: anywhere;
+	font-weight: 500;
+}
+
+.monks-central-consent__tag {
+	display: inline-block;
+	margin-inline-start: 6px;
+	padding: 0 6px;
+	border-radius: 2px;
+	background: var(--monks-central-consent-bg);
+	color: var(--monks-central-consent-muted);
+	font-size: 12px;
+	font-weight: 400;
+}
+
+.monks-central-consent__tag.is-ok {
+	background: #edfaef;
+	color: #00450c;
+}
+
+.monks-central-consent__notice {
+	margin: 0 0 20px;
+	padding: 12px 16px;
+	border-inline-start: 4px solid #dba617;
+	background: #fcf9e8;
+}
+
+.monks-central-consent__notice.is-error {
+	border-color: #d63638;
+	background: #fcf0f1;
+}
+
+.monks-central-consent__group {
+	margin: 0 0 20px;
+	padding: 0;
+	border: 0;
+}
+
+.monks-central-consent__group legend {
+	margin-block-end: 8px;
+	padding: 0;
+	font-weight: 600;
+}
+
+.monks-central-consent__choice {
+	display: flex;
+	gap: 10px;
+	align-items: flex-start;
+	margin-block-end: 10px;
+}
+
+.monks-central-consent__choice input {
+	margin-block-start: 3px;
+}
+
+.monks-central-consent__description {
+	display: block;
+	color: var(--monks-central-consent-muted);
+}
+
+.monks-central-consent__toolsets {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 16px;
+}
+
+.monks-central-consent__actions {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+}
+
+.monks-central-consent__foot {
+	margin: 20px 0 0;
+	color: var(--monks-central-consent-muted);
+	font-size: 12px;
+}
