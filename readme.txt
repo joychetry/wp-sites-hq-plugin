@@ -4,7 +4,7 @@ Tags: site management, remote management, updates, mcp, oauth
 Requires at least: 7.1
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.1.2
+Stable tag: 0.1.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,6 +70,9 @@ This plugin checks GitHub for updates. It sends nothing else anywhere on its own
 Other requests happen only when a connected app or you ask for them, and only to the address that task needs: verifying a plugin's files fetches its checksums from downloads.wordpress.org, importing an image fetches the image link the app gives, an app signing in has its client details read from its own address, and health checks load this site's own pages. Plugin, theme and core installs and updates go through WordPress itself.
 
 == Changelog ==
+
+= 0.1.3 - 2026-10-29 =
+* No PHP warnings when WordPress loads the plugin twice, for example right after an update.
 
 = 0.1.2 - 2026-10-29 =
 * Updates: Check again now looks past the cached answer and asks GitHub again.
