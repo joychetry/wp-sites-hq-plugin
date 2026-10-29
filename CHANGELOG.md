@@ -20,7 +20,7 @@ First release: the site connector for the Monks Central app.
   translation updates, posts and pages, media (upload, import, replace and
   restore), ACF fields, terms, users, comments, revisions, checksums, error log
   and site snapshots.
-- Settings > Monks Central: Connect to Monks Central, connected apps with their
+- Settings > Monks Central: Allow Monks Central to connect, connected apps with their
   permissions, Waiting for your approval, and Activity. Built with React and
   DataViews, loaded on that screen only.
 - Filters and abilities for a host plugin's own UI: tool groups, hints, status

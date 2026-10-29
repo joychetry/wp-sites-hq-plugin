@@ -24,7 +24,7 @@ Monks Central is a free desktop app for managing many WordPress sites from one p
 
 1. Download `monks-central.zip` from the latest release at https://github.com/joychetry/monks-central-wp/releases.
 2. In wp-admin, go to Plugins > Add New Plugin > Upload Plugin, choose the zip and activate it.
-3. Open Settings > Monks Central and turn on Connect to Monks Central.
+3. Open Settings > Monks Central and turn on Allow Monks Central to connect.
 4. In the Monks Central app, add the site and approve the connection when wp-admin asks.
 
 == Frequently Asked Questions ==
@@ -47,7 +47,7 @@ Only what the WordPress user who approved it can do, and only in the tool groups
 
 = How do I disconnect an app? =
 
-Open Settings > Monks Central and revoke it under Connected apps. Turning off Connect to Monks Central stops every connection at once.
+Open Settings > Monks Central and revoke it under Connected apps. Turning off Allow Monks Central to connect stops every connection at once.
 
 = What happens when I deactivate or delete the plugin? =
 
