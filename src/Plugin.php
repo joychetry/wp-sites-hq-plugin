@@ -100,7 +100,7 @@ final class Plugin {
 	}
 
 	/**
-	 * Register the ability category. Runs on `wp_abilities_api_categories_init`, 6.9+ only.
+	 * Register the ability category. Runs on `wp_abilities_api_categories_init`.
 	 */
 	public static function register_ability_category(): void {
 		wp_register_ability_category(

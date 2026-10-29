@@ -6,7 +6,7 @@ REST endpoints, a React admin screen built from what wp-admin already ships,
 an Interactivity API front end and Abilities API registration. PHPStan, PHPCS,
 PHPUnit, Playwright on WordPress Playground and Plugin Check run in CI.
 
-Requires WordPress 6.9+ and PHP 8.1+. Zero runtime dependencies.
+Requires WordPress 7.1+ and PHP 8.1+. Zero runtime dependencies.
 
 ## Quick start
 

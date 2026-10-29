@@ -4,7 +4,7 @@
  * Plugin URI:        https://github.com/joychetry/monks-central
  * Description:       A lean, framework-free starter for WordPress plugins.
  * Version:           0.1.0
- * Requires at least: 6.9
+ * Requires at least: 7.1
  * Requires PHP:      8.1
  * Author:            Good Monks
  * License:           GPL-2.0-or-later

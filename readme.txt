@@ -1,7 +1,7 @@
 === Monks Central ===
 Contributors: goodmonks
 Tags: starter, related posts
-Requires at least: 6.9
+Requires at least: 7.1
 Tested up to: 7.1
 Requires PHP: 8.1
 Stable tag: 0.1.0
