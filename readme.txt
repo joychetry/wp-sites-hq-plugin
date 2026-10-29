@@ -4,7 +4,7 @@ Tags: site management, remote management, updates, mcp, oauth
 Requires at least: 7.1
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.1.1
+Stable tag: 0.1.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,6 +70,12 @@ This plugin checks GitHub for updates. It sends nothing else anywhere on its own
 Other requests happen only when a connected app or you ask for them, and only to the address that task needs: verifying a plugin's files fetches its checksums from downloads.wordpress.org, importing an image fetches the image link the app gives, an app signing in has its client details read from its own address, and health checks load this site's own pages. Plugin, theme and core installs and updates go through WordPress itself.
 
 == Changelog ==
+
+= 0.1.2 - 2026-10-29 =
+* Updates: Check again now looks past the cached answer and asks GitHub again.
+* Updates: the version that is already installed is no longer offered as an update.
+* Updates: release notes no longer break off in the middle of a sentence.
+* Consent page: the buttons are styled, the 'name not verified' label is readable, and the card intros have room around them.
 
 = 0.1.1 =
 * Connector 1.1.1: MCP credentials can no longer post unfiltered HTML.

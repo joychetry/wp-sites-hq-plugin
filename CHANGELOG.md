@@ -3,6 +3,15 @@
 All notable changes to the Monks Central plugin. Versions follow semver. The
 connector library in `connector/` has its own version, named in each entry.
 
+## 0.1.2 - 2026-10-29
+
+- Updates: Check again now looks past the cached answer and asks GitHub again.
+- Updates: the version that is already installed is no longer offered as an
+  update.
+- Updates: release notes no longer break off in the middle of a sentence.
+- Consent page: the buttons are styled, the 'name not verified' label is
+  readable, and the card intros have room around them.
+
 ## 0.1.1 - 2026-10-29
 
 - Connector 1.1.1. MCP credentials can no longer post unfiltered HTML, even for
