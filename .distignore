@@ -29,3 +29,5 @@
 *.zip
 .DS_Store
 /connector/tests
+/README.md
+/CHANGELOG.md

@@ -21,7 +21,11 @@ rsync -a --exclude-from=.distignore ./ "$out/"
 
 # Zero runtime dependencies: this only writes vendor/autoload.php and vendor/composer/.
 composer install --no-dev --optimize-autoloader --classmap-authoritative --no-interaction --no-progress --quiet --working-dir="$out"
-rm "$out/composer.lock"
+rm "$out/composer.json" "$out/composer.lock"
 
-(cd dist && zip -qr "$slug.zip" "$slug" && sha256sum "$slug.zip" >"$slug.zip.sha256")
+(cd dist && zip -qr "$slug.zip" "$slug")
+# The zip holds only what WordPress runs plus readme.txt; fail if a dev file got in.
+dev=$(unzip -Z1 "dist/$slug.zip" | grep -E '(^|/)(\.[^/]+|node_modules|tests?|docs|bin|assets-src|[^/]*\.(md|zip|map|lock|dist|neon)|composer\.json|package(-lock)?\.json|webpack\.config\.js|blueprint\.json)(/|$)' || true)
+[[ -z $dev ]] || { echo "Dev files in the zip:"; echo "$dev"; exit 1; }
+(cd dist && sha256sum "$slug.zip" >"$slug.zip.sha256")
 echo "Built dist/$slug.zip$( ((wporg)) && echo ' (wp.org, no updater)' )"
