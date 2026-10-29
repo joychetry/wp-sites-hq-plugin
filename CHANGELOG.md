@@ -3,6 +3,11 @@
 All notable changes to the Monks Central plugin. Versions follow semver. The
 connector library in `connector/` has its own version, named in each entry.
 
+## 0.1.3 - 2026-10-29
+
+- No PHP warnings when WordPress loads the plugin twice, for example right
+  after an update.
+
 ## 0.1.2 - 2026-10-29
 
 - Updates: Check again now looks past the cached answer and asks GitHub again.
