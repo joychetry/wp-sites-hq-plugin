@@ -63,7 +63,9 @@ final class Updater {
 			'requires'     => '7.1',
 			'requires_php' => '8.1',
 		);
-		if ( version_compare( $release['version'], MONKS_CENTRAL_VERSION, '>' ) ) {
+		// Core fills `checked` from disk; the constant is stale in the request that just installed the update.
+		$installed = (string) ( $transient->checked[ $file ] ?? MONKS_CENTRAL_VERSION );
+		if ( version_compare( $release['version'], $installed, '>' ) ) {
 			$transient->response[ $file ] = $item;
 		} else {
 			$transient->no_update[ $file ] = $item;
@@ -95,7 +97,8 @@ final class Updater {
 			'download_link' => $release['package'],
 			'requires'      => '7.1',
 			'requires_php'  => '8.1',
-			'sections'      => array( 'changelog' => wpautop( esc_html( $release['notes'] ) ) ),
+			// Markdown list items wrap onto indented lines; join them so they don't break mid-sentence.
+			'sections'      => array( 'changelog' => wpautop( esc_html( (string) preg_replace( '/\n[ \t]+(?=\S)/', ' ', $release['notes'] ) ) ) ),
 		);
 	}
 
@@ -169,7 +172,9 @@ final class Updater {
 	 */
 	public function release(): ?array {
 		$cached = get_site_transient( self::CACHE );
-		if ( is_array( $cached ) ) {
+		// "Check again" on Dashboard > Updates asks GitHub now, as core asks wp.org.
+		$forced = doing_action( 'load-update-core.php' ) && ! empty( $_GET['force-check'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only refresh, as core does
+		if ( is_array( $cached ) && ! $forced ) {
 			return $cached['release'] ?? null;
 		}
 		$release  = null;

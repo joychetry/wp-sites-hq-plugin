@@ -20,7 +20,7 @@ $monks_central_error = $view['error'];
 	<title><?php echo esc_html( null === $monks_central_error ? __( 'Connect an app', 'monks-central' ) : __( 'Connection failed', 'monks-central' ) ); ?> &lsaquo; <?php echo esc_html( $view['site'] ); ?></title>
 	<?php wp_print_styles( array( 'buttons', 'monks-central-consent' ) ); ?>
 </head>
-<body class="monks-central-consent">
+<body class="monks-central-consent wp-core-ui">
 <main class="monks-central-consent__card">
 	<p class="monks-central-consent__site"><?php echo esc_html( $view['site'] ); ?></p>
 

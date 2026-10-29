@@ -86,6 +86,38 @@ final class UpdaterTest extends TestCase {
 		$this->assertSame( self::ZIP, $transient->response['monks-central/monks-central.php']->package );
 	}
 
+	public function test_the_installed_version_on_disk_decides_over_the_loaded_constant(): void {
+		$this->cached_release();
+		Functions\when( 'plugin_basename' )->justReturn( 'monks-central/monks-central.php' );
+		$transient          = new \stdClass();
+		$transient->checked = array( 'monks-central/monks-central.php' => '9.0.0' );
+		$transient          = ( new Updater() )->offer( $transient );
+		$this->assertArrayNotHasKey( 'monks-central/monks-central.php', $transient->response ?? array() );
+		$this->assertSame( '9.0.0', $transient->no_update['monks-central/monks-central.php']->new_version );
+	}
+
+	public function test_check_again_on_dashboard_updates_skips_the_cache(): void {
+		$this->cached_release();
+		Functions\when( 'doing_action' )->alias( fn( $hook ) => 'load-update-core.php' === $hook );
+		Functions\when( 'wp_remote_get' )->justReturn( array() );
+		Functions\when( 'is_wp_error' )->justReturn( false );
+		Functions\when( 'wp_remote_retrieve_response_code' )->justReturn( 200 );
+		Functions\when( 'wp_remote_retrieve_body' )->justReturn( (string) wp_json_encode( $this->release_json( array( 'tag_name' => 'v9.1.0' ) ) ) );
+		Functions\when( 'set_site_transient' )->justReturn( true );
+		$_GET['force-check'] = '1';
+		$release             = ( new Updater() )->release();
+		unset( $_GET['force-check'] );
+		$this->assertSame( '9.1.0', $release['version'] ?? null );
+	}
+
+	public function test_wrapped_release_notes_read_as_whole_lines(): void {
+		Functions\when( 'get_site_transient' )->justReturn( array( 'release' => Updater::parse_release( $this->release_json( array( 'body' => "- One item that\n  wraps.\n- Two" ) ) ) ) );
+		Functions\when( 'wpautop' )->returnArg();
+		Functions\when( 'esc_html' )->returnArg();
+		$info = ( new Updater() )->details( false, 'plugin_information', (object) array( 'slug' => 'monks-central' ) );
+		$this->assertSame( "- One item that wraps.\n- Two", $info->sections['changelog'] );
+	}
+
 	public function test_a_download_that_does_not_match_its_checksum_is_refused(): void {
 		$this->cached_release();
 		$file = (string) tempnam( sys_get_temp_dir(), 'mc' );
