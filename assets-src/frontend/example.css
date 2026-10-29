@@ -1,0 +1,29 @@
+/* Scoped to .wps-related. Override the custom properties to restyle. */
+.wps-related {
+	--wps-related-gap: 0.75em;
+	--wps-related-muted: color-mix(in srgb, currentcolor 70%, transparent);
+
+	margin-block-start: calc(var(--wps-related-gap) * 3);
+}
+
+.wps-related__button[aria-busy="true"] {
+	cursor: progress;
+	opacity: 0.7;
+}
+
+.wps-related__list {
+	display: grid;
+	gap: calc(var(--wps-related-gap) / 2);
+	margin: var(--wps-related-gap) 0 0;
+	padding-inline-start: 1.25em;
+}
+
+.wps-related__message {
+	color: var(--wps-related-muted);
+	margin: var(--wps-related-gap) 0 0;
+}
+
+.wps-related__message:empty,
+.wps-related [hidden] {
+	display: none;
+}

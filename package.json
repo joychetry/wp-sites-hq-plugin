@@ -1,0 +1,27 @@
+{
+	"name": "wp-plugin-starter",
+	"version": "0.1.0",
+	"private": true,
+	"description": "A lean, framework-free WordPress plugin starter.",
+	"license": "GPL-2.0-or-later",
+	"scripts": {
+		"build": "wp-scripts build --experimental-modules",
+		"start": "wp-scripts start --experimental-modules",
+		"lint:js": "wp-scripts lint-js assets-src tests/e2e webpack.config.js",
+		"lint:css": "wp-scripts lint-style \"assets-src/**/*.css\"",
+		"format": "wp-scripts format assets-src tests/e2e webpack.config.js",
+		"test:e2e": "playwright test --config tests/e2e/playwright.config.js",
+		"plugin-zip": "bin/build-zip.sh"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.64.1",
+		"@wordpress/api-fetch": "^7.57.0",
+		"@wordpress/components": "^42.0.0",
+		"@wordpress/dataviews": "^20.0.0",
+		"@wordpress/element": "^9.0.0",
+		"@wordpress/i18n": "^6.30.0",
+		"@wordpress/interactivity": "^7.0.0",
+		"@wordpress/scripts": "^36.1.0",
+		"@wp-playground/cli": "^3.1.58"
+	}
+}

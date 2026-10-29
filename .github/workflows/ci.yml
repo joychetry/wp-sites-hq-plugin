@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php:
+    name: PHP ${{ matrix.php }} (lint, analyse, test)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.3']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+      - run: composer install --no-interaction --no-progress
+      - name: php -l
+        run: find . -name '*.php' -not -path './vendor/*' -not -path './node_modules/*' -print0 | xargs -0 -n1 php -l
+      - run: composer lint
+      - run: composer analyse
+      - run: composer test
+
+  js:
+    name: JS (lint, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint:js
+      - run: npm run lint:css
+      - run: npm run build
+      - uses: actions/upload-artifact@v7
+        with:
+          name: build
+          path: build/
+
+  e2e:
+    name: E2E on Playground
+    needs: [php, js]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+      - run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v8
+        with:
+          name: build
+          path: build/
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+
+  zip:
+    name: Zip and Plugin Check
+    needs: [php, js]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run plugin-zip
+      - uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: dist/wp-plugin-starter
+      - uses: actions/upload-artifact@v7
+        with:
+          name: wp-plugin-starter-zip
+          path: dist/wp-plugin-starter.zip

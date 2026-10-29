@@ -1,0 +1,10 @@
+/build/
+/vendor/
+/node_modules/
+/test-results/
+/playwright-report/
+/dist/
+.phpcs-cache
+.phpunit.cache/
+*.zip
+.DS_Store
