@@ -8,6 +8,8 @@
 /.phpcs-cache
 /.phpunit.cache
 /.playwright-mcp
+/.wp-env.json
+/.wp-env.override.json
 /AGENTS.md
 /CLAUDE.md
 /assets-src
