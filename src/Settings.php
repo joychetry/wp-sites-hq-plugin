@@ -11,7 +11,7 @@ namespace MonksCentral;
  * Reads, sanitizes and saves the `monks_central_settings` option.
  *
  * The fields() list is the single source of truth: defaults, sanitizing and the REST schema all come from it.
- * To add a setting, add a field here and a matching DataForm field in assets-src/admin/settings.js.
+ * To add a setting, add a field here and a matching control on the admin screen.
  */
 final class Settings {
 
@@ -25,25 +25,12 @@ final class Settings {
 	 */
 	public static function fields(): array {
 		return array(
-			'modules'       => array(
+			'modules' => array(
 				'type'                 => 'object',
 				'description'          => 'Enabled state per module id.',
 				// Modules listed here are on by default.
-				'default'              => array( 'example' => true ),
+				'default'              => array(),
 				'additionalProperties' => array( 'type' => 'boolean' ),
-			),
-			'example_label' => array(
-				'type'        => 'string',
-				'description' => 'Button text for the related posts button.',
-				'default'     => 'Show related posts',
-				'maxLength'   => 60,
-			),
-			'example_count' => array(
-				'type'        => 'integer',
-				'description' => 'How many related posts to show.',
-				'default'     => 3,
-				'minimum'     => 1,
-				'maximum'     => 10,
 			),
 		);
 	}

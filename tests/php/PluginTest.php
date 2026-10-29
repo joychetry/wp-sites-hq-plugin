@@ -48,13 +48,4 @@ final class PluginTest extends TestCase {
 
 		$this->assertSame( array(), RecordingModule::$registered );
 	}
-
-	public function test_shipped_modules_are_on_by_default(): void {
-		$this->stored_settings( false );
-
-		$plugin = new Plugin( new Settings() );
-		$plugin->register();
-
-		$this->assertSame( array( 'example' ), $plugin->active_modules() );
-	}
 }

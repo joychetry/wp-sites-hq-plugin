@@ -1,6 +1,7 @@
 /**
- * Smoke tests: the plugin activates, its screens render, the example module
- * works, and no page prints a PHP error (the blueprint turns WP_DEBUG on).
+ * Smoke tests: the plugin activates, its screen renders, the front end loads
+ * none of its assets, and no page prints a PHP error (the blueprint turns
+ * WP_DEBUG on).
  */
 const { test, expect } = require( '@playwright/test' );
 
@@ -30,41 +31,14 @@ test( 'plugin is active', async ( { page } ) => {
 	);
 } );
 
-test( 'admin screen renders modules and settings', async ( { page } ) => {
+test( 'admin screen renders', async ( { page } ) => {
 	await visit( page, '/wp-admin/options-general.php?page=monks-central' );
 	await expect(
 		page.getByRole( 'heading', { name: 'Modules' } )
 	).toBeVisible();
-	await expect(
-		page.getByRole( 'checkbox', { name: 'Related posts' } )
-	).toBeChecked();
-	await expect(
-		page.getByRole( 'spinbutton', { name: 'Related posts to show' } )
-	).toHaveValue( '3' );
-} );
-
-test( 'related posts load on a single post', async ( { page } ) => {
-	await visit( page, '/writing-a-module/' );
-	await page.getByRole( 'button', { name: 'Show related posts' } ).click();
-	await expect(
-		page.locator( '.monks-central-related__list li' )
-	).toHaveCount( 2 );
-	await expect(
-		page.getByRole( 'button', { name: 'Show related posts' } )
-	).toBeHidden();
 } );
 
 test( 'front page has no plugin assets', async ( { page } ) => {
 	await visit( page, '/' );
-	expect( await page.content() ).not.toContain( 'monks-central-example' );
-} );
-
-test( 'ability is registered', async ( { page } ) => {
-	await visit( page, '/wp-admin/options-general.php?page=monks-central' );
-	const ability = await page.evaluate( () =>
-		window.wp.apiFetch( {
-			path: '/wp-abilities/v1/abilities/monks-central/related-posts',
-		} )
-	);
-	expect( ability.category ).toBe( 'monks-central' );
+	expect( await page.content() ).not.toContain( '/plugins/monks-central/' );
 } );

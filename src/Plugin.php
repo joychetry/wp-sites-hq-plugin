@@ -19,9 +19,7 @@ final class Plugin {
 	 *
 	 * @var list<class-string<Module>>
 	 */
-	public const MODULES = array(
-		Modules\Example\Module::class,
-	);
+	public const MODULES = array();
 
 	/**
 	 * Abilities API category shared by every module's abilities.

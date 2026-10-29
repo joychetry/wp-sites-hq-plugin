@@ -18,10 +18,6 @@
 		{
 			"step": "activatePlugin",
 			"pluginPath": "monks-central/monks-central.php"
-		},
-		{
-			"step": "runPHP",
-			"code": "<?php\nrequire '/wordpress/wp-load.php';\n$cat = wp_insert_term( 'Guides', 'category' )['term_id'];\nforeach ( array( 'Getting started', 'Writing a module', 'Shipping a release' ) as $title ) {\n\twp_insert_post( array( 'post_status' => 'publish', 'post_title' => $title, 'post_content' => '<!-- wp:paragraph --><p>Sample post for the related posts module.</p><!-- /wp:paragraph -->', 'post_category' => array( $cat ) ) );\n}\n$GLOBALS['wp_rewrite']->set_permalink_structure( '/%postname%/' );\nflush_rewrite_rules();\n"
 		}
 	]
 }

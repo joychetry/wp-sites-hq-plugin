@@ -7,7 +7,6 @@ import { Notice } from '@wordpress/components';
 import { createRoot, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Modules from './modules';
-import Settings from './settings';
 import './admin.css';
 
 function App() {
@@ -49,7 +48,6 @@ function App() {
 				enabled={ settings.modules }
 				onToggle={ ( id, on ) => save( { modules: { [ id ]: on } } ) }
 			/>
-			<Settings settings={ settings } onSave={ save } />
 		</div>
 	);
 }
