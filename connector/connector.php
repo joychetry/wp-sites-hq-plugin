@@ -59,13 +59,20 @@ final class Monks_Central_Connector {
 		foreach ( monks_central_connector_copies() as $host ) {
 			register_deactivation_hook( $host['file'], array( __CLASS__, 'on_host_deactivated' ) );
 		}
-		if ( ! self::enabled() ) {
+		$enabled = self::enabled();
+		/**
+		 * Whether the abilities and the activity log load while the endpoint is off, for a host's own
+		 * UI that runs them (Classic Monks Pro's chat). Runs on plugins_loaded at priority 1.
+		 */
+		if ( ! $enabled && ! ( self::supported() && apply_filters( 'monks_central_load_abilities', false ) ) ) {
 			return;
 		}
 		require_once __DIR__ . '/cm-abilities-categories.php';
 		require_once __DIR__ . '/class-ai-activity-log.php';
 		require_once __DIR__ . '/cm-abilities-loader.php';
-		require_once __DIR__ . '/mcp/class-mcp-server.php';
+		if ( $enabled ) {
+			require_once __DIR__ . '/mcp/class-mcp-server.php';
+		}
 		add_action( 'wp_abilities_api_init', array( __CLASS__, 'register_host_abilities' ), 20 );
 	}
 
@@ -205,6 +212,35 @@ final class Monks_Central_Connector {
 	}
 
 	/**
+	 * What a connection can be given: scopes (key => label, description), tool groups (key => label),
+	 * the groups new connections start with, and other plugins' namespaces. Empty while the connector is off.
+	 *
+	 * @return array
+	 */
+	public static function options() {
+		if ( ! self::running() ) {
+			return array();
+		}
+		$help = CM_MCP_Server::scope_descriptions();
+		return array(
+			'scopes'           => array_map(
+				function ( $label, $key ) use ( $help ) {
+					return array(
+						'key'         => $key,
+						'label'       => $label,
+						'description' => $help[ $key ] ?? '',
+					);
+				},
+				CM_MCP_Server::scopes(),
+				array_keys( CM_MCP_Server::scopes() )
+			),
+			'toolsets'         => CM_MCP_Server::toolsets(),
+			'default_toolsets' => CM_MCP_Server::default_toolsets(),
+			'namespaces'       => CM_MCP_Server::available_namespaces(),
+		);
+	}
+
+	/**
 	 * Check that a connection exists and the current user may change it.
 	 *
 	 * @param int    $user_id Owner.
@@ -265,6 +301,38 @@ final class Monks_Central_Connector {
 	}
 
 	/**
+	 * Change what a connection may do. Each key is optional: scope (a key of options()['scopes']),
+	 * toolsets and namespaces (lists; unknown entries are dropped), trusted (skips approvals).
+	 *
+	 * @param int    $user_id Owner.
+	 * @param string $id      Connection id.
+	 * @param array  $changes What to change.
+	 * @return true|WP_Error
+	 */
+	public static function set_permissions( $user_id, $id, array $changes ) {
+		$check = self::check_connection( $user_id, $id, 'edit_app_password' );
+		if ( is_wp_error( $check ) ) {
+			return $check;
+		}
+		if ( isset( $changes['scope'] ) && ! isset( CM_MCP_Server::scopes()[ $changes['scope'] ] ) ) {
+			return new WP_Error( 'cm_invalid_scope', __( 'Pick one of the access levels.', 'monks-central' ), array( 'status' => 400 ) );
+		}
+		if ( isset( $changes['scope'] ) ) {
+			CM_MCP_Server::save_scope( $user_id, $id, $changes['scope'] );
+		}
+		if ( isset( $changes['toolsets'] ) ) {
+			CM_MCP_Server::save_toolsets( $user_id, $id, CM_MCP_Server::sanitize_toolsets( $changes['toolsets'] ) );
+		}
+		if ( isset( $changes['namespaces'] ) ) {
+			CM_MCP_Server::save_namespaces( $user_id, $id, CM_MCP_Server::sanitize_namespaces( $changes['namespaces'] ) );
+		}
+		if ( isset( $changes['trusted'] ) ) {
+			CM_MCP_Approvals::save_flag( CM_MCP_Approvals::TRUSTED_META, $user_id, $id, $changes['trusted'] ? true : null );
+		}
+		return true;
+	}
+
+	/**
 	 * Approval requests the current user may decide: id, tool, client, user, created_at, approve_url.
 	 *
 	 * @return array[]
@@ -295,7 +363,8 @@ final class Monks_Central_Connector {
 	 * @return array{rows: array[], total: int}
 	 */
 	public static function activity( array $args = array() ) {
-		if ( ! self::running() || ! current_user_can( 'manage_options' ) ) {
+		// The log also runs with the endpoint off when a host loads the abilities for its own UI.
+		if ( ! class_exists( 'CM_AI_Activity_Log' ) || ! current_user_can( 'manage_options' ) ) {
 			return array(
 				'rows'  => array(),
 				'total' => 0,
@@ -311,7 +380,7 @@ final class Monks_Central_Connector {
 	 * @return true|WP_Error
 	 */
 	public static function undo( $id ) {
-		if ( ! self::running() || ! current_user_can( 'manage_options' ) ) {
+		if ( ! class_exists( 'CM_AI_Activity_Log' ) || ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error( 'cm_forbidden', __( 'You are not allowed to undo changes.', 'monks-central' ), array( 'status' => 403 ) );
 		}
 		return CM_AI_Activity_Log::undo( $id );
