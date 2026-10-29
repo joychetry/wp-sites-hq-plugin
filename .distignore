@@ -28,3 +28,4 @@
 /webpack.config.js
 *.zip
 .DS_Store
+/connector/tests
