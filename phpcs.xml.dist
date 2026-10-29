@@ -40,5 +40,36 @@
 	<!-- PSR-4: one class per file named after the class, not class-*.php. -->
 	<rule ref="WordPress.Files.FileName">
 		<exclude-pattern>/src/*</exclude-pattern>
+		<exclude-pattern>/connector/*</exclude-pattern>
+	</rule>
+
+	<!-- The connector keeps the Classic Monks layout and names (cm_*, CM_*), so its code stays
+	     comparable with Classic Monks Free and Pro; its tool descriptions document the abilities. -->
+	<rule ref="Squiz.Commenting">
+		<exclude-pattern>/connector/*</exclude-pattern>
+	</rule>
+	<rule ref="Generic.Commenting">
+		<exclude-pattern>/connector/*</exclude-pattern>
+	</rule>
+	<rule ref="Universal.Operators.DisallowShortTernary">
+		<exclude-pattern>/connector/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.PHP.YodaConditions">
+		<exclude-pattern>/connector/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.CodeAnalysis.AssignmentInTernaryCondition">
+		<exclude-pattern>/connector/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.PHP.DisallowMultipleAssignments">
+		<exclude-pattern>/connector/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.PHP.CommentedOutCode">
+		<exclude-pattern>/connector/*</exclude-pattern>
+	</rule>
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+		<exclude-pattern>/connector/*</exclude-pattern>
+	</rule>
+	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames">
+		<exclude-pattern>/connector/*</exclude-pattern>
 	</rule>
 </ruleset>

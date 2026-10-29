@@ -11,70 +11,70 @@
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 add_action( 'wp_abilities_api_init', 'cm_register_deactivate_plugin_ability' );
 function cm_register_deactivate_plugin_ability() {
-    wp_register_ability(
-        'classic-monks/deactivate-plugin',
-        array(
-            'label'       => __( 'Deactivate Plugin', 'classic-monks' ),
-            'description' => __(
-                "Deactivates an installed WordPress plugin. Provide the plugin file, slug, or exact installed plugin name. \n\n## Required Parameters\n- Provide one of: **plugin_file**, **slug**, or **name**\n\n## Returns\nThe plugin file, slug, name, current version, activation state, and a status message.",
-                'classic-monks'
-            ),
-            'category'    => 'system',
-            'input_schema' => array(
-                'type'       => 'object',
-                'properties' => array(
-                    'plugin_file' => array(
-                        'type'        => 'string',
-                        'description' => 'Installed plugin file path.',
-                    ),
-                    'slug' => array(
-                        'type'        => 'string',
-                        'description' => 'Installed plugin slug.',
-                    ),
-                    'name' => array(
-                        'type'        => 'string',
-                        'description' => 'Installed plugin name.',
-                    ),
-                    'network_wide' => array(
-                        'type'        => 'boolean',
-                        'default'     => false,
-                        'description' => 'Deactivate network-wide in multisite if supported.',
-                    ),
-                ),
-                'additionalProperties' => false,
-            ),
-            'output_schema' => array(
-                'type'       => 'object',
-                'properties' => array(
-                    'plugin_file' => array( 'type' => 'string' ),
-                    'slug'        => array( 'type' => 'string' ),
-                    'name'        => array( 'type' => 'string' ),
-                    'version'     => array( 'type' => 'string' ),
-                    'active'      => array( 'type' => 'boolean' ),
-                    'network_active' => array( 'type' => 'boolean' ),
-                    'message'     => array( 'type' => 'string' ),
-                ),
-            ),
-            'execute_callback'    => 'cm_execute_deactivate_plugin',
-            'permission_callback' => function() {
-                return current_user_can( 'activate_plugins' );
-            },
-            'meta' => array(
-                'annotations' => array(
-                    'readonly'     => false,
-                    'destructive'  => true,
-                    'idempotent'   => true,
-                    'instructions' => 'Deactivates an installed plugin. Do not use this on the active Classic Monks plugin.',
-                ),
-                'show_in_rest' => true,
-            ),
-        )
-    );
+	wp_register_ability(
+		'classic-monks/deactivate-plugin',
+		array(
+			'label'               => __( 'Deactivate Plugin', 'monks-central' ),
+			'description'         => __(
+				"Deactivates an installed WordPress plugin. Provide the plugin file, slug, or exact installed plugin name. \n\n## Required Parameters\n- Provide one of: **plugin_file**, **slug**, or **name**\n\n## Returns\nThe plugin file, slug, name, current version, activation state, and a status message.",
+				'monks-central'
+			),
+			'category'            => 'system',
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'properties'           => array(
+					'plugin_file'  => array(
+						'type'        => 'string',
+						'description' => 'Installed plugin file path.',
+					),
+					'slug'         => array(
+						'type'        => 'string',
+						'description' => 'Installed plugin slug.',
+					),
+					'name'         => array(
+						'type'        => 'string',
+						'description' => 'Installed plugin name.',
+					),
+					'network_wide' => array(
+						'type'        => 'boolean',
+						'default'     => false,
+						'description' => 'Deactivate network-wide in multisite if supported.',
+					),
+				),
+				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'plugin_file'    => array( 'type' => 'string' ),
+					'slug'           => array( 'type' => 'string' ),
+					'name'           => array( 'type' => 'string' ),
+					'version'        => array( 'type' => 'string' ),
+					'active'         => array( 'type' => 'boolean' ),
+					'network_active' => array( 'type' => 'boolean' ),
+					'message'        => array( 'type' => 'string' ),
+				),
+			),
+			'execute_callback'    => 'cm_execute_deactivate_plugin',
+			'permission_callback' => function () {
+				return current_user_can( 'activate_plugins' );
+			},
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'     => false,
+					'destructive'  => true,
+					'idempotent'   => true,
+					'instructions' => 'Deactivates an installed plugin. Do not use this on the active Classic Monks plugin.',
+				),
+				'show_in_rest' => true,
+			),
+		)
+	);
 }
 
 /**
@@ -85,35 +85,35 @@ function cm_register_deactivate_plugin_ability() {
  * @return array|WP_Error
  */
 function cm_execute_deactivate_plugin( $input ) {
-    cm_ai_require_plugin_management_files();
+	cm_ai_require_plugin_management_files();
 
-    $resolved = cm_ai_resolve_installed_plugin( $input );
-    if ( is_wp_error( $resolved ) ) {
-        return $resolved;
-    }
+	$resolved = cm_ai_resolve_installed_plugin( $input );
+	if ( is_wp_error( $resolved ) ) {
+		return $resolved;
+	}
 
-    $plugin_file  = $resolved['plugin_file'];
-    $plugin_data  = $resolved['plugin_data'];
-    $network_wide = is_multisite() && ! empty( $input['network_wide'] ) && current_user_can( 'manage_network_plugins' );
-    $state        = cm_ai_get_plugin_state( $plugin_file, $plugin_data );
+	$plugin_file  = $resolved['plugin_file'];
+	$plugin_data  = $resolved['plugin_data'];
+	$network_wide = is_multisite() && ! empty( $input['network_wide'] ) && current_user_can( 'manage_network_plugins' );
+	$state        = cm_ai_get_plugin_state( $plugin_file, $plugin_data );
 
-    if ( cm_ai_is_current_plugin( $plugin_file ) ) {
-        return new WP_Error(
-            'cm_plugin_protected',
-            __( 'Classic Monks cannot deactivate itself from the AI chat session.', 'classic-monks' ),
-            array( 'status' => 409 )
-        );
-    }
+	if ( cm_ai_is_current_plugin( $plugin_file ) ) {
+		return new WP_Error(
+			'cm_plugin_protected',
+			__( 'Classic Monks cannot deactivate itself from the AI chat session.', 'monks-central' ),
+			array( 'status' => 409 )
+		);
+	}
 
-    if ( ! $state['active'] ) {
-        $state['message'] = __( 'Plugin is already inactive.', 'classic-monks' );
-        return $state;
-    }
+	if ( ! $state['active'] ) {
+		$state['message'] = __( 'Plugin is already inactive.', 'monks-central' );
+		return $state;
+	}
 
-    deactivate_plugins( $plugin_file, false, $network_wide );
+	deactivate_plugins( $plugin_file, false, $network_wide );
 
-    $state            = cm_ai_get_plugin_state( $plugin_file, $plugin_data );
-    $state['message'] = __( 'Plugin deactivated successfully.', 'classic-monks' );
+	$state            = cm_ai_get_plugin_state( $plugin_file, $plugin_data );
+	$state['message'] = __( 'Plugin deactivated successfully.', 'monks-central' );
 
-    return $state;
+	return $state;
 }
