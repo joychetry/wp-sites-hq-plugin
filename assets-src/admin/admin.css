@@ -18,3 +18,27 @@
 .monks-central-admin__save {
 	margin-block-start: var(--monks-central-admin-gap);
 }
+
+.monks-central-admin__address {
+	display: grid;
+	gap: 8px;
+	margin-block-start: 16px;
+}
+
+.monks-central-admin__version {
+	display: block;
+	margin-block-start: 16px;
+}
+
+.monks-central-admin__pending {
+	margin: 0;
+}
+
+.monks-central-admin__muted,
+.monks-central-admin__version {
+	color: #757575;
+}
+
+.monks-central-admin__address p {
+	margin: 0;
+}

@@ -8,6 +8,7 @@
 namespace MonksCentral\Admin;
 
 use MonksCentral\Plugin;
+use MonksCentral\Rest\ConnectorController;
 
 /**
  * Adds Settings > Monks Central and loads the React app on that screen only.
@@ -95,8 +96,9 @@ final class Page {
 			'monks-central-admin',
 			'window.monksCentralAdmin = ' . wp_json_encode(
 				array(
-					'modules'  => $modules,
-					'settings' => $this->plugin->settings()->all(),
+					'modules'   => $modules,
+					'settings'  => $this->plugin->settings()->all(),
+					'connector' => class_exists( 'Monks_Central_Connector' ) ? ( new ConnectorController() )->get_screen()->get_data() : null,
 				)
 			) . ';',
 			'before'

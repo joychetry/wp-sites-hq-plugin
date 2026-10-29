@@ -85,6 +85,7 @@ final class Plugin {
 	public function register(): void {
 		// Closure so the controller class is only loaded on REST requests.
 		add_action( 'rest_api_init', fn() => ( new Rest\SettingsController( $this->settings ) )->register_routes() );
+		add_action( 'rest_api_init', fn() => ( new Rest\ConnectorController() )->register_routes() );
 		add_action( 'wp_abilities_api_categories_init', array( self::class, 'register_ability_category' ) );
 
 		if ( is_admin() ) {

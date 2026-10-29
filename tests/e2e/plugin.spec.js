@@ -34,8 +34,25 @@ test( 'plugin is active', async ( { page } ) => {
 test( 'admin screen renders', async ( { page } ) => {
 	await visit( page, '/wp-admin/options-general.php?page=monks-central' );
 	await expect(
-		page.getByRole( 'heading', { name: 'Modules' } )
+		page.getByRole( 'heading', { name: 'Connect to Monks Central' } )
 	).toBeVisible();
+} );
+
+test( 'connector switches on and off', async ( { page } ) => {
+	await visit( page, '/wp-admin/options-general.php?page=monks-central' );
+	const toggle = page.getByLabel( 'Allow Monks Central to connect' );
+	await toggle.click();
+	await expect(
+		page.getByRole( 'heading', { name: 'Connected apps' } )
+	).toBeVisible();
+	await expect(
+		page.getByText( '/wp-json/classic-monks/v1/mcp' )
+	).toBeVisible();
+	expect( await page.content() ).not.toMatch( PHP_ERROR );
+	await page.getByLabel( 'Allow Monks Central to connect' ).click();
+	await expect(
+		page.getByRole( 'heading', { name: 'Connected apps' } )
+	).toBeHidden();
 } );
 
 test( 'front page has no plugin assets', async ( { page } ) => {
