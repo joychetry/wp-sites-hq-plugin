@@ -83,7 +83,7 @@
 	padding: 0 6px;
 	border-radius: 2px;
 	background: var(--monks-central-consent-bg);
-	color: var(--monks-central-consent-muted);
+	color: #50575e; /* #757575 is under 4.5:1 on the grey tag. */
 	font-size: 12px;
 	font-weight: 400;
 }

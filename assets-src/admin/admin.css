@@ -15,6 +15,11 @@
 	font-size: 1.1em;
 }
 
+/* DataViews drops the card body's side padding; the intro text keeps it. */
+.monks-central-admin__card .components-card__body:has(> .dataviews-wrapper) > p {
+	padding-inline: 24px;
+}
+
 .monks-central-admin__save {
 	margin-block-start: var(--monks-central-admin-gap);
 }
