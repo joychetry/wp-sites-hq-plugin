@@ -416,7 +416,7 @@ class CM_MCP_Server {
 			if ( CM_MCP_OAuth::bearer_failed() ) {
 				$message = __( 'The access token is invalid or expired. Refresh it, or connect again.', 'monks-central' );
 			} elseif ( $uuid ) {
-				$message = __( 'Application Passwords cannot use this endpoint. Connect over OAuth instead.', 'monks-central' );
+				$message = __( 'This Application Password was not created for MCP. Connect over OAuth, or use a connection made for MCP.', 'monks-central' );
 			} elseif ( ! $request->get_header( 'authorization' ) && empty( $_SERVER['HTTP_X_CM_AUTHORIZATION'] ) ) {
 				$message .= ' ' . __( 'No credentials reached WordPress. If your client sends an Authorization header, your host may be stripping it: send the same value in X-CM-Authorization.', 'monks-central' );
 			}
