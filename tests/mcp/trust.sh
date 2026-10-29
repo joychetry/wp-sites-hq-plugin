@@ -47,7 +47,7 @@ BEFORE=$(lastlog); call get-site-info >/dev/null
 check 'reads are not logged' "$(lastlog)" "$BEFORE"
 
 # 1.6 401 diagnostics
-check '401 explains a non-MCP password' "$(curl -sk -u "$PLAIN" -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"ping"}' "$MCP")" '~Connect over OAuth instead'
+check '401 explains a non-MCP password' "$(curl -sk -u "$PLAIN" -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"ping"}' "$MCP")" '~not created for MCP'
 check '401 explains missing credentials' "$(curl -sk -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"ping"}' "$MCP")" '~X-CM-Authorization'
 
 wpe "wp_delete_post($PID, true);" >/dev/null
