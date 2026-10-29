@@ -1,28 +1,36 @@
 # Changelog
 
-All notable changes to this starter. Versions follow semver.
+All notable changes to the Monks Central plugin. Versions follow semver. The
+connector library in `connector/` has its own version, named in each entry.
 
-## 0.1.0 - 2026-10-18
+## 1.0.0 - Unreleased
 
-- Plugin bootstrap for WordPress 6.9+ and PHP 8.1+: header, constants, Composer
-  PSR-4 autoloader, boot on `plugins_loaded`. Zero runtime dependencies.
-- Module registry (`src/Plugin.php`): modules listed in one array; only enabled
-  ones register hooks. Shared Abilities API category `wp-plugin-starter`.
-- Settings in one non-autoloaded option, `wps_settings`, declared once as JSON
-  Schema: defaults, sanitizing, clamping and the REST schema come from it.
-- `GET`/`POST /wps/v1/settings`, `manage_options` only.
-- Admin screen under Settings: React app with a DataViews modules table
-  (enable toggles) and a DataForm settings form, loaded on that screen only.
-- Example module, "Show related posts" under single posts: a public REST route
-  for publicly viewable posts, the `wp-plugin-starter/related-posts` ability,
-  and an Interactivity API store with server-rendered markup. 292 bytes of JS
-  and 270 of CSS gzipped, only on single posts; the CSS is inlined by core.
-- Quality: PHPCS (WPCS, PHPCompatibilityWP 8.1-), PHPStan level 6 with
-  WordPress stubs, PHPUnit with Brain Monkey, Playwright e2e on WordPress
-  Playground, ESLint, Prettier and Stylelint via wp-scripts.
-- GitHub Actions: PHP 8.1 and 8.3 lint, analyse and test; JS lint and build;
-  e2e on Playground; release zip with Plugin Check, uploaded as an artifact.
-- `bin/rename.sh` for new plugins, `bin/build-zip.sh` (`npm run plugin-zip`)
-  with `.distignore`, Playground `blueprint.json`.
-- Docs: `docs/STACK.md`, `docs/REUSE.md`, `docs/MODULES.md`, `AGENTS.md`
-  (identical `CLAUDE.md`).
+First release: the site connector for the Monks Central app.
+
+- Connector 1.1.0, shared with Classic Monks and Classic Monks Pro. Each plugin
+  registers its bundled copy and the highest version runs, so any mix of the
+  three gives one connector. It keeps the existing tables and option names, so
+  connections survive adding, removing or switching plugins.
+- OAuth 2.1 sign-in with PKCE and a consent page per app: tool groups, access
+  level, and an administrator's "this is my Monks Central app" (operator) flag.
+- MCP endpoint for the app and for AI agents, with their own connection.
+- Approvals: changes that delete or replace something wait in wp-admin unless
+  the app is the operator's.
+- Activity log with Undo, login links, and tools for plugins, themes, core and
+  translation updates, posts and pages, media (upload, import, replace and
+  restore), ACF fields, terms, users, comments, revisions, checksums, error log
+  and site snapshots.
+- Settings > Monks Central: Connect to Monks Central, connected apps with their
+  permissions, Waiting for your approval, and Activity. Built with React and
+  DataViews, loaded on that screen only.
+- Filters and abilities for a host plugin's own UI: tool groups, hints, status
+  and permissions.
+- Updates from the latest GitHub release, installed only when the zip's SHA-256
+  matches the published checksum. `bin/build-zip.sh --wporg` leaves the updater
+  out for a future WordPress.org build.
+- Uninstall removes the plugin's settings, and the connector's data only when no
+  other plugin still needs it. Deactivating the last copy revokes every
+  connection.
+- Requires WordPress 7.1 and PHP 8.1. Zero runtime dependencies.
+- Built on [wp-plugin-starter](https://github.com/joychetry/wp-plugin-starter)
+  0.1.0.
