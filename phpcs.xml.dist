@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ruleset name="WP Plugin Starter">
+<ruleset name="Monks Central">
 	<description>WordPress-Extra, WordPress-Docs and PHPCompatibilityWP for the plugin.</description>
 
 	<file>.</file>
@@ -23,7 +23,7 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="wp-plugin-starter"/>
+				<element value="monks-central"/>
 			</property>
 		</properties>
 	</rule>
@@ -31,8 +31,8 @@
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
-				<element value="WpPluginStarter"/>
-				<element value="wps_"/>
+				<element value="MonksCentral"/>
+				<element value="monks_central_"/>
 			</property>
 		</properties>
 	</rule>

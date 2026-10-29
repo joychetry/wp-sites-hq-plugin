@@ -25,13 +25,13 @@ async function visit( page, path ) {
 
 test( 'plugin is active', async ( { page } ) => {
 	await visit( page, '/wp-admin/plugins.php' );
-	await expect(
-		page.locator( 'tr[data-slug="wp-plugin-starter"]' )
-	).toHaveClass( /\bactive\b/ );
+	await expect( page.locator( 'tr[data-slug="monks-central"]' ) ).toHaveClass(
+		/\bactive\b/
+	);
 } );
 
 test( 'admin screen renders modules and settings', async ( { page } ) => {
-	await visit( page, '/wp-admin/options-general.php?page=wp-plugin-starter' );
+	await visit( page, '/wp-admin/options-general.php?page=monks-central' );
 	await expect(
 		page.getByRole( 'heading', { name: 'Modules' } )
 	).toBeVisible();
@@ -46,7 +46,9 @@ test( 'admin screen renders modules and settings', async ( { page } ) => {
 test( 'related posts load on a single post', async ( { page } ) => {
 	await visit( page, '/writing-a-module/' );
 	await page.getByRole( 'button', { name: 'Show related posts' } ).click();
-	await expect( page.locator( '.wps-related__list li' ) ).toHaveCount( 2 );
+	await expect(
+		page.locator( '.monks-central-related__list li' )
+	).toHaveCount( 2 );
 	await expect(
 		page.getByRole( 'button', { name: 'Show related posts' } )
 	).toBeHidden();
@@ -54,15 +56,15 @@ test( 'related posts load on a single post', async ( { page } ) => {
 
 test( 'front page has no plugin assets', async ( { page } ) => {
 	await visit( page, '/' );
-	expect( await page.content() ).not.toContain( 'wps-example' );
+	expect( await page.content() ).not.toContain( 'monks-central-example' );
 } );
 
 test( 'ability is registered', async ( { page } ) => {
-	await visit( page, '/wp-admin/options-general.php?page=wp-plugin-starter' );
+	await visit( page, '/wp-admin/options-general.php?page=monks-central' );
 	const ability = await page.evaluate( () =>
 		window.wp.apiFetch( {
-			path: '/wp-abilities/v1/abilities/wp-plugin-starter/related-posts',
+			path: '/wp-abilities/v1/abilities/monks-central/related-posts',
 		} )
 	);
-	expect( ability.category ).toBe( 'wp-plugin-starter' );
+	expect( ability.category ).toBe( 'monks-central' );
 } );

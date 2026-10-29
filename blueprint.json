@@ -1,6 +1,6 @@
 {
 	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
-	"landingPage": "/wp-admin/options-general.php?page=wp-plugin-starter",
+	"landingPage": "/wp-admin/options-general.php?page=monks-central",
 	"preferredVersions": {
 		"php": "8.3",
 		"wp": "latest"
@@ -17,7 +17,7 @@
 		},
 		{
 			"step": "activatePlugin",
-			"pluginPath": "wp-plugin-starter/wp-plugin-starter.php"
+			"pluginPath": "monks-central/monks-central.php"
 		},
 		{
 			"step": "runPHP",

@@ -29,19 +29,19 @@ export default function Modules( { modules, enabled, onToggle } ) {
 		() => [
 			{
 				id: 'label',
-				label: __( 'Module', 'wp-plugin-starter' ),
+				label: __( 'Module', 'monks-central' ),
 				enableHiding: false,
 				enableGlobalSearch: true,
 			},
 			{
 				id: 'description',
-				label: __( 'Description', 'wp-plugin-starter' ),
+				label: __( 'Description', 'monks-central' ),
 				enableSorting: false,
 				enableGlobalSearch: true,
 			},
 			{
 				id: 'enabled',
-				label: __( 'Enabled', 'wp-plugin-starter' ),
+				label: __( 'Enabled', 'monks-central' ),
 				enableSorting: false,
 				enableHiding: false,
 				getValue: ( { item } ) => !! enabled[ item.id ],
@@ -66,15 +66,15 @@ export default function Modules( { modules, enabled, onToggle } ) {
 	);
 
 	return (
-		<Card className="wps-admin__card">
+		<Card className="monks-central-admin__card">
 			<CardHeader>
-				<h2>{ __( 'Modules', 'wp-plugin-starter' ) }</h2>
+				<h2>{ __( 'Modules', 'monks-central' ) }</h2>
 			</CardHeader>
 			<CardBody>
 				<p>
 					{ __(
 						'A disabled module adds no hooks and loads none of its code. Changes apply on the next page load.',
-						'wp-plugin-starter'
+						'monks-central'
 					) }
 				</p>
 				<DataViews

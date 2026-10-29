@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Build an installable zip: production JS build, Composer autoloader only, no dev files.
-#   bin/build-zip.sh   (or npm run plugin-zip)  =>  dist/wp-plugin-starter.zip
+#   bin/build-zip.sh   (or npm run plugin-zip)  =>  dist/monks-central.zip
 # Files listed in .distignore stay out of the zip.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-slug=wp-plugin-starter
+slug=monks-central
 out=dist/$slug
 
 npm run build

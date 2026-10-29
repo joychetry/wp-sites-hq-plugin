@@ -2,16 +2,16 @@
 /**
  * Abilities API registration for the example module.
  *
- * @package WpPluginStarter
+ * @package MonksCentral
  */
 
-namespace WpPluginStarter\Modules\Example;
+namespace MonksCentral\Modules\Example;
 
-use WpPluginStarter\Plugin;
-use WpPluginStarter\Settings;
+use MonksCentral\Plugin;
+use MonksCentral\Settings;
 
 /**
- * `wp-plugin-starter/related-posts`: lets AI clients (through the MCP Adapter) and REST callers
+ * `monks-central/related-posts`: lets AI clients (through the MCP Adapter) and REST callers
  * find related posts. Same query and permission rule as the REST route.
  */
 final class Ability {
@@ -33,22 +33,22 @@ final class Ability {
 		);
 
 		wp_register_ability(
-			'wp-plugin-starter/related-posts',
+			'monks-central/related-posts',
 			array(
-				'label'               => __( 'Find related posts', 'wp-plugin-starter' ),
-				'description'         => __( 'Lists published posts that share a category with the given post, newest first.', 'wp-plugin-starter' ),
+				'label'               => __( 'Find related posts', 'monks-central' ),
+				'description'         => __( 'Lists published posts that share a category with the given post, newest first.', 'monks-central' ),
 				'category'            => Plugin::ABILITY_CATEGORY,
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'properties'           => array(
 						'post_id' => array(
 							'type'        => 'integer',
-							'description' => __( 'Id of a published post.', 'wp-plugin-starter' ),
+							'description' => __( 'Id of a published post.', 'monks-central' ),
 							'minimum'     => 1,
 						),
 						'count'   => array(
 							'type'        => 'integer',
-							'description' => __( 'Maximum number of posts. Defaults to the plugin setting.', 'wp-plugin-starter' ),
+							'description' => __( 'Maximum number of posts. Defaults to the plugin setting.', 'monks-central' ),
 							'minimum'     => 1,
 							'maximum'     => 10,
 						),

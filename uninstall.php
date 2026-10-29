@@ -2,9 +2,9 @@
 /**
  * Runs when the plugin is deleted from wp-admin. Removes everything the plugin stored.
  *
- * @package WpPluginStarter
+ * @package MonksCentral
  */
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
-delete_option( 'wps_settings' );
+delete_option( 'monks_central_settings' );

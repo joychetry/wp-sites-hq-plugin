@@ -1,7 +1,7 @@
 parameters:
 	level: 6
 	paths:
-		- wp-plugin-starter.php
+		- monks-central.php
 		- uninstall.php
 		- src
 	bootstrapFiles:

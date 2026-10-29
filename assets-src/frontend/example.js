@@ -5,7 +5,7 @@
 import { store, getContext } from '@wordpress/interactivity';
 import './example.css';
 
-const { state } = store( 'wps/example', {
+const { state } = store( 'monks-central/example', {
 	actions: {
 		*load() {
 			const context = getContext();

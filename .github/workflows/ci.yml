@@ -97,8 +97,8 @@ jobs:
       - run: npm run plugin-zip
       - uses: wordpress/plugin-check-action@v1
         with:
-          build-dir: dist/wp-plugin-starter
+          build-dir: dist/monks-central
       - uses: actions/upload-artifact@v7
         with:
-          name: wp-plugin-starter-zip
-          path: dist/wp-plugin-starter.zip
+          name: monks-central-zip
+          path: dist/monks-central.zip

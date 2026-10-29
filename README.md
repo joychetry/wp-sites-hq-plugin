@@ -1,4 +1,4 @@
-# WP Plugin Starter
+# Monks Central
 
 A lean, framework-free starter for WordPress plugins. Namespaced PHP with a
 Composer autoloader and a small module registry, one non-autoloaded option,
@@ -11,7 +11,7 @@ Requires WordPress 6.9+ and PHP 8.1+. Zero runtime dependencies.
 ## Quick start
 
 ```sh
-git clone https://github.com/joychetry/wp-plugin-starter.git acme-tools
+git clone https://github.com/joychetry/monks-central.git acme-tools
 cd acme-tools
 bin/rename.sh acme-tools "Acme Tools"
 composer install && npm install && npm run format && npm run build
@@ -24,13 +24,13 @@ Open http://127.0.0.1:9400. You land on Settings > Acme Tools, logged in, with
 
 ## What is inside
 
-- `wp-plugin-starter.php`: header, constants, autoloader, boot on `plugins_loaded`.
+- `monks-central.php`: header, constants, autoloader, boot on `plugins_loaded`.
 - `src/Plugin.php`: the module registry. Modules are listed in one array; only
   enabled ones register hooks.
-- `src/Settings.php`: the `wps_settings` option (not autoloaded). Fields are
+- `src/Settings.php`: the `monks_central_settings` option (not autoloaded). Fields are
   declared once as JSON Schema; defaults, sanitizing and the REST schema follow.
-- `src/Rest/SettingsController.php`: `GET`/`POST /wps/v1/settings`, admins only.
-- `src/Admin/Page.php` + `assets-src/admin/`: Settings > WP Plugin Starter, a
+- `src/Rest/SettingsController.php`: `GET`/`POST /monks-central/v1/settings`, admins only.
+- `src/Admin/Page.php` + `assets-src/admin/`: Settings > Monks Central, a
   React app with a DataViews modules table and a DataForm settings form. Loads
   on that screen only.
 - `src/Modules/Example/`: a complete module. "Show related posts" under single
@@ -50,7 +50,7 @@ Open http://127.0.0.1:9400. You land on Settings > Acme Tools, logged in, with
 | `npm run build` / `start` | wp-scripts build / watch |
 | `npm run lint:js` / `lint:css` / `format` | ESLint, Stylelint, Prettier |
 | `npm run test:e2e` | Playwright against a fresh Playground site on port 9500 |
-| `npm run plugin-zip` | `dist/wp-plugin-starter.zip` without dev files |
+| `npm run plugin-zip` | `dist/monks-central.zip` without dev files |
 
 ## Docs
 

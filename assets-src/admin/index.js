@@ -1,6 +1,6 @@
 /**
- * Admin app for Settings > WP Plugin Starter. Initial data comes from
- * window.wpsAdmin (Admin/Page.php); changes are saved to /wps/v1/settings.
+ * Admin app for Settings > Monks Central. Initial data comes from
+ * window.monksCentralAdmin (Admin/Page.php); changes are saved to /monks-central/v1/settings.
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Notice } from '@wordpress/components';
@@ -11,21 +11,23 @@ import Settings from './settings';
 import './admin.css';
 
 function App() {
-	const [ settings, setSettings ] = useState( window.wpsAdmin.settings );
+	const [ settings, setSettings ] = useState(
+		window.monksCentralAdmin.settings
+	);
 	const [ notice, setNotice ] = useState( null );
 
 	const save = async ( changes ) => {
 		setNotice( null );
 		try {
 			const saved = await apiFetch( {
-				path: '/wps/v1/settings',
+				path: '/monks-central/v1/settings',
 				method: 'POST',
 				data: changes,
 			} );
 			setSettings( saved );
 			setNotice( {
 				status: 'success',
-				text: __( 'Saved.', 'wp-plugin-starter' ),
+				text: __( 'Saved.', 'monks-central' ),
 			} );
 		} catch ( error ) {
 			setNotice( { status: 'error', text: error.message } );
@@ -33,7 +35,7 @@ function App() {
 	};
 
 	return (
-		<div className="wps-admin">
+		<div className="monks-central-admin">
 			{ notice && (
 				<Notice
 					status={ notice.status }
@@ -43,7 +45,7 @@ function App() {
 				</Notice>
 			) }
 			<Modules
-				modules={ window.wpsAdmin.modules }
+				modules={ window.monksCentralAdmin.modules }
 				enabled={ settings.modules }
 				onToggle={ ( id, on ) => save( { modules: { [ id ]: on } } ) }
 			/>
@@ -52,4 +54,6 @@ function App() {
 	);
 }
 
-createRoot( document.getElementById( 'wps-admin' ) ).render( <App /> );
+createRoot( document.getElementById( 'monks-central-admin' ) ).render(
+	<App />
+);

@@ -1,4 +1,4 @@
-=== WP Plugin Starter ===
+=== Monks Central ===
 Contributors: goodmonks
 Tags: starter, related posts
 Requires at least: 6.9
@@ -14,13 +14,13 @@ A lean, framework-free starter for WordPress plugins.
 
 A starting point for new plugins: a small module registry, one settings option, REST endpoints, a React admin screen and an Interactivity API front end.
 
-The example module adds a "Show related posts" button under single posts. It loads posts from the same categories without reloading the page. The module can be switched off under Settings > WP Plugin Starter.
+The example module adds a "Show related posts" button under single posts. It loads posts from the same categories without reloading the page. The module can be switched off under Settings > Monks Central.
 
 == Installation ==
 
 1. Upload the plugin zip under Plugins > Add New > Upload Plugin.
 2. Activate it.
-3. Open Settings > WP Plugin Starter.
+3. Open Settings > Monks Central.
 
 == Changelog ==
 

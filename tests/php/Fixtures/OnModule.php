@@ -2,10 +2,10 @@
 /**
  * Test module "on".
  *
- * @package WpPluginStarter
+ * @package MonksCentral
  */
 
-namespace WpPluginStarter\Tests\Fixtures;
+namespace MonksCentral\Tests\Fixtures;
 
 final class OnModule extends RecordingModule {
 

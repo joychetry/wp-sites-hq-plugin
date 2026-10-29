@@ -2,19 +2,19 @@
 /**
  * The plugin's admin screen under Settings.
  *
- * @package WpPluginStarter
+ * @package MonksCentral
  */
 
-namespace WpPluginStarter\Admin;
+namespace MonksCentral\Admin;
 
-use WpPluginStarter\Plugin;
+use MonksCentral\Plugin;
 
 /**
- * Adds Settings > WP Plugin Starter and loads the React app on that screen only.
+ * Adds Settings > Monks Central and loads the React app on that screen only.
  */
 final class Page {
 
-	public const SLUG = 'wp-plugin-starter';
+	public const SLUG = 'monks-central';
 
 	/**
 	 * Hook suffix of the page, set on `admin_menu`.
@@ -43,8 +43,8 @@ final class Page {
 	 */
 	public function add_page(): void {
 		$this->hook_suffix = (string) add_options_page(
-			__( 'WP Plugin Starter', 'wp-plugin-starter' ),
-			__( 'WP Plugin Starter', 'wp-plugin-starter' ),
+			__( 'Monks Central', 'monks-central' ),
+			__( 'Monks Central', 'monks-central' ),
 			'manage_options',
 			self::SLUG,
 			array( $this, 'render' )
@@ -52,16 +52,16 @@ final class Page {
 	}
 
 	/**
-	 * Page shell. The React app mounts into #wps-admin.
+	 * Page shell. The React app mounts into #monks-central-admin.
 	 */
 	public function render(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 		printf(
-			'<div class="wrap"><h1>%s</h1><div id="wps-admin"></div><noscript>%s</noscript></div>',
+			'<div class="wrap"><h1>%s</h1><div id="monks-central-admin"></div><noscript>%s</noscript></div>',
 			esc_html( get_admin_page_title() ),
-			esc_html__( 'This screen needs JavaScript.', 'wp-plugin-starter' )
+			esc_html__( 'This screen needs JavaScript.', 'monks-central' )
 		);
 	}
 
@@ -76,10 +76,10 @@ final class Page {
 			return;
 		}
 
-		wp_enqueue_script( 'wps-admin', WPS_URL . 'build/admin.js', $asset['dependencies'], $asset['version'], true );
-		wp_enqueue_style( 'wps-admin', WPS_URL . 'build/admin.css', array( 'wp-components' ), $asset['version'] );
-		wp_style_add_data( 'wps-admin', 'rtl', 'replace' );
-		wp_set_script_translations( 'wps-admin', 'wp-plugin-starter' );
+		wp_enqueue_script( 'monks-central-admin', MONKS_CENTRAL_URL . 'build/admin.js', $asset['dependencies'], $asset['version'], true );
+		wp_enqueue_style( 'monks-central-admin', MONKS_CENTRAL_URL . 'build/admin.css', array( 'wp-components' ), $asset['version'] );
+		wp_style_add_data( 'monks-central-admin', 'rtl', 'replace' );
+		wp_set_script_translations( 'monks-central-admin', 'monks-central' );
 
 		$modules = array();
 		foreach ( $this->plugin->modules() as $id => $module ) {
@@ -92,8 +92,8 @@ final class Page {
 
 		// Initial data, so the screen renders without a first REST round trip.
 		wp_add_inline_script(
-			'wps-admin',
-			'window.wpsAdmin = ' . wp_json_encode(
+			'monks-central-admin',
+			'window.monksCentralAdmin = ' . wp_json_encode(
 				array(
 					'modules'  => $modules,
 					'settings' => $this->plugin->settings()->all(),

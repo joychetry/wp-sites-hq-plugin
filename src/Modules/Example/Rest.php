@@ -2,18 +2,18 @@
 /**
  * REST route for the example module.
  *
- * @package WpPluginStarter
+ * @package MonksCentral
  */
 
-namespace WpPluginStarter\Modules\Example;
+namespace MonksCentral\Modules\Example;
 
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
-use WpPluginStarter\Settings;
+use MonksCentral\Settings;
 
 /**
- * GET `/wps/v1/related/<id>`. Public, but only for posts anyone can already read.
+ * GET `/monks-central/v1/related/<id>`. Public, but only for posts anyone can already read.
  */
 final class Rest {
 
@@ -22,7 +22,7 @@ final class Rest {
 	 */
 	public static function register_routes(): void {
 		register_rest_route(
-			'wps/v1',
+			'monks-central/v1',
 			'/related/(?P<id>\d+)',
 			array(
 				'methods'             => WP_REST_Server::READABLE,

@@ -2,12 +2,12 @@
 /**
  * Bootstrap and module registry.
  *
- * @package WpPluginStarter
+ * @package MonksCentral
  */
 
-namespace WpPluginStarter;
+namespace MonksCentral;
 
-use WpPluginStarter\Contracts\Module;
+use MonksCentral\Contracts\Module;
 
 /**
  * Boots the plugin: shared services first, then every enabled module.
@@ -26,7 +26,7 @@ final class Plugin {
 	/**
 	 * Abilities API category shared by every module's abilities.
 	 */
-	public const ABILITY_CATEGORY = 'wp-plugin-starter';
+	public const ABILITY_CATEGORY = 'monks-central';
 
 	/**
 	 * The booted instance, so other code can reach the registry.
@@ -108,8 +108,8 @@ final class Plugin {
 		wp_register_ability_category(
 			self::ABILITY_CATEGORY,
 			array(
-				'label'       => __( 'WP Plugin Starter', 'wp-plugin-starter' ),
-				'description' => __( 'Abilities provided by the WP Plugin Starter plugin.', 'wp-plugin-starter' ),
+				'label'       => __( 'Monks Central', 'monks-central' ),
+				'description' => __( 'Abilities provided by the Monks Central plugin.', 'monks-central' ),
 			)
 		);
 	}
@@ -121,7 +121,7 @@ final class Plugin {
 	 * @return array{dependencies: array<mixed>, version: string}|null
 	 */
 	public static function asset( string $name ): ?array {
-		$file = WPS_DIR . "build/{$name}.asset.php";
+		$file = MONKS_CENTRAL_DIR . "build/{$name}.asset.php";
 		return is_readable( $file ) ? require $file : null;
 	}
 

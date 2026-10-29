@@ -2,13 +2,13 @@
 /**
  * Example module: a "Show related posts" button under single posts.
  *
- * @package WpPluginStarter
+ * @package MonksCentral
  */
 
-namespace WpPluginStarter\Modules\Example;
+namespace MonksCentral\Modules\Example;
 
-use WpPluginStarter\Contracts\Module as ModuleContract;
-use WpPluginStarter\Settings;
+use MonksCentral\Contracts\Module as ModuleContract;
+use MonksCentral\Settings;
 
 /**
  * Wires the example feature. Copy this folder to start a new module.
@@ -26,14 +26,14 @@ final class Module implements ModuleContract {
 	 * Name for the admin modules list.
 	 */
 	public function label(): string {
-		return __( 'Related posts', 'wp-plugin-starter' );
+		return __( 'Related posts', 'monks-central' );
 	}
 
 	/**
 	 * Description for the admin modules list.
 	 */
 	public function description(): string {
-		return __( 'Adds a button under single posts that loads posts from the same categories.', 'wp-plugin-starter' );
+		return __( 'Adds a button under single posts that loads posts from the same categories.', 'monks-central' );
 	}
 
 	/**

@@ -2,10 +2,10 @@
 /**
  * The one query behind the example module, shared by REST and the ability.
  *
- * @package WpPluginStarter
+ * @package MonksCentral
  */
 
-namespace WpPluginStarter\Modules\Example;
+namespace MonksCentral\Modules\Example;
 
 use WP_Query;
 

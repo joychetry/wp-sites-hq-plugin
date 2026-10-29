@@ -10,13 +10,13 @@ import { DataForm, useFormValidity } from '@wordpress/dataviews';
 const fields = [
 	{
 		id: 'example_label',
-		label: __( 'Related posts button text', 'wp-plugin-starter' ),
+		label: __( 'Related posts button text', 'monks-central' ),
 		type: 'text',
 		isValid: { required: true, maxLength: 60 },
 	},
 	{
 		id: 'example_count',
-		label: __( 'Related posts to show', 'wp-plugin-starter' ),
+		label: __( 'Related posts to show', 'monks-central' ),
 		type: 'integer',
 		isValid: { required: true, min: 1, max: 10 },
 	},
@@ -42,9 +42,9 @@ export default function Settings( { settings, onSave } ) {
 	};
 
 	return (
-		<Card className="wps-admin__card">
+		<Card className="monks-central-admin__card">
 			<CardHeader>
-				<h2>{ __( 'Settings', 'wp-plugin-starter' ) }</h2>
+				<h2>{ __( 'Settings', 'monks-central' ) }</h2>
 			</CardHeader>
 			<CardBody>
 				<form onSubmit={ submit }>
@@ -62,7 +62,7 @@ export default function Settings( { settings, onSave } ) {
 					/>
 					<Button
 						__next40pxDefaultSize
-						className="wps-admin__save"
+						className="monks-central-admin__save"
 						variant="primary"
 						type="submit"
 						isBusy={ isSaving }
@@ -73,7 +73,7 @@ export default function Settings( { settings, onSave } ) {
 						}
 						accessibleWhenDisabled
 					>
-						{ __( 'Save settings', 'wp-plugin-starter' ) }
+						{ __( 'Save settings', 'monks-central' ) }
 					</Button>
 				</form>
 			</CardBody>

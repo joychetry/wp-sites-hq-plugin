@@ -1,5 +1,5 @@
 {
-	"name": "joychetry/wp-plugin-starter",
+	"name": "joychetry/monks-central",
 	"description": "A lean, framework-free WordPress plugin starter.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
@@ -18,12 +18,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"WpPluginStarter\\": "src/"
+			"MonksCentral\\": "src/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"WpPluginStarter\\Tests\\": "tests/php/"
+			"MonksCentral\\Tests\\": "tests/php/"
 		}
 	},
 	"config": {

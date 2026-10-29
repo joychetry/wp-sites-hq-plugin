@@ -2,12 +2,12 @@
 /**
  * Contract every feature module implements.
  *
- * @package WpPluginStarter
+ * @package MonksCentral
  */
 
-namespace WpPluginStarter\Contracts;
+namespace MonksCentral\Contracts;
 
-use WpPluginStarter\Settings;
+use MonksCentral\Settings;
 
 /**
  * A self-contained feature. The registry asks is_enabled() first and calls register() only

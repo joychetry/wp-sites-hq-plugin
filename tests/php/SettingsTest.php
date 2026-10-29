@@ -2,13 +2,13 @@
 /**
  * Settings tests.
  *
- * @package WpPluginStarter
+ * @package MonksCentral
  */
 
-namespace WpPluginStarter\Tests;
+namespace MonksCentral\Tests;
 
 use Brain\Monkey\Functions;
-use WpPluginStarter\Settings;
+use MonksCentral\Settings;
 
 final class SettingsTest extends TestCase {
 

@@ -2,20 +2,20 @@
 /**
  * Plugin settings, stored in one non-autoloaded option.
  *
- * @package WpPluginStarter
+ * @package MonksCentral
  */
 
-namespace WpPluginStarter;
+namespace MonksCentral;
 
 /**
- * Reads, sanitizes and saves the `wps_settings` option.
+ * Reads, sanitizes and saves the `monks_central_settings` option.
  *
  * The fields() list is the single source of truth: defaults, sanitizing and the REST schema all come from it.
  * To add a setting, add a field here and a matching DataForm field in assets-src/admin/settings.js.
  */
 final class Settings {
 
-	public const OPTION = 'wps_settings';
+	public const OPTION = 'monks_central_settings';
 
 	/**
 	 * Setting fields as JSON Schema. Supported types: boolean, integer, string, and the
