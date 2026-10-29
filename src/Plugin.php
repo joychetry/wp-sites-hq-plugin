@@ -91,6 +91,10 @@ final class Plugin {
 		if ( is_admin() ) {
 			( new Admin\Page( $this ) )->register();
 		}
+		// The wp.org build has no Updater class (bin/build-zip.sh --wporg).
+		if ( class_exists( Updater::class ) ) {
+			( new Updater() )->register();
+		}
 
 		foreach ( $this->modules as $id => $module ) {
 			if ( $module->is_enabled( $this->settings ) ) {

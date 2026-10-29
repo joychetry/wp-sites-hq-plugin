@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 # Build an installable zip: production JS build, Composer autoloader only, no dev files.
-#   bin/build-zip.sh   (or npm run plugin-zip)  =>  dist/monks-central.zip
+#   bin/build-zip.sh          (or npm run plugin-zip)  =>  dist/monks-central.zip and its .sha256
+#   bin/build-zip.sh --wporg  the same without the GitHub updater (wp.org forbids self-updaters)
 # Files listed in .distignore stay out of the zip.
 set -euo pipefail
+
+wporg=0
+[[ ${1:-} == --wporg ]] && wporg=1
 
 cd "$(dirname "$0")/.."
 slug=monks-central
@@ -12,10 +16,12 @@ npm run build
 rm -rf dist
 mkdir -p "$out"
 rsync -a --exclude-from=.distignore ./ "$out/"
+# Plugin::register() hooks the updater only when the class exists.
+((wporg)) && rm "$out/src/Updater.php"
 
 # Zero runtime dependencies: this only writes vendor/autoload.php and vendor/composer/.
 composer install --no-dev --optimize-autoloader --classmap-authoritative --no-interaction --no-progress --quiet --working-dir="$out"
 rm "$out/composer.lock"
 
-(cd dist && zip -qr "$slug.zip" "$slug")
-echo "Built dist/$slug.zip"
+(cd dist && zip -qr "$slug.zip" "$slug" && sha256sum "$slug.zip" >"$slug.zip.sha256")
+echo "Built dist/$slug.zip$( ((wporg)) && echo ' (wp.org, no updater)' )"
