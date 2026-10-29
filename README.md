@@ -1,44 +1,46 @@
-# Monks Central
+# Monks Central (WordPress plugin)
 
-A lean, framework-free starter for WordPress plugins. Namespaced PHP with a
-Composer autoloader and a small module registry, one non-autoloaded option,
-REST endpoints, a React admin screen built from what wp-admin already ships,
-an Interactivity API front end and Abilities API registration. PHPStan, PHPCS,
-PHPUnit, Playwright on WordPress Playground and Plugin Check run in CI.
+The site connector for [Monks Central](https://github.com/joychetry/monks-central),
+the free desktop app for managing many WordPress sites from one place. Install
+it on a site, add the site in the app and approve the connection in wp-admin.
+The app can then run updates, manage plugins, themes, content, media, users and
+comments, and show what changed.
+
+Status: in development, private. This is the scaffold from
+[wp-plugin-starter](https://github.com/joychetry/wp-plugin-starter); the shared
+`monks-central-connector` library (OAuth 2.1 sign-in, MCP endpoint, approvals,
+activity log and the management abilities) lands in `connector/` next. Classic
+Monks and Classic Monks Pro bundle the same library; whichever copy has the
+highest version runs, so any mix of the three plugins gives one connector and
+keeps existing connections.
 
 Requires WordPress 7.1+ and PHP 8.1+. Zero runtime dependencies.
 
-## Quick start
+## Local development
 
 ```sh
-git clone https://github.com/joychetry/monks-central.git acme-tools
-cd acme-tools
-bin/rename.sh acme-tools "Acme Tools"
-composer install && npm install && npm run format && npm run build
-npx @wp-playground/cli@latest server --mount=.:/wordpress/wp-content/plugins/acme-tools \
+composer install && npm install && npm run build
+npx @wp-playground/cli@latest server --mount=.:/wordpress/wp-content/plugins/monks-central \
   --blueprint=blueprint.json
 ```
 
-Open http://127.0.0.1:9400. You land on Settings > Acme Tools, logged in, with
-`WP_DEBUG` on.
+Open http://127.0.0.1:9400. You land on Settings > Monks Central, logged in,
+with `WP_DEBUG` on.
 
 ## What is inside
 
 - `monks-central.php`: header, constants, autoloader, boot on `plugins_loaded`.
 - `src/Plugin.php`: the module registry. Modules are listed in one array; only
   enabled ones register hooks.
-- `src/Settings.php`: the `monks_central_settings` option (not autoloaded). Fields are
-  declared once as JSON Schema; defaults, sanitizing and the REST schema follow.
-- `src/Rest/SettingsController.php`: `GET`/`POST /monks-central/v1/settings`, admins only.
-- `src/Admin/Page.php` + `assets-src/admin/`: Settings > Monks Central, a
-  React app with a DataViews modules table and a DataForm settings form. Loads
-  on that screen only.
-- `src/Modules/Example/`: a complete module. "Show related posts" under single
-  posts: hooks, a public REST route, an ability, and an Interactivity API store
-  in `assets-src/frontend/` (292 bytes of JS, 270 of CSS gzipped, only on single
-  posts).
+- `src/Settings.php`: the `monks_central_settings` option (not autoloaded).
+  Fields are declared once as JSON Schema; defaults, sanitizing and the REST
+  schema follow.
+- `src/Rest/SettingsController.php`: `GET`/`POST /monks-central/v1/settings`,
+  admins only.
+- `src/Admin/Page.php` + `assets-src/admin/`: Settings > Monks Central, a React
+  app with a DataViews modules table. Loads on that screen only.
 - `tests/php/`: PHPUnit with Brain Monkey. `tests/e2e/`: Playwright on Playground.
-- `bin/rename.sh`, `bin/build-zip.sh`, `blueprint.json`, `.github/workflows/ci.yml`.
+- `bin/build-zip.sh`, `blueprint.json`, `.github/workflows/ci.yml`.
 
 ## Commands
 
@@ -54,9 +56,6 @@ Open http://127.0.0.1:9400. You land on Settings > Acme Tools, logged in, with
 
 ## Docs
 
-- [docs/STACK.md](docs/STACK.md): every decision with the why, what to avoid,
-  the Classic Monks comparison, performance rules.
-- [docs/REUSE.md](docs/REUSE.md): new plugins, local dev, where things go,
-  checks, pulling starter updates, releases.
-- [docs/MODULES.md](docs/MODULES.md): writing a module, step by step.
-- [CHANGELOG.md](CHANGELOG.md)
+`docs/STACK.md`, `docs/REUSE.md` and `docs/MODULES.md` come from the starter
+and describe its stack and conventions. `CHANGELOG.md` is the starter's until
+the first Monks Central release.

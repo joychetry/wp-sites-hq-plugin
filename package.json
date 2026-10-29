@@ -2,7 +2,7 @@
 	"name": "monks-central",
 	"version": "0.1.0",
 	"private": true,
-	"description": "A lean, framework-free WordPress plugin starter.",
+	"description": "Site connector for the Monks Central app.",
 	"license": "GPL-2.0-or-later",
 	"scripts": {
 		"build": "wp-scripts build --experimental-modules",

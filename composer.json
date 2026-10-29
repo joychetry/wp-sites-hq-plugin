@@ -1,6 +1,6 @@
 {
 	"name": "joychetry/monks-central",
-	"description": "A lean, framework-free WordPress plugin starter.",
+	"description": "Site connector for the Monks Central app.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {

@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       Monks Central
- * Plugin URI:        https://github.com/joychetry/monks-central
- * Description:       A lean, framework-free starter for WordPress plugins.
+ * Plugin URI:        https://github.com/joychetry/monks-central-wp
+ * Description:       Connects this site to the Monks Central app, so you can manage it with your other WordPress sites from one place.
  * Version:           0.1.0
  * Requires at least: 7.1
  * Requires PHP:      8.1
