@@ -4,7 +4,7 @@
  *
  * Records every classic-monks/* ability call, whichever path it took (MCP, direct
  * core REST, WP-CLI), plus other plugins' abilities run over MCP, from core's ability
- * execution hooks. Approval requests are rows here too. Shown on the Monks Central page.
+ * execution hooks. Approval requests are rows here too. Shown on the host plugin's connection screen.
  * Read-only abilities are skipped unless the cm_ai_log_reads filter says otherwise.
  *
  * @package ClassicMonks
@@ -213,6 +213,7 @@ class CM_AI_Activity_Log {
 	}
 
 	public static function on_after_execute( $name, $input, $result ) {
+		self::remember_after_state( $name, $input );
 		self::finish( $name, 'ok', self::summarize( $result ) );
 	}
 
@@ -224,8 +225,195 @@ class CM_AI_Activity_Log {
 	}
 
 	/**
-	 * Attach undo data to the current call's row. Free has no undo; the data is kept so
-	 * Classic Monks Pro can undo the change after an upgrade (same table).
+	 * Fingerprint of the target right after an undoable change, from the tool's preview callback.
+	 * Undo refuses when it no longer matches, so it can't overwrite a newer edit.
+	 */
+	private static function remember_after_state( $name, $input ) {
+		global $wpdb;
+		$id = self::current_id( $name );
+		if ( ! $id ) {
+			return;
+		}
+		$row  = $wpdb->get_row( $wpdb->prepare( 'SELECT ability, input_json, undo_json FROM %i WHERE id = %d', self::table(), $id ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
+		$undo = $row ? json_decode( (string) $row['undo_json'], true ) : null;
+		if ( ! is_array( $undo ) ) {
+			return;
+		}
+		// input_json is cut at 8000 bytes (page saves); keep the whole input with the undo data instead.
+		// A chunked upload's base64 data (replace-media) is not needed to undo it.
+		if ( ! is_array( json_decode( (string) $row['input_json'], true ) ) ) {
+			$input             = is_array( $input ) ? array_diff_key( $input, array( 'data' => true ) ) : $input;
+			$undo['_cm_input'] = json_decode( (string) wp_json_encode( self::redact( $input ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), true );
+		}
+		$state = self::target_state( $row, $undo );
+		if ( null !== $state ) {
+			$undo['_cm_after'] = $state;
+		}
+		if ( null !== $state || isset( $undo['_cm_input'] ) ) {
+			$wpdb->update( self::table(), array( 'undo_json' => wp_json_encode( $undo ) ), array( 'id' => $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
+		}
+	}
+
+	/**
+	 * A logged call's (redacted) input: the full copy kept with the undo data when input_json was cut.
+	 *
+	 * @return array|null
+	 */
+	private static function logged_input( array $row, $undo ) {
+		if ( is_array( $undo ) && isset( $undo['_cm_input'] ) && is_array( $undo['_cm_input'] ) ) {
+			return $undo['_cm_input'];
+		}
+		$input = json_decode( (string) $row['input_json'], true );
+		return is_array( $input ) ? $input : null;
+	}
+
+	/**
+	 * Hash of the preview for a logged call's (redacted) input; null when the tool has no preview or the input is unknown.
+	 */
+	private static function target_state( array $row, $undo ) {
+		$ability  = wp_get_ability( $row['ability'] );
+		$callback = $ability ? $ability->get_meta_item( 'cm_preview_callback' ) : null;
+		$input    = self::logged_input( $row, $undo );
+		if ( ! is_callable( $callback ) || ! is_array( $input ) ) {
+			return null;
+		}
+		$input = $ability->normalize_input( $input );
+		return is_wp_error( $input ) ? null : md5( (string) wp_json_encode( call_user_func( $callback, $input ) ) );
+	}
+
+	/**
+	 * The logged change behind an undo, if the current user may undo it now.
+	 *
+	 * @return array{row: array, callback: callable, undo: array}|WP_Error
+	 */
+	public static function undo_target( $id ) {
+		global $wpdb;
+		$table = self::table();
+		$row   = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', $table, absint( $id ) ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
+		$gone  = new WP_Error( 'cm_undo_unavailable', __( 'This change can no longer be undone.', 'monks-central' ) );
+
+		if ( ! $row || 'ok' !== $row['status'] || empty( $row['undo_json'] ) ) {
+			return $gone;
+		}
+
+		$ability  = wp_get_ability( $row['ability'] );
+		$callback = $ability ? $ability->get_meta_item( 'cm_undo_callback' ) : null;
+		if ( ! is_callable( $callback ) ) {
+			return $gone;
+		}
+
+		// Undo needs the rights the change needed (a sub-site admin can't undo a super admin's change).
+		// Without a usable input (old rows whose input_json was cut), only the user who made the change or a super admin may undo.
+		$undo  = json_decode( $row['undo_json'], true );
+		$input = self::logged_input( $row, $undo );
+		if ( is_array( $input ) ) {
+			$input   = $ability->normalize_input( $input );
+			$allowed = ! is_wp_error( $input ) && true === $ability->check_permissions( $input );
+		} else {
+			$allowed = get_current_user_id() === (int) $row['user_id'] || is_super_admin();
+		}
+		if ( ! $allowed ) {
+			return new WP_Error( 'cm_undo_forbidden', __( 'You need the same permissions as the original change to undo it.', 'monks-central' ), array( 'status' => 403 ) );
+		}
+
+		return array(
+			'row'      => $row,
+			'callback' => $callback,
+			'undo'     => (array) $undo,
+		);
+	}
+
+	/**
+	 * Undo one logged change by handing its stored undo data to the ability's cm_undo_callback,
+	 * and log the undo as its own row. Used by the dashboard's Undo button and undo-operation.
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function undo( $id, $label = '' ) {
+		global $wpdb;
+		$table  = self::table();
+		$target = self::undo_target( $id );
+		if ( is_wp_error( $target ) ) {
+			return $target;
+		}
+		$row  = $target['row'];
+		$undo = $target['undo'];
+
+		// Claim the row first so a double click or a second admin can't run the undo twice.
+		if ( 1 !== (int) $wpdb->update(
+			$table,
+			array( 'status' => 'undone' ),
+			array(
+				'id'     => $row['id'],
+				'status' => 'ok',
+			)
+		) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
+			return new WP_Error( 'cm_undo_unavailable', __( 'This change can no longer be undone.', 'monks-central' ) );
+		}
+
+		$after = $undo['_cm_after'] ?? null;
+		$state = null !== $after ? self::target_state( $row, $undo ) : null;
+		unset( $undo['_cm_after'], $undo['_cm_input'] );
+		if ( null !== $after && $state !== $after ) {
+			$result = new WP_Error( 'cm_undo_drift', __( 'This was changed again since, so undoing it would overwrite the newer edit. Undo the newer change first, or fix it by hand.', 'monks-central' ) );
+		} else {
+			$result = call_user_func( $target['callback'], $undo );
+		}
+		if ( is_wp_error( $result ) ) {
+			$wpdb->update( $table, array( 'status' => 'ok' ), array( 'id' => $row['id'] ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
+			return $result;
+		}
+
+		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
+			$table,
+			array(
+				'created_at'     => current_time( 'mysql', true ),
+				'user_id'        => get_current_user_id(),
+				'source'         => 'undo',
+				'client_label'   => substr( '' !== $label ? $label : __( 'Dashboard', 'monks-central' ), 0, 190 ),
+				'ability'        => $row['ability'],
+				'input_json'     => wp_json_encode( array( 'undo_of' => (int) $row['id'] ) ),
+				'status'         => 'ok',
+				/* translators: %d: log row ID */
+				'result_summary' => sprintf( __( 'Undid change #%d.', 'monks-central' ), $row['id'] ),
+			)
+		);
+
+		return true;
+	}
+
+	/**
+	 * What an approver of an undo sees, recomputed before it runs: the change, what undo restores,
+	 * and a fingerprint of the target now (so a newer edit counts as drift).
+	 */
+	public static function undo_preview( $id ) {
+		global $wpdb;
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', self::table(), absint( $id ) ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
+		if ( ! $row ) {
+			return null;
+		}
+		$undo = json_decode( (string) $row['undo_json'], true );
+		$data = is_array( $undo ) ? array_diff_key(
+			$undo,
+			array(
+				'_cm_after' => 1,
+				'_cm_input' => 1,
+			)
+		) : null;
+		return array(
+			'id'       => (int) $row['id'],
+			'tool'     => preg_replace( '#^classic-monks/#', '', $row['ability'] ),
+			'when'     => $row['created_at'],
+			'status'   => $row['status'],
+			'summary'  => $row['result_summary'],
+			'restores' => $data,
+			'target'   => is_array( $undo ) ? self::target_state( $row, $undo ) : null,
+		);
+	}
+
+	/**
+	 * Attach undo data to the current call's row. Call from inside an ability whose
+	 * meta names a `cm_undo_callback`; the callback receives this array back.
 	 */
 	public static function set_undo( $name, array $undo ) {
 		global $wpdb;
@@ -388,7 +576,7 @@ class CM_AI_Activity_Log {
 	 * ------------------------------------------------------------------ */
 
 	/**
-	 * Log rows, newest first, for the Monks Central page.
+	 * Log rows, newest first, for the connection screen.
 	 *
 	 * @param array $args filter ('' = all, or a connection id), ability, status, limit (max 100), offset.
 	 * @return array{total: int, rows: array[]}
@@ -435,6 +623,7 @@ class CM_AI_Activity_Log {
 			if ( 'pending' === $row['status'] && class_exists( 'CM_MCP_Approvals' ) ) {
 				$row['approve_url'] = CM_MCP_Approvals::approve_url( $row['id'] );
 			}
+			$row['can_undo'] = ! empty( $row['undo_json'] ) && 'ok' === $row['status'];
 			unset( $row['undo_json'], $row['approval_json'] );
 		}
 		unset( $row );

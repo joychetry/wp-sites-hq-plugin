@@ -174,7 +174,8 @@ function cm_ai_safe_download( $url, $timeout = 30 ) {
 /**
  * Identify an image file by its content and prepare it for the media library.
  *
- * Refuses SVG, anything that is not an image, and types the site does not allow.
+ * Refuses anything that is not an image and types the site does not allow. SVG files are
+ * sanitized in place when a sanitizer is loaded, refused otherwise.
  *
  * @param string $path Temp file path.
  * @param string $stem Filename without extension.
@@ -191,15 +192,24 @@ function cm_ai_prepare_image_file( $path, $stem ) {
 		}
 	}
 
-	// Free has no full SVG sanitizer (Pro does), so remote SVG is never imported.
-	if ( 'image/svg+xml' === $mime ) {
-		return new WP_Error( 'cm_ai_not_an_image', __( 'SVG files cannot be imported or uploaded here: Classic Monks Free has no SVG cleaner. Upload them in the Media Library instead.', 'monks-central' ) );
+	// SVG can carry scripts: import it only when a full sanitizer is loaded (Classic Monks Pro's cm_sanitize_svg()).
+	if ( 'image/svg+xml' === $mime && ! function_exists( 'cm_sanitize_svg' ) ) {
+		return new WP_Error( 'cm_ai_not_an_image', __( 'SVG files cannot be imported or uploaded here: this site has no SVG cleaner. Upload them in the Media Library instead.', 'monks-central' ) );
 	}
 
-	$extension = $mime ? wp_get_default_extension_for_mime_type( $mime ) : false;
+	// Core's mime_types list has no SVG entry, so it needs naming here.
+	$extension = 'image/svg+xml' === $mime ? 'svg' : ( $mime ? wp_get_default_extension_for_mime_type( $mime ) : false );
 
 	if ( ! $extension || ! in_array( $mime, get_allowed_mime_types(), true ) ) {
 		return new WP_Error( 'cm_ai_not_an_image', __( 'The file is not an image type this site accepts.', 'monks-central' ) );
+	}
+
+	if ( 'image/svg+xml' === $mime ) {
+		$clean = cm_sanitize_svg( (string) file_get_contents( $path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- a local temp file
+		if ( is_wp_error( $clean ) ) {
+			return $clean;
+		}
+		file_put_contents( $path, $clean ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- rewrites the local temp file in place
 	}
 
 	$stem = sanitize_file_name( preg_replace( '/\.[a-z0-9]{2,5}$/i', '', (string) $stem ) );

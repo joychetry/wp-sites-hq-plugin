@@ -31,6 +31,10 @@ function cm_load_ability_files() {
 		'update-translations.php',
 		'get-site-snapshot.php',         // Monks Central refresh in one call; uses list-updates.php
 		'create-login-link.php',         // Operator grants only
+		'list-ai-activity.php',          // The activity log, with can_undo
+		'undo-operation.php',            // Undo one logged change through its ability's cm_undo_callback
+		'verify-core-checksums.php',
+		'verify-plugin-checksums.php',   // Uses plugin-management-helpers.php
 		// Plugins
 		'installed-plugin-list-and-infos.php',
 		'search-plugins.php',
