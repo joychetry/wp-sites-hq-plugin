@@ -94,10 +94,12 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run plugin-zip
+      # Plugin Check fails any plugin that updates itself, so it checks the wp.org build (no updater).
+      - run: bin/build-zip.sh --wporg
       - uses: wordpress/plugin-check-action@v1
         with:
           build-dir: dist/monks-central
+      - run: npm run plugin-zip
       - uses: actions/upload-artifact@v7
         with:
           name: monks-central-zip
