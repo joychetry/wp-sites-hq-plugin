@@ -19,10 +19,10 @@ function cm_register_list_post_types_ability() {
 	wp_register_ability(
 		'classic-monks/list-post-types',
 		array(
-			'label'               => __( 'List Post Types', 'monks-central' ),
+			'label'               => __( 'List Post Types', 'wp-sites-hq' ),
 			'description'         => __(
 				'Lists every post type you can edit (posts, pages and custom post types, including ones not shown in REST), with what each supports and the taxonomies it uses. Internal types (attachments, templates, navigation) are left out.',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'content',
 			'input_schema'        => array(

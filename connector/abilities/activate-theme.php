@@ -19,10 +19,10 @@ function cm_register_activate_theme_ability() {
 	wp_register_ability(
 		'classic-monks/activate-theme',
 		array(
-			'label'               => __( 'Activate Theme', 'monks-central' ),
+			'label'               => __( 'Activate Theme', 'wp-sites-hq' ),
 			'description'         => __(
 				"Switches the site to another installed theme. This changes how the whole site looks. Switching away from Bricks (or a Bricks child theme) turns off the Bricks builder and every Bricks layout. The home page is then loaded logged out; on a fatal error or HTTP 5xx the previous theme is switched back on and an error is returned.\n\n## Parameters\n- **stylesheet**: The theme's stylesheet (folder name) from list-themes (required).\n\n## Returns\n**previous** and **active** theme, and **check**: passed, skipped (home page unreachable) or unchanged (already active).",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -71,12 +71,12 @@ function cm_preview_active_theme( $input ) {
 function cm_execute_activate_theme( $input ) {
 	// Re-checked here because this also runs as the undo callback.
 	if ( ! current_user_can( 'switch_themes' ) ) {
-		return new WP_Error( 'forbidden', __( 'You are not allowed to switch themes.', 'monks-central' ) );
+		return new WP_Error( 'forbidden', __( 'You are not allowed to switch themes.', 'wp-sites-hq' ) );
 	}
 
 	$theme = wp_get_theme( sanitize_text_field( $input['stylesheet'] ) );
 	if ( ! $theme->exists() || ! $theme->is_allowed() ) {
-		return new WP_Error( 'cm_theme_not_found', __( 'Theme not found. Use list-themes for the exact stylesheet.', 'monks-central' ) );
+		return new WP_Error( 'cm_theme_not_found', __( 'Theme not found. Use list-themes for the exact stylesheet.', 'wp-sites-hq' ) );
 	}
 	if ( $theme->errors() ) {
 		return new WP_Error( 'cm_theme_broken', $theme->errors()->get_error_message() );
@@ -93,7 +93,7 @@ function cm_execute_activate_theme( $input ) {
 				'cm_theme_activate_fatal',
 				sprintf(
 				/* translators: 1: error excerpt, 2: previous theme */
-					__( 'The home page broke with the new theme (%1$s), so %2$s was switched back on.', 'monks-central' ),
+					__( 'The home page broke with the new theme (%1$s), so %2$s was switched back on.', 'wp-sites-hq' ),
 					$check->get_error_message(),
 					$previous
 				)
@@ -161,7 +161,7 @@ function cm_activate_theme_fatal_check() {
 	$body   = substr( (string) wp_remote_retrieve_body( $response ), 0, 20000 );
 	// A 200 with no body means the theme rendered nothing (no template found).
 	if ( 200 === $status && '' === trim( $body ) ) {
-		return new WP_Error( 'cm_theme_fatal', __( 'HTTP 200 with an empty page.', 'monks-central' ) );
+		return new WP_Error( 'cm_theme_fatal', __( 'HTTP 200 with an empty page.', 'wp-sites-hq' ) );
 	}
 	if ( $status < 500 && ! preg_match( '/There has been a critical error on this website|<b>Fatal error<\/b>|PHP Fatal error:|Uncaught (?:Error|Exception)/i', $body ) ) {
 		return true;

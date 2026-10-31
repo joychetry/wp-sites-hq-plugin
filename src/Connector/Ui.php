@@ -12,12 +12,12 @@ use MonksCentral\Plugin;
 
 /**
  * Renders the OAuth consent page and the approval page from the connector's view data.
- * The connection screen itself is the React app on Settings > Monks Central.
+ * The connection screen itself is the React app on Settings > WP Sites HQ.
  */
 final class Ui implements \Monks_Central_Connector_UI {
 
 	/**
-	 * Settings > Monks Central.
+	 * Settings > WP Sites HQ.
 	 *
 	 * @return string
 	 */
@@ -46,12 +46,12 @@ final class Ui implements \Monks_Central_Connector_UI {
 	public function render_approval( array $view ) {
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Approve change', 'monks-central' ); ?></h1>
+			<h1><?php esc_html_e( 'Approve change', 'wp-sites-hq' ); ?></h1>
 			<p>
 				<?php
 				printf(
 					/* translators: 1: connection name, 2: username, 3: tool name */
-					esc_html__( '%1$s, signed in as %2$s, wants to run %3$s.', 'monks-central' ),
+					esc_html__( '%1$s, signed in as %2$s, wants to run %3$s.', 'wp-sites-hq' ),
 					'<strong>' . esc_html( $view['client'] ) . '</strong>',
 					'<strong>' . esc_html( $view['user'] ) . '</strong>',
 					'<strong>' . esc_html( $view['tool'] ) . '</strong>'
@@ -59,18 +59,18 @@ final class Ui implements \Monks_Central_Connector_UI {
 				?>
 			</p>
 
-			<h2><?php esc_html_e( 'Arguments', 'monks-central' ); ?></h2>
+			<h2><?php esc_html_e( 'Arguments', 'wp-sites-hq' ); ?></h2>
 			<pre><?php echo esc_html( $view['input'] ); ?></pre>
 
 			<?php if ( null !== $view['preview'] ) : ?>
-			<h2><?php esc_html_e( 'What it affects now', 'monks-central' ); ?></h2>
+			<h2><?php esc_html_e( 'What it affects now', 'wp-sites-hq' ); ?></h2>
 			<pre><?php echo esc_html( $view['preview'] ); ?></pre>
 			<?php else : ?>
 			<p>
 				<?php
 				printf(
 					/* translators: %d: minutes */
-					esc_html__( 'No live preview for this tool. You are approving these arguments only, and the site may have changed since the request. Once approved, it must run within %d minutes.', 'monks-central' ),
+					esc_html__( 'No live preview for this tool. You are approving these arguments only, and the site may have changed since the request. Once approved, it must run within %d minutes.', 'wp-sites-hq' ),
 					(int) $view['blind_ttl']
 				);
 				?>
@@ -89,7 +89,7 @@ final class Ui implements \Monks_Central_Connector_UI {
 						<?php
 						printf(
 							/* translators: %d: number of calls */
-							esc_html__( 'Also approve this tool for this connection for 30 minutes (up to %d calls).', 'monks-central' ),
+							esc_html__( 'Also approve this tool for this connection for 30 minutes (up to %d calls).', 'wp-sites-hq' ),
 							(int) $view['similar_max']
 						);
 						?>
@@ -97,14 +97,14 @@ final class Ui implements \Monks_Central_Connector_UI {
 				</p>
 				<?php endif; ?>
 				<p>
-					<button type="submit" name="decision" value="approve" class="button button-primary"><?php esc_html_e( 'Approve', 'monks-central' ); ?></button>
-					<button type="submit" name="decision" value="decline" class="button"><?php esc_html_e( 'Decline', 'monks-central' ); ?></button>
+					<button type="submit" name="decision" value="approve" class="button button-primary"><?php esc_html_e( 'Approve', 'wp-sites-hq' ); ?></button>
+					<button type="submit" name="decision" value="decline" class="button"><?php esc_html_e( 'Decline', 'wp-sites-hq' ); ?></button>
 				</p>
 			</form>
 			<?php else : ?>
 			<div class="notice notice-info inline"><p><?php echo esc_html( $view['status'] ); ?></p></div>
 			<?php endif; ?>
-			<p><a href="<?php echo esc_url( $this->page_url() ); ?>"><?php esc_html_e( 'Back to Monks Central', 'monks-central' ); ?></a></p>
+			<p><a href="<?php echo esc_url( $this->page_url() ); ?>"><?php esc_html_e( 'Back to WP Sites HQ', 'wp-sites-hq' ); ?></a></p>
 		</div>
 		<?php
 	}

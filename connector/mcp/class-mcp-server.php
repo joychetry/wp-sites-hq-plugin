@@ -95,10 +95,10 @@ class CM_MCP_Server {
 
 	public static function scopes() {
 		return array(
-			'read'    => __( 'Read only', 'monks-central' ),
-			'content' => __( 'Content', 'monks-central' ),
-			'site'    => __( 'Site admin', 'monks-central' ),
-			'full'    => __( 'Full', 'monks-central' ),
+			'read'    => __( 'Read only', 'wp-sites-hq' ),
+			'content' => __( 'Content', 'wp-sites-hq' ),
+			'site'    => __( 'Site admin', 'wp-sites-hq' ),
+			'full'    => __( 'Full', 'wp-sites-hq' ),
 		);
 	}
 
@@ -109,10 +109,10 @@ class CM_MCP_Server {
 		return apply_filters(
 			'monks_central_scope_descriptions',
 			array(
-				'read'    => __( 'Can look but not change anything.', 'monks-central' ),
-				'content' => __( 'Posts, pages, media, terms and comments.', 'monks-central' ),
-				'site'    => __( 'Content, plus plugins, themes, updates and site info.', 'monks-central' ),
-				'full'    => __( 'Every enabled tool, including user tools.', 'monks-central' ),
+				'read'    => __( 'Can look but not change anything.', 'wp-sites-hq' ),
+				'content' => __( 'Posts, pages, media, terms and comments.', 'wp-sites-hq' ),
+				'site'    => __( 'Content, plus plugins, themes, updates and site info.', 'wp-sites-hq' ),
+				'full'    => __( 'Every enabled tool, including user tools.', 'wp-sites-hq' ),
 			)
 		);
 	}
@@ -124,10 +124,10 @@ class CM_MCP_Server {
 		return apply_filters(
 			'monks_central_toolsets',
 			array(
-				'content' => __( 'Content', 'monks-central' ),
-				'media'   => __( 'Media', 'monks-central' ),
-				'modules' => __( 'WP Sites HQ status', 'monks-central' ),
-				'site'    => __( 'Site admin', 'monks-central' ),
+				'content' => __( 'Content', 'wp-sites-hq' ),
+				'media'   => __( 'Media', 'wp-sites-hq' ),
+				'modules' => __( 'WP Sites HQ status', 'wp-sites-hq' ),
+				'site'    => __( 'Site admin', 'wp-sites-hq' ),
 			)
 		);
 	}
@@ -365,7 +365,7 @@ class CM_MCP_Server {
 		}
 		$message = sprintf(
 			/* translators: 1: tool name, 2: scope label */
-			__( 'This connection has the "%2$s" scope, which does not include %1$s. Connect again with more access, or ask an administrator.', 'monks-central' ),
+			__( 'This connection has the "%2$s" scope, which does not include %1$s. Connect again with more access, or ask an administrator.', 'wp-sites-hq' ),
 			$name,
 			self::scopes()[ $scope ]
 		);
@@ -410,18 +410,18 @@ class CM_MCP_Server {
 		// Spec: reject browser requests from other sites (DNS rebinding). CLI and desktop clients send no Origin.
 		$origin = $request->get_header( 'origin' );
 		if ( $origin && wp_parse_url( $origin, PHP_URL_HOST ) !== wp_parse_url( home_url(), PHP_URL_HOST ) ) {
-			return new WP_Error( 'cm_mcp_origin', __( 'Origin not allowed.', 'monks-central' ), array( 'status' => 403 ) );
+			return new WP_Error( 'cm_mcp_origin', __( 'Origin not allowed.', 'wp-sites-hq' ), array( 'status' => 403 ) );
 		}
 
 		$uuid = rest_get_authenticated_app_password();
 		if ( ! self::current_connection() ) {
-			$message = __( 'Connect over OAuth: add this site in WP Sites HQ, or in an MCP client that supports OAuth.', 'monks-central' );
+			$message = __( 'Connect over OAuth: add this site in WP Sites HQ, or in an MCP client that supports OAuth.', 'wp-sites-hq' );
 			if ( CM_MCP_OAuth::bearer_failed() ) {
-				$message = __( 'The access token is invalid or expired. Refresh it, or connect again.', 'monks-central' );
+				$message = __( 'The access token is invalid or expired. Refresh it, or connect again.', 'wp-sites-hq' );
 			} elseif ( $uuid ) {
-				$message = __( 'This Application Password was not created for MCP. Connect over OAuth, or use a connection made for MCP.', 'monks-central' );
+				$message = __( 'This Application Password was not created for MCP. Connect over OAuth, or use a connection made for MCP.', 'wp-sites-hq' );
 			} elseif ( ! $request->get_header( 'authorization' ) && empty( $_SERVER['HTTP_X_CM_AUTHORIZATION'] ) ) {
-				$message .= ' ' . __( 'No credentials reached WordPress. If your client sends an Authorization header, your host may be stripping it: send the same value in X-CM-Authorization.', 'monks-central' );
+				$message .= ' ' . __( 'No credentials reached WordPress. If your client sends an Authorization header, your host may be stripping it: send the same value in X-CM-Authorization.', 'wp-sites-hq' );
 			}
 			return new WP_Error(
 				'cm_mcp_unauthorized',
@@ -692,7 +692,7 @@ class CM_MCP_Server {
 			'monks_central_instructions',
 			sprintf(
 			/* translators: 1: site URL, 2: username */
-				__( 'These tools act on the WordPress site %1$s as the user "%2$s", with that user\'s permissions. Destructive tools need the user\'s approval: give the user approve_url, then call the same tool again with the same arguments.', 'monks-central' ),
+				__( 'These tools act on the WordPress site %1$s as the user "%2$s", with that user\'s permissions. Destructive tools need the user\'s approval: give the user approve_url, then call the same tool again with the same arguments.', 'wp-sites-hq' ),
 				home_url(),
 				wp_get_current_user()->user_login
 			)
@@ -840,7 +840,7 @@ class CM_MCP_Server {
 			} catch ( Throwable $e ) {
 				// The message can hold paths or SQL: keep it in the server log, not the agent's reply.
 				error_log( sprintf( 'Classic Monks MCP: %s threw %s: %s in %s:%d', $name, get_class( $e ), $e->getMessage(), $e->getFile(), $e->getLine() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				$output = new WP_Error( 'cm_mcp_tool_exception', __( 'The tool failed with an internal error. Details are in the site\'s PHP error log.', 'monks-central' ) );
+				$output = new WP_Error( 'cm_mcp_tool_exception', __( 'The tool failed with an internal error. Details are in the site\'s PHP error log.', 'wp-sites-hq' ) );
 			}
 		}
 
@@ -853,7 +853,7 @@ class CM_MCP_Server {
 			// URL) falls through to the plain approve_url result so the agent can hand the link to the user.
 			if ( 'decline' === $answer ) {
 				CM_MCP_Approvals::decline( (int) ( $output->get_error_data()['op_id'] ?? 0 ) );
-				$output = new WP_Error( 'cm_approval_declined', __( 'The user declined this change.', 'monks-central' ) );
+				$output = new WP_Error( 'cm_approval_declined', __( 'The user declined this change.', 'wp-sites-hq' ) );
 			}
 		}
 
@@ -904,7 +904,7 @@ class CM_MCP_Server {
 						'method' => 'elicitation/create',
 						'params' => array(
 							'mode'    => 'url',
-							'message' => __( 'This change needs your approval in WordPress. Open the page, approve or decline, then come back.', 'monks-central' ),
+							'message' => __( 'This change needs your approval in WordPress. Open the page, approve or decline, then come back.', 'wp-sites-hq' ),
 							'url'     => $data['approve_url'],
 						),
 					),
@@ -1098,7 +1098,7 @@ class CM_MCP_Server {
 				continue;
 			}
 			/* translators: %s: app name */
-			$name   = sprintf( __( '%s (OAuth)', 'monks-central' ), $grant->client_name );
+			$name   = sprintf( __( '%s (OAuth)', 'wp-sites-hq' ), $grant->client_name );
 			$rows[] = self::connection_row( 'oauth', $user, CM_MCP_OAuth::ID_PREFIX . $grant->family, $name, (int) $grant->created, (int) $grant->last_used );
 		}
 
@@ -1124,8 +1124,8 @@ class CM_MCP_Server {
 			'created'     => date_i18n( get_option( 'date_format' ), $created ),
 			'last_used'   => $last_used
 				/* translators: %s: human time difference */
-				? sprintf( __( '%s ago', 'monks-central' ), human_time_diff( $last_used ) )
-				: __( 'Never', 'monks-central' ),
+				? sprintf( __( '%s ago', 'wp-sites-hq' ), human_time_diff( $last_used ) )
+				: __( 'Never', 'wp-sites-hq' ),
 			'scope'       => self::connection_scope( $user->ID, $id ),
 			'trusted'     => CM_MCP_Approvals::is_trusted( $user->ID, $id ),
 			'operator'    => CM_MCP_Approvals::operator( $user->ID, $id ),

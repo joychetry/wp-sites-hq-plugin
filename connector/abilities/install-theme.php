@@ -19,10 +19,10 @@ function cm_register_install_theme_ability() {
 	wp_register_ability(
 		'classic-monks/install-theme',
 		array(
-			'label'               => __( 'Install Theme', 'monks-central' ),
+			'label'               => __( 'Install Theme', 'wp-sites-hq' ),
 			'description'         => __(
 				"Installs a theme from WordPress.org. It is not activated; use activate-theme for that. \n\n## Parameters\n- **slug**: WordPress.org theme slug, e.g. \"twentytwentyfive\" (required).\n\n## Returns\nThe theme stylesheet, name, version, and whether it was newly installed.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -77,7 +77,7 @@ function cm_execute_install_theme( $input ) {
 			'name'       => (string) $existing->get( 'Name' ),
 			'version'    => (string) $existing->get( 'Version' ),
 			'installed'  => false,
-			'message'    => __( 'Theme is already installed.', 'monks-central' ),
+			'message'    => __( 'Theme is already installed.', 'wp-sites-hq' ),
 		);
 	}
 
@@ -98,7 +98,7 @@ function cm_execute_install_theme( $input ) {
 		return $result;
 	}
 	if ( ! $result ) {
-		return new WP_Error( 'cm_theme_install_failed', __( 'Theme installation failed.', 'monks-central' ) );
+		return new WP_Error( 'cm_theme_install_failed', __( 'Theme installation failed.', 'wp-sites-hq' ) );
 	}
 
 	$theme = $upgrader->theme_info();
@@ -108,6 +108,6 @@ function cm_execute_install_theme( $input ) {
 		'name'       => $theme ? (string) $theme->get( 'Name' ) : (string) $api->name,
 		'version'    => $theme ? (string) $theme->get( 'Version' ) : (string) $api->version,
 		'installed'  => true,
-		'message'    => __( 'Theme installed.', 'monks-central' ),
+		'message'    => __( 'Theme installed.', 'wp-sites-hq' ),
 	);
 }

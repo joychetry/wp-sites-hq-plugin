@@ -18,10 +18,10 @@ function cm_register_verify_core_checksums_ability() {
 	wp_register_ability(
 		'classic-monks/verify-core-checksums',
 		array(
-			'label'               => __( 'Verify Core Checksums', 'monks-central' ),
+			'label'               => __( 'Verify Core Checksums', 'wp-sites-hq' ),
 			'description'         => __(
 				"Checks WordPress core files against the official checksums for the installed version, to spot tampering or hacked files. wp-content is not checked. \n\n## Returns\nWhether checksums were available, how many files were checked, modified and missing core files, and unexpected files in wp-admin and wp-includes. Each list returns up to 100 paths.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'output_schema'       => array(
@@ -84,7 +84,7 @@ function cm_execute_verify_core_checksums() {
 		$checksums = get_core_checksums( $version, 'en_US' );
 	}
 	if ( ! is_array( $checksums ) || ! $checksums ) {
-		$report['message'] = __( 'WordPress.org has no checksums for this version (beta, development or offline).', 'monks-central' );
+		$report['message'] = __( 'WordPress.org has no checksums for this version (beta, development or offline).', 'wp-sites-hq' );
 		return $report;
 	}
 
@@ -121,8 +121,8 @@ function cm_execute_verify_core_checksums() {
 
 	$report['verifiable'] = true;
 	$report['message']    = ( $report['modified'] || $report['missing'] || $report['added'] )
-		? __( 'Some core files differ from the official release.', 'monks-central' )
-		: __( 'All core files match the official release.', 'monks-central' );
+		? __( 'Some core files differ from the official release.', 'wp-sites-hq' )
+		: __( 'All core files match the official release.', 'wp-sites-hq' );
 
 	return $report;
 }

@@ -40,10 +40,10 @@ function cm_register_ability_categories() {
 		wp_register_ability_category(
 			'content',
 			array(
-				'label'       => __( 'Content Management', 'monks-central' ),
+				'label'       => __( 'Content Management', 'wp-sites-hq' ),
 				'description' => __(
 					'Abilities for creating, reading, updating, and deleting WordPress content. Includes posts, pages, custom post types, and related metadata operations.',
-					'monks-central'
+					'wp-sites-hq'
 				),
 			)
 		);
@@ -59,10 +59,10 @@ function cm_register_ability_categories() {
 		wp_register_ability_category(
 			'system',
 			array(
-				'label'       => __( 'System Information', 'monks-central' ),
+				'label'       => __( 'System Information', 'wp-sites-hq' ),
 				'description' => __(
 					'Abilities that retrieve information about the WordPress installation. Includes site details, plugins, themes, server environment, and diagnostics.',
-					'monks-central'
+					'wp-sites-hq'
 				),
 			)
 		);
@@ -78,10 +78,10 @@ function cm_register_ability_categories() {
 		wp_register_ability_category(
 			'taxonomy',
 			array(
-				'label'       => __( 'Taxonomy Management', 'monks-central' ),
+				'label'       => __( 'Taxonomy Management', 'wp-sites-hq' ),
 				'description' => __(
 					'Abilities for managing categories, tags, and custom taxonomies. Includes term creation, retrieval, hierarchy management, and organization.',
-					'monks-central'
+					'wp-sites-hq'
 				),
 			)
 		);
@@ -97,10 +97,10 @@ function cm_register_ability_categories() {
 		wp_register_ability_category(
 			'comments',
 			array(
-				'label'       => __( 'Comments Management', 'monks-central' ),
+				'label'       => __( 'Comments Management', 'wp-sites-hq' ),
 				'description' => __(
 					'Abilities for managing WordPress comments. Includes comment retrieval, moderation status, and comment analysis.',
-					'monks-central'
+					'wp-sites-hq'
 				),
 			)
 		);
@@ -116,10 +116,10 @@ function cm_register_ability_categories() {
 		wp_register_ability_category(
 			'users',
 			array(
-				'label'       => __( 'User Management', 'monks-central' ),
+				'label'       => __( 'User Management', 'wp-sites-hq' ),
 				'description' => __(
 					'Abilities for managing users and user data. Includes user retrieval, role information, capabilities, and user statistics.',
-					'monks-central'
+					'wp-sites-hq'
 				),
 			)
 		);
@@ -135,10 +135,10 @@ function cm_register_ability_categories() {
 		wp_register_ability_category(
 			'media',
 			array(
-				'label'       => __( 'Media Management', 'monks-central' ),
+				'label'       => __( 'Media Management', 'wp-sites-hq' ),
 				'description' => __(
 					'Abilities for managing media files and attachments. Includes image retrieval, metadata, and AI-powered alt text generation.',
-					'monks-central'
+					'wp-sites-hq'
 				),
 			)
 		);
@@ -154,10 +154,10 @@ function cm_register_ability_categories() {
 		wp_register_ability_category(
 			'classic-monks',
 			array(
-				'label'       => __( 'WP Sites HQ', 'monks-central' ),
+				'label'       => __( 'WP Sites HQ', 'wp-sites-hq' ),
 				'description' => __(
 					'Site status for WP Sites HQ and the approval requests waiting for you.',
-					'monks-central'
+					'wp-sites-hq'
 				),
 			)
 		);

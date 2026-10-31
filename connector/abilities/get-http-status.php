@@ -20,8 +20,8 @@ function cm_register_get_http_status_ability() {
 	wp_register_ability(
 		'classic-monks/get-http-status',
 		array(
-			'label'               => __( 'Get HTTP Status', 'monks-central' ),
-			'description'         => __( 'Loads a page of this site from the site itself (no cookies) and reports the HTTP status, the time it took and any PHP fatal error, even when the page hides it. Works while the site is in maintenance mode for an update.', 'monks-central' ),
+			'label'               => __( 'Get HTTP Status', 'wp-sites-hq' ),
+			'description'         => __( 'Loads a page of this site from the site itself (no cookies) and reports the HTTP status, the time it took and any PHP fatal error, even when the page hides it. Works while the site is in maintenance mode for an update.', 'wp-sites-hq' ),
 			'category'            => 'system',
 			'input_schema'        => array(
 				'type'                 => 'object',
@@ -68,7 +68,7 @@ function cm_execute_get_http_status( $input = array() ) {
 	$path = isset( $input['path'] ) ? (string) $input['path'] : '/';
 	// Only a path on this site: no scheme, no "//host", no backslash tricks, no whitespace.
 	if ( ! preg_match( '#^/(?![/\\\\])[^\s\\\\]*$#', $path ) || false !== strpos( $path, '://' ) ) {
-		return new WP_Error( 'cm_invalid_path', __( 'The path must start with a single "/" and be a path on this site, like "/" or "/shop/".', 'monks-central' ) );
+		return new WP_Error( 'cm_invalid_path', __( 'The path must start with a single "/" and be a path on this site, like "/" or "/shop/".', 'wp-sites-hq' ) );
 	}
 	return cm_ai_http_status( $path );
 }

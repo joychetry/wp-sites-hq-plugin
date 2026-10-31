@@ -27,10 +27,10 @@ function cm_register_get_plugins_ability() {
 	wp_register_ability(
 		'classic-monks/get-plugins',
 		array(
-			'label'               => __( 'Get Plugins', 'monks-central' ),
+			'label'               => __( 'Get Plugins', 'wp-sites-hq' ),
 			'description'         => __(
 				"Lists all installed WordPress plugins with their status and details. Use this ability to audit installed plugins or check for specific functionality. \n\n## Optional Parameters\n- **status**: Filter by status (active, inactive, all). Default: all\n- **search**: Search term to filter by plugin name\n- **force_update_check**: Force a fresh plugin update check (default: false, uses cached data)\n- **include_update_package_url**: Include masked package URL (requires manage_options)\n\n## Returns\nArray of plugins with: name, version, description, author, active status, file path, and update status (if available). Also includes global and filtered counts for active plugins and available updates.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -151,7 +151,7 @@ function cm_execute_get_plugins( $input = array() ) {
 	if ( $force_update_check && ! current_user_can( 'update_plugins' ) ) {
 		return new WP_Error(
 			'cm_forbidden_update_check',
-			__( 'You are not allowed to force plugin update checks.', 'monks-central' ),
+			__( 'You are not allowed to force plugin update checks.', 'wp-sites-hq' ),
 			array( 'status' => 403 )
 		);
 	}
@@ -159,7 +159,7 @@ function cm_execute_get_plugins( $input = array() ) {
 	if ( $include_update_package_url && ! current_user_can( 'manage_options' ) ) {
 		return new WP_Error(
 			'cm_forbidden_package_url',
-			__( 'You are not allowed to view plugin update package URLs.', 'monks-central' ),
+			__( 'You are not allowed to view plugin update package URLs.', 'wp-sites-hq' ),
 			array( 'status' => 403 )
 		);
 	}

@@ -28,10 +28,10 @@ function cm_register_get_site_info_ability() {
 	wp_register_ability(
 		'classic-monks/get-site-info',
 		array(
-			'label'               => __( 'Get Site Info', 'monks-central' ),
+			'label'               => __( 'Get Site Info', 'wp-sites-hq' ),
 			'description'         => __(
 				"Retrieves comprehensive WordPress site configuration and environment information. Provides a complete health overview including server, content, and security data. \n\n## Returns\n- **WordPress**: Version, name, URL, tagline, admin email, locale, timezone\n- **Server**: PHP version, memory limit, max execution time, server software\n- **Database**: Version, table prefix count, charset\n- **Content**: Post/page/user/comment counts, active plugins count\n- **Security**: SSL status, debug mode, file editing, auto-updates\n- **Performance**: Object cache, cron status\n\n## No Parameters Required\nThis ability takes no input parameters.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'output_schema'       => array(

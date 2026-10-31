@@ -19,10 +19,10 @@ function cm_register_delete_comment_ability() {
 	wp_register_ability(
 		'classic-monks/delete-comment',
 		array(
-			'label'               => __( 'Delete Comment', 'monks-central' ),
+			'label'               => __( 'Delete Comment', 'wp-sites-hq' ),
 			'description'         => __(
 				"Permanently deletes one comment, like \"Delete Permanently\" on the Comments screen. Cannot be undone. Only comments in the trash or marked as spam can be deleted; move a comment there first with moderate-comment. Its replies move up to its parent.\n\n## Parameters\n- **comment_id**: ID of the comment (required)\n\n## Returns\ncomment_id, post_id, previous_status, deleted.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'comments',
 			'input_schema'        => array(
@@ -68,14 +68,14 @@ function cm_register_delete_comment_ability() {
 function cm_execute_delete_comment( $input ) {
 	$comment = get_comment( absint( $input['comment_id'] ) );
 	if ( ! $comment ) {
-		return new WP_Error( 'comment_not_found', __( 'Comment not found.', 'monks-central' ) );
+		return new WP_Error( 'comment_not_found', __( 'Comment not found.', 'wp-sites-hq' ) );
 	}
 	$status = (string) wp_get_comment_status( $comment );
 	if ( ! in_array( $status, array( 'trash', 'spam' ), true ) ) {
-		return new WP_Error( 'comment_not_trashed', __( 'Only comments in the trash or marked as spam can be deleted permanently. Trash it with moderate-comment first.', 'monks-central' ) );
+		return new WP_Error( 'comment_not_trashed', __( 'Only comments in the trash or marked as spam can be deleted permanently. Trash it with moderate-comment first.', 'wp-sites-hq' ) );
 	}
 	if ( ! wp_delete_comment( $comment, true ) ) {
-		return new WP_Error( 'delete_failed', __( 'Could not delete the comment.', 'monks-central' ) );
+		return new WP_Error( 'delete_failed', __( 'Could not delete the comment.', 'wp-sites-hq' ) );
 	}
 
 	return array(

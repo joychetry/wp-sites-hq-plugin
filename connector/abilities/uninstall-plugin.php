@@ -19,10 +19,10 @@ function cm_register_uninstall_plugin_ability() {
 	wp_register_ability(
 		'classic-monks/uninstall-plugin',
 		array(
-			'label'               => __( 'Uninstall Plugin', 'monks-central' ),
+			'label'               => __( 'Uninstall Plugin', 'wp-sites-hq' ),
 			'description'         => __(
 				"Uninstalls an inactive plugin: runs its uninstall routine (which may delete its data) and deletes its files. \n\n## Parameters\n- One of **plugin_file**, **slug** or **name** to pick the plugin.\n\n## Notes\n- This cannot be undone.\n- Deactivate the plugin first; active plugins and the plugin that runs the connection are refused.\n- Not available when the site disallows file changes (DISALLOW_FILE_MODS).\n\n## Returns\nThe plugin file and name, and whether it was removed.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -89,10 +89,10 @@ function cm_execute_uninstall_plugin( $input ) {
 	$state = cm_ai_get_plugin_state( $file, $resolved['plugin_data'] );
 
 	if ( cm_ai_is_current_plugin( $file ) ) {
-		return new WP_Error( 'cm_plugin_self_uninstall', __( 'This plugin runs the connection, so it cannot be uninstalled over it.', 'monks-central' ) );
+		return new WP_Error( 'cm_plugin_self_uninstall', __( 'This plugin runs the connection, so it cannot be uninstalled over it.', 'wp-sites-hq' ) );
 	}
 	if ( $state['active'] ) {
-		return new WP_Error( 'cm_plugin_active', __( 'Deactivate the plugin before uninstalling it.', 'monks-central' ) );
+		return new WP_Error( 'cm_plugin_active', __( 'Deactivate the plugin before uninstalling it.', 'wp-sites-hq' ) );
 	}
 
 	// Runs the plugin's uninstall.php / uninstall hook, then deletes its files.
@@ -101,7 +101,7 @@ function cm_execute_uninstall_plugin( $input ) {
 		return $result;
 	}
 	if ( true !== $result ) {
-		return new WP_Error( 'cm_plugin_uninstall_failed', __( 'The plugin files could not be deleted. WordPress may need FTP credentials.', 'monks-central' ) );
+		return new WP_Error( 'cm_plugin_uninstall_failed', __( 'The plugin files could not be deleted. WordPress may need FTP credentials.', 'wp-sites-hq' ) );
 	}
 
 	return array(

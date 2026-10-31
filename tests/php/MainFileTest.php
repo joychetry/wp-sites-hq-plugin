@@ -10,7 +10,7 @@ namespace MonksCentral\Tests;
 use Brain\Monkey\Actions;
 
 /**
- * The bootstrap already defines the constants, as the first include of monks-central.php does.
+ * The bootstrap already defines the constants, as the first include of wp-sites-hq.php does.
  */
 final class MainFileTest extends TestCase {
 
@@ -33,17 +33,17 @@ final class MainFileTest extends TestCase {
 	}
 
 	public function test_a_second_copy_in_another_folder_shows_one_notice(): void {
-		$dir = sys_get_temp_dir() . '/monks-central-copy-' . uniqid();
+		$dir = sys_get_temp_dir() . '/wp-sites-hq-copy-' . uniqid();
 		mkdir( $dir );
-		copy( MONKS_CENTRAL_FILE, $dir . '/monks-central.php' );
+		copy( MONKS_CENTRAL_FILE, $dir . '/wp-sites-hq.php' );
 
 		Actions\expectAdded( 'admin_notices' )->once();
 		Actions\expectAdded( 'plugins_loaded' )->never();
 
-		include $dir . '/monks-central.php';
+		include $dir . '/wp-sites-hq.php';
 
-		unlink( $dir . '/monks-central.php' );
+		unlink( $dir . '/wp-sites-hq.php' );
 		rmdir( $dir );
-		$this->assertSame( MONKS_CENTRAL_DIR . 'monks-central.php', MONKS_CENTRAL_FILE );
+		$this->assertSame( MONKS_CENTRAL_DIR . 'wp-sites-hq.php', MONKS_CENTRAL_FILE );
 	}
 }

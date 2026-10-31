@@ -19,10 +19,10 @@ function cm_register_deactivate_plugin_ability() {
 	wp_register_ability(
 		'classic-monks/deactivate-plugin',
 		array(
-			'label'               => __( 'Deactivate Plugin', 'monks-central' ),
+			'label'               => __( 'Deactivate Plugin', 'wp-sites-hq' ),
 			'description'         => __(
 				"Deactivates an installed WordPress plugin. Provide the plugin file, slug, or exact installed plugin name. \n\n## Required Parameters\n- Provide one of: **plugin_file**, **slug**, or **name**\n\n## Returns\nThe plugin file, slug, name, current version, activation state, and a status message.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -100,20 +100,20 @@ function cm_execute_deactivate_plugin( $input ) {
 	if ( cm_ai_is_current_plugin( $plugin_file ) ) {
 		return new WP_Error(
 			'cm_plugin_protected',
-			__( 'This plugin runs the connection, so it cannot be deactivated over it.', 'monks-central' ),
+			__( 'This plugin runs the connection, so it cannot be deactivated over it.', 'wp-sites-hq' ),
 			array( 'status' => 409 )
 		);
 	}
 
 	if ( ! $state['active'] ) {
-		$state['message'] = __( 'Plugin is already inactive.', 'monks-central' );
+		$state['message'] = __( 'Plugin is already inactive.', 'wp-sites-hq' );
 		return $state;
 	}
 
 	deactivate_plugins( $plugin_file, false, $network_wide );
 
 	$state            = cm_ai_get_plugin_state( $plugin_file, $plugin_data );
-	$state['message'] = __( 'Plugin deactivated successfully.', 'monks-central' );
+	$state['message'] = __( 'Plugin deactivated successfully.', 'wp-sites-hq' );
 
 	return $state;
 }

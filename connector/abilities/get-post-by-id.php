@@ -29,10 +29,10 @@ function cm_register_get_post_by_id_ability() {
 	wp_register_ability(
 		'classic-monks/get-post-by-id',
 		array(
-			'label'               => __( 'Get Post by ID', 'monks-central' ),
+			'label'               => __( 'Get Post by ID', 'wp-sites-hq' ),
 			'description'         => __(
 				"Retrieves a single post by its ID with full details. Use this to get complete information about a specific post including content, metadata, taxonomies, and featured image. \n\n## Required Parameters\n- **post_id**: The ID of the post to retrieve (required)\n\n## Returns\n- **Basic Info**: id, title, slug, status, type, permalink, edit_link\n- **Content**: Full content, excerpt\n- **Dates**: Created date, modified date (with GMT variants)\n- **Author**: Author name and ID\n- **Taxonomies**: Categories and tags (for post type)\n- **Settings**: Comment status, ping status, menu order, parent\n- **Media**: Featured image URL",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'content',
 			'input_schema'        => array(
@@ -181,7 +181,7 @@ function cm_execute_get_post_by_id( $input ) {
 	$post    = get_post( $post_id );
 
 	if ( ! $post ) {
-		return new WP_Error( 'post_not_found', __( 'Post not found.', 'monks-central' ) );
+		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 	}
 
 	$result = array(

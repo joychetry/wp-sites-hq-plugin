@@ -19,10 +19,10 @@ function cm_register_update_theme_ability() {
 	wp_register_ability(
 		'classic-monks/update-theme',
 		array(
-			'label'               => __( 'Update Theme', 'monks-central' ),
+			'label'               => __( 'Update Theme', 'wp-sites-hq' ),
 			'description'         => __(
 				"Updates an installed theme to the latest version when an update is available. \n\n## Parameters\n- **stylesheet**: The theme's stylesheet from list-themes (required).\n\n## Returns\nThe theme, its version before and after, whether it was updated, and a message.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -85,7 +85,7 @@ function cm_execute_update_theme( $input ) {
 
 	$theme = wp_get_theme( sanitize_text_field( $input['stylesheet'] ) );
 	if ( ! $theme->exists() ) {
-		return new WP_Error( 'cm_theme_not_found', __( 'Theme not found. Use list-themes for the exact stylesheet.', 'monks-central' ) );
+		return new WP_Error( 'cm_theme_not_found', __( 'Theme not found. Use list-themes for the exact stylesheet.', 'wp-sites-hq' ) );
 	}
 
 	$stylesheet = $theme->get_stylesheet();
@@ -100,7 +100,7 @@ function cm_execute_update_theme( $input ) {
 			'previous_version' => $previous,
 			'version'          => $previous,
 			'updated'          => false,
-			'message'          => __( 'No update is available for this theme.', 'monks-central' ),
+			'message'          => __( 'No update is available for this theme.', 'wp-sites-hq' ),
 		);
 	}
 
@@ -110,7 +110,7 @@ function cm_execute_update_theme( $input ) {
 		return $result;
 	}
 	if ( ! $result ) {
-		return new WP_Error( 'cm_theme_update_failed', __( 'Theme update failed.', 'monks-central' ) );
+		return new WP_Error( 'cm_theme_update_failed', __( 'Theme update failed.', 'wp-sites-hq' ) );
 	}
 
 	wp_clean_themes_cache();
@@ -120,6 +120,6 @@ function cm_execute_update_theme( $input ) {
 		'previous_version' => $previous,
 		'version'          => (string) wp_get_theme( $stylesheet )->get( 'Version' ),
 		'updated'          => true,
-		'message'          => __( 'Theme updated.', 'monks-central' ),
+		'message'          => __( 'Theme updated.', 'wp-sites-hq' ),
 	);
 }

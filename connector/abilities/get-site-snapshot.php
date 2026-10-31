@@ -21,10 +21,10 @@ function cm_register_get_site_snapshot_ability() {
 	wp_register_ability(
 		'classic-monks/get-site-snapshot',
 		array(
-			'label'               => __( 'Get Site Snapshot', 'monks-central' ),
+			'label'               => __( 'Get Site Snapshot', 'wp-sites-hq' ),
 			'description'         => __(
 				'One call for a site overview: WordPress core (version, database version), PHP, database server, every plugin and theme (version, active, auto-update, available update), pending updates including translations (as list-updates), the last Site Health result, environment flags, and the file-system method: when filesystem.needs_credentials is true, installs and updates cannot run without FTP/SSH credentials, through these tools or any other.',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(

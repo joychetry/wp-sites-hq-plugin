@@ -36,7 +36,7 @@ site() {
     w config create --dbname=wp --dbuser=wp --dbpass=wp --skip-check --quiet --extra-php <<<"define( 'WP_ENVIRONMENT_TYPE', 'local' ); define( 'WP_DEBUG', true ); define( 'WP_DEBUG_LOG', true ); define( 'WP_DEBUG_DISPLAY', false );"
     w core install --url="$SITE" --title='Mix' --admin_user=admin --admin_password=admin --admin_email=admin@example.com --skip-email --quiet
     w rewrite structure '/%postname%/' --quiet
-    rsync -a --exclude=.git --exclude=node_modules --exclude=dist --exclude=tests "$MC_DIR/" "$ROOT/wp-content/plugins/monks-central/"
+    rsync -a --exclude=.git --exclude=node_modules --exclude=dist --exclude=tests "$MC_DIR/" "$ROOT/wp-content/plugins/wp-sites-hq/"
     rsync -a --exclude=.git --exclude=node_modules --exclude=dist --exclude=tests "$FREE/" "$ROOT/wp-content/plugins/classic-monks/"
     rsync -a --exclude=.git --exclude=node_modules --exclude=dist --exclude=tests --exclude=build "$PRO/" "$ROOT/wp-content/plugins/classic-monks-pro/"
     curl -s -o /dev/null "$SITE/" && { echo "port $PORT is already in use (set CM_PORT)"; exit 1; }
@@ -76,16 +76,16 @@ bump() { echo "<?php if ( ! defined( 'ABSPATH' ) ) { exit; } return '$2';" >"$RO
 LIB=$(sed -n "s/^return '\(.*\)';/\1/p" "$MC_DIR/connector/version.php")
 
 site 'Monks Central alone, then Free'
-on monks-central; enable; grant
-check 'MC alone boots one copy'        "$(booted)" "1 $LIB Monks Central"
+on wp-sites-hq; enable; grant
+check 'MC alone boots one copy'        "$(booted)" "1 $LIB WP Sites HQ"
 works 'MC alone'
 on classic-monks
 check 'Free + MC: one copy, tie goes to the first loaded' "$(booted)" "1 $LIB Classic Monks"
 works 'Free + MC'
-bump monks-central 9.0.0
-check 'Free + newer MC: MC runs'       "$(booted)" '1 9.0.0 Monks Central'
+bump wp-sites-hq 9.0.0
+check 'Free + newer MC: MC runs'       "$(booted)" '1 9.0.0 WP Sites HQ'
 works 'Free + newer MC'
-off monks-central
+off wp-sites-hq
 check 'Free alone after MC removed'    "$(booted)" "1 $LIB Classic Monks"
 works 'Free alone'
 echo "::endgroup::"
@@ -96,24 +96,24 @@ check 'Pro alone boots one copy'       "$(booted)" "1 $LIB Classic Monks Pro"
 check '... its switch is the shared one' "$(wpe 'global $wpdb; echo $wpdb->get_var("SELECT option_value FROM {$wpdb->options} WHERE option_name = \"cm_mcp_enabled\"");')" 1
 works 'Pro alone'
 check '... Pro tools served'          "$(tool get-features)" ok
-on monks-central
+on wp-sites-hq
 check 'Pro + MC: one copy, tie goes to the first loaded' "$(booted)" "1 $LIB Classic Monks Pro"
 works 'Pro + MC'
-bump monks-central 9.0.0
-check 'Pro + newer MC: MC runs'        "$(booted)" '1 9.0.0 Monks Central'
+bump wp-sites-hq 9.0.0
+check 'Pro + newer MC: MC runs'        "$(booted)" '1 9.0.0 WP Sites HQ'
 works 'Pro + newer MC'
 check '... Pro tools still served'     "$(tool get-features)" ok
-bump monks-central "$LIB"; bump classic-monks-pro 9.0.0
+bump wp-sites-hq "$LIB"; bump classic-monks-pro 9.0.0
 check 'newer Pro + MC: Pro runs'       "$(booted)" '1 9.0.0 Classic Monks Pro'
 works 'newer Pro + MC'
 off classic-monks-pro
-check 'MC alone after Pro removed'     "$(booted)" "1 $LIB Monks Central"
+check 'MC alone after Pro removed'     "$(booted)" "1 $LIB WP Sites HQ"
 works 'MC after Pro'
 echo "::endgroup::"
 
 site 'All three'
 on classic-monks-pro; enable; pro_ai; grant
-on monks-central classic-monks
+on wp-sites-hq classic-monks
 # classic-monks-pro/ sorts before classic-monks/, so Pro loads first and Free stands down.
 check 'all three: one Classic Monks, one copy' "$(booted)" "1 $LIB Classic Monks Pro"
 check '... Free stands down'           "$(wpe 'echo function_exists("cm_hq_licence_status") ? "pro" : "free";')" pro
@@ -123,7 +123,7 @@ off classic-monks-pro
 check 'Free + MC after Pro removed'    "$(booted)" "1 $LIB Classic Monks"
 works 'Free + MC (from all three)'
 off classic-monks
-check 'MC alone at the end'            "$(booted)" "1 $LIB Monks Central"
+check 'MC alone at the end'            "$(booted)" "1 $LIB WP Sites HQ"
 works 'MC alone (from all three)'
 on classic-monks-pro
 check 'switched back to Pro'           "$(booted)" "1 $LIB Classic Monks Pro"

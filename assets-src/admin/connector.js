@@ -29,14 +29,14 @@ function ConfirmRevoke( { items, closeModal, onRevoke } ) {
 					/* translators: %s: app name */
 					__(
 						'%s is signed out at once and has to connect again to reach this site.',
-						'monks-central'
+						'wp-sites-hq'
 					),
 					items[ 0 ].name
 				) }
 			</p>
 			<Flex justify="flex-end">
 				<Button variant="tertiary" onClick={ closeModal }>
-					{ __( 'Cancel', 'monks-central' ) }
+					{ __( 'Cancel', 'wp-sites-hq' ) }
 				</Button>
 				<Button
 					variant="primary"
@@ -49,7 +49,7 @@ function ConfirmRevoke( { items, closeModal, onRevoke } ) {
 						closeModal();
 					} }
 				>
-					{ __( 'Revoke', 'monks-central' ) }
+					{ __( 'Revoke', 'wp-sites-hq' ) }
 				</Button>
 			</Flex>
 		</>
@@ -71,21 +71,21 @@ function Connections( { rows, onRevoke, onOperator } ) {
 		() => [
 			{
 				id: 'name',
-				label: __( 'App', 'monks-central' ),
+				label: __( 'App', 'wp-sites-hq' ),
 				enableHiding: false,
 			},
 			{
 				id: 'user',
-				label: __( 'Signs in as', 'monks-central' ),
+				label: __( 'Signs in as', 'wp-sites-hq' ),
 				render: ( { item } ) => `${ item.user } (${ item.role })`,
 			},
 			{
 				id: 'scope_label',
-				label: __( 'Access', 'monks-central' ),
+				label: __( 'Access', 'wp-sites-hq' ),
 			},
 			{
 				id: 'approvals',
-				label: __( 'Approvals', 'monks-central' ),
+				label: __( 'Approvals', 'wp-sites-hq' ),
 				enableSorting: false,
 				render: ( { item } ) => {
 					if ( item.operator !== null ) {
@@ -94,7 +94,7 @@ function Connections( { rows, onRevoke, onOperator } ) {
 								__nextHasNoMarginBottom
 								label={ __(
 									'Operator: updates, user changes and deletes run without asking',
-									'monks-central'
+									'wp-sites-hq'
 								) }
 								checked={ item.operator }
 								onChange={ ( skip ) =>
@@ -104,13 +104,13 @@ function Connections( { rows, onRevoke, onOperator } ) {
 						);
 					}
 					return item.trusted
-						? __( 'Skips approvals', 'monks-central' )
-						: __( 'Asks before changes', 'monks-central' );
+						? __( 'Skips approvals', 'wp-sites-hq' )
+						: __( 'Asks before changes', 'wp-sites-hq' );
 				},
 			},
 			{
 				id: 'last_used',
-				label: __( 'Last used', 'monks-central' ),
+				label: __( 'Last used', 'wp-sites-hq' ),
 				enableSorting: false,
 			},
 		],
@@ -121,9 +121,9 @@ function Connections( { rows, onRevoke, onOperator } ) {
 		() => [
 			{
 				id: 'revoke',
-				label: __( 'Revoke', 'monks-central' ),
+				label: __( 'Revoke', 'wp-sites-hq' ),
 				isPrimary: true,
-				modalHeader: __( 'Revoke this connection?', 'monks-central' ),
+				modalHeader: __( 'Revoke this connection?', 'wp-sites-hq' ),
 				RenderModal: ( props ) => (
 					<ConfirmRevoke { ...props } onRevoke={ onRevoke } />
 				),
@@ -135,13 +135,13 @@ function Connections( { rows, onRevoke, onOperator } ) {
 	return (
 		<Card className="monks-central-admin__card">
 			<CardHeader>
-				<h2>{ __( 'Connected apps', 'monks-central' ) }</h2>
+				<h2>{ __( 'Connected apps', 'wp-sites-hq' ) }</h2>
 			</CardHeader>
 			<CardBody>
 				<p>
 					{ __(
 						'Revoking signs the app out at once. Deactivating the last plugin that runs the connection revokes every connection.',
-						'monks-central'
+						'wp-sites-hq'
 					) }
 				</p>
 				<DataViews
@@ -160,7 +160,7 @@ function Connections( { rows, onRevoke, onOperator } ) {
 						<p>
 							{ __(
 								'No apps are connected yet.',
-								'monks-central'
+								'wp-sites-hq'
 							) }
 						</p>
 					}
@@ -179,7 +179,7 @@ function Pending( { rows } ) {
 	return (
 		<Card className="monks-central-admin__card">
 			<CardHeader>
-				<h2>{ __( 'Waiting for your approval', 'monks-central' ) }</h2>
+				<h2>{ __( 'Waiting for your approval', 'wp-sites-hq' ) }</h2>
 			</CardHeader>
 			<CardBody>
 				<ul className="monks-central-admin__pending">
@@ -188,7 +188,7 @@ function Pending( { rows } ) {
 							<a href={ row.approve_url }>{ row.tool }</a>{ ' ' }
 							{ sprintf(
 								/* translators: %s: app name */
-								__( 'from %s', 'monks-central' ),
+								__( 'from %s', 'wp-sites-hq' ),
 								row.client
 							) }
 						</li>
@@ -234,29 +234,29 @@ function Activity( { version, onNotice } ) {
 		() => [
 			{
 				id: 'tool',
-				label: __( 'Tool', 'monks-central' ),
+				label: __( 'Tool', 'wp-sites-hq' ),
 				enableHiding: false,
 				enableSorting: false,
 				render: ( { item } ) => <code>{ item.tool }</code>,
 			},
 			{
 				id: 'when',
-				label: __( 'When', 'monks-central' ),
+				label: __( 'When', 'wp-sites-hq' ),
 				enableSorting: false,
 			},
 			{
 				id: 'client_label',
-				label: __( 'App', 'monks-central' ),
+				label: __( 'App', 'wp-sites-hq' ),
 				enableSorting: false,
 			},
 			{
 				id: 'user',
-				label: __( 'User', 'monks-central' ),
+				label: __( 'User', 'wp-sites-hq' ),
 				enableSorting: false,
 			},
 			{
 				id: 'status',
-				label: __( 'Result', 'monks-central' ),
+				label: __( 'Result', 'wp-sites-hq' ),
 				enableSorting: false,
 				render: ( { item } ) =>
 					item.approve_url ? (
@@ -267,7 +267,7 @@ function Activity( { version, onNotice } ) {
 			},
 			{
 				id: 'result_summary',
-				label: __( 'Details', 'monks-central' ),
+				label: __( 'Details', 'wp-sites-hq' ),
 				enableSorting: false,
 			},
 		],
@@ -278,7 +278,7 @@ function Activity( { version, onNotice } ) {
 		() => [
 			{
 				id: 'undo',
-				label: __( 'Undo', 'monks-central' ),
+				label: __( 'Undo', 'wp-sites-hq' ),
 				isPrimary: true,
 				isEligible: ( item ) => item.can_undo,
 				callback: async ( [ item ] ) => {
@@ -289,7 +289,7 @@ function Activity( { version, onNotice } ) {
 						} );
 						onNotice( {
 							status: 'success',
-							text: __( 'Change undone.', 'monks-central' ),
+							text: __( 'Change undone.', 'wp-sites-hq' ),
 						} );
 					} catch ( error ) {
 						onNotice( { status: 'error', text: error.message } );
@@ -304,13 +304,13 @@ function Activity( { version, onNotice } ) {
 	return (
 		<Card className="monks-central-admin__card">
 			<CardHeader>
-				<h2>{ __( 'Activity', 'monks-central' ) }</h2>
+				<h2>{ __( 'Activity', 'wp-sites-hq' ) }</h2>
 			</CardHeader>
 			<CardBody>
 				<p>
 					{ __(
 						'Every change a connected app made or asked for, newest first. Reads are not listed.',
-						'monks-central'
+						'wp-sites-hq'
 					) }
 				</p>
 				<DataViews
@@ -329,7 +329,7 @@ function Activity( { version, onNotice } ) {
 						),
 					} }
 					defaultLayouts={ { table: {} } }
-					empty={ <p>{ __( 'Nothing yet.', 'monks-central' ) }</p> }
+					empty={ <p>{ __( 'Nothing yet.', 'wp-sites-hq' ) }</p> }
 				>
 					<DataViews.Layout />
 					<DataViews.Pagination />
@@ -344,8 +344,8 @@ function Status( { state, runsHere, onToggle } ) {
 		return (
 			<Notice status="info" isDismissible={ false }>
 				{ __(
-					'Classic Monks connects this site to Monks Central for now. Manage the connection under Classic Monks > Monks Central.',
-					'monks-central'
+					'Classic Monks connects this site to WP Sites HQ for now. Manage the connection under Classic Monks > WP Sites HQ.',
+					'wp-sites-hq'
 				) }
 			</Notice>
 		);
@@ -357,12 +357,12 @@ function Status( { state, runsHere, onToggle } ) {
 					/* translators: %s: plugin name */
 					__(
 						'%s runs the connection on this site, so its screen manages it.',
-						'monks-central'
+						'wp-sites-hq'
 					),
 					state.host
 				) }{ ' ' }
 				<a href={ state.page_url }>
-					{ __( 'Open it', 'monks-central' ) }
+					{ __( 'Open it', 'wp-sites-hq' ) }
 				</a>
 			</Notice>
 		);
@@ -370,21 +370,21 @@ function Status( { state, runsHere, onToggle } ) {
 	return (
 		<Card className="monks-central-admin__card">
 			<CardHeader>
-				<h2>{ __( 'Connect to Monks Central', 'monks-central' ) }</h2>
+				<h2>{ __( 'Connect to WP Sites HQ', 'wp-sites-hq' ) }</h2>
 			</CardHeader>
 			<CardBody>
 				<p>
 					{ __(
-						'Lets the Monks Central desktop app, or another MCP client that signs in with OAuth, manage this site: updates, plugins, themes, content, media, users and comments. Each app signs in as a WordPress user who approves it, with that user’s permissions. Changes that delete or replace something wait for your approval unless you marked the app as your operator.',
-						'monks-central'
+						'Lets the WP Sites HQ desktop app, or another MCP client that signs in with OAuth, manage this site: updates, plugins, themes, content, media, users and comments. Each app signs in as a WordPress user who approves it, with that user’s permissions. Changes that delete or replace something wait for your approval unless you marked the app as your operator.',
+						'wp-sites-hq'
 					) }
 				</p>
 				{ state.supported ? (
 					<ToggleControl
 						__nextHasNoMarginBottom
 						label={ __(
-							'Allow Monks Central to connect',
-							'monks-central'
+							'Allow WP Sites HQ to connect',
+							'wp-sites-hq'
 						) }
 						checked={ state.enabled }
 						onChange={ onToggle }
@@ -392,8 +392,8 @@ function Status( { state, runsHere, onToggle } ) {
 				) : (
 					<Notice status="warning" isDismissible={ false }>
 						{ __(
-							'Monks Central needs WordPress 7.1 or newer. Update WordPress under Dashboard > Updates first.',
-							'monks-central'
+							'WP Sites HQ needs WordPress 7.1 or newer. Update WordPress under Dashboard > Updates first.',
+							'wp-sites-hq'
 						) }
 					</Notice>
 				) }
@@ -401,15 +401,15 @@ function Status( { state, runsHere, onToggle } ) {
 					<div className="monks-central-admin__address">
 						<p>
 							{ __(
-								'Add this site in Monks Central with its address:',
-								'monks-central'
+								'Add this site in WP Sites HQ with its address:',
+								'wp-sites-hq'
 							) }{ ' ' }
 							<code>{ state.site }</code>
 						</p>
 						<p className="monks-central-admin__muted">
 							{ __(
 								'Other MCP clients use the endpoint:',
-								'monks-central'
+								'wp-sites-hq'
 							) }{ ' ' }
 							<code>{ state.endpoint }</code>
 						</p>
@@ -417,7 +417,7 @@ function Status( { state, runsHere, onToggle } ) {
 							<Notice status="warning" isDismissible={ false }>
 								{ __(
 									'Apps can only sign in over HTTPS (or on a site with a local environment type). Turn on SSL for this site first.',
-									'monks-central'
+									'wp-sites-hq'
 								) }
 							</Notice>
 						) }
@@ -426,11 +426,11 @@ function Status( { state, runsHere, onToggle } ) {
 				<p className="monks-central-admin__version">
 					{ sprintf(
 						/* translators: %s: version number */
-						__( 'Connector %s', 'monks-central' ),
+						__( 'Connector %s', 'wp-sites-hq' ),
 						state.version
 					) }{ ' ' }
-					<ExternalLink href="https://github.com/joychetry/monks-central-wp">
-						{ __( 'About', 'monks-central' ) }
+					<ExternalLink href="https://github.com/joychetry/wp-sites-hq-plugin">
+						{ __( 'About', 'wp-sites-hq' ) }
 					</ExternalLink>
 				</p>
 			</CardBody>
@@ -477,7 +477,7 @@ export default function Connector( { initial, onNotice } ) {
 					method: 'DELETE',
 					data: { user_id: item.user_id, id: item.uuid },
 				},
-				__( 'Connection revoked.', 'monks-central' )
+				__( 'Connection revoked.', 'wp-sites-hq' )
 			),
 		[ act ]
 	);
@@ -490,7 +490,7 @@ export default function Connector( { initial, onNotice } ) {
 					method: 'POST',
 					data: { user_id: item.user_id, id: item.uuid, skip },
 				},
-				__( 'Connection saved.', 'monks-central' )
+				__( 'Connection saved.', 'wp-sites-hq' )
 			),
 		[ act ]
 	);

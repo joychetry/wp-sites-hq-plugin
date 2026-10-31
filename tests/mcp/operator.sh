@@ -10,7 +10,7 @@ newpost() { wpe 'echo wp_insert_post(["post_title" => "cm operator test", "post_
 
 # Ticked by an admin: full scope, site toolset, trusted, and the always-ask tools run directly.
 T=$(connect "$ADMIN" "$ADMIN_PASS" 'Monks Central' -d scope=content -d 'toolsets[]=content' -d 'toolsets[]=modules' -d operator=1)
-check 'consent page offers operator to admins' "$(cat "$CONSENT_FILE")" '~This is my Monks Central app (operator)'
+check 'consent page offers operator to admins' "$(cat "$CONSENT_FILE")" '~This is my WP Sites HQ app (operator)'
 AT=$(jq -r .access_token <<<"$T"); FAM=$(jq -r .family <<<"$T")
 check 'operator grant gets full scope'      "$(jq -r .scope <<<"$T")" full
 check 'operator reported by get-hq-status'  "$(hq "$AT" '| [.operator, .operator_skips_always_ask, .trusted]')" '[true,true,true]'
@@ -56,13 +56,13 @@ revoke_grant "$(jq -r .family <<<"$T")"
 
 # A web app (an https return address) is never an operator, even when it posts the box: only an app on this computer.
 T=$(OAUTH_REDIRECT=https://app.example/callback connect "$ADMIN" "$ADMIN_PASS" 'Monks Central' -d scope=content -d 'toolsets[]=content' -d 'toolsets[]=modules' -d operator=1)
-check 'web app: no operator box'            "$(cat "$CONSENT_FILE")" '!~This is my Monks Central app (operator)'
+check 'web app: no operator box'            "$(cat "$CONSENT_FILE")" '!~This is my WP Sites HQ app (operator)'
 check 'web app: not an operator'            "$(hq "$(jq -r .access_token <<<"$T")" '| [.operator, .trusted]')" '[false,false]'
 revoke_grant "$(jq -r .family <<<"$T")"
 
 # Only admins can make an operator grant, even by posting the field.
 T=$(connect cm_op_editor cm-op-editor-pass 'Monks Central' -d scope=content -d 'toolsets[]=content' -d 'toolsets[]=modules' -d operator=1)
-check 'consent page hides operator from editors' "$(cat "$CONSENT_FILE")" '!~Monks Central app (operator)'
+check 'consent page hides operator from editors' "$(cat "$CONSENT_FILE")" '!~WP Sites HQ app (operator)'
 AT=$(jq -r .access_token <<<"$T")
 check 'editor posting operator=1 is ignored' "$(hq "$AT" .operator)" false
 check '... and keeps the chosen scope'      "$(jq -r .scope <<<"$T")" content

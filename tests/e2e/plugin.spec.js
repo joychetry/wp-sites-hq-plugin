@@ -26,7 +26,7 @@ async function visit( page, path ) {
 
 test( 'plugin is active', async ( { page } ) => {
 	await visit( page, '/wp-admin/plugins.php' );
-	await expect( page.locator( 'tr[data-slug="monks-central"]' ) ).toHaveClass(
+	await expect( page.locator( 'tr[data-slug="wp-sites-hq"]' ) ).toHaveClass(
 		/\bactive\b/
 	);
 } );
@@ -34,13 +34,13 @@ test( 'plugin is active', async ( { page } ) => {
 test( 'admin screen renders', async ( { page } ) => {
 	await visit( page, '/wp-admin/options-general.php?page=monks-central' );
 	await expect(
-		page.getByRole( 'heading', { name: 'Connect to Monks Central' } )
+		page.getByRole( 'heading', { name: 'Connect to WP Sites HQ' } )
 	).toBeVisible();
 } );
 
 test( 'connector switches on and off', async ( { page } ) => {
 	await visit( page, '/wp-admin/options-general.php?page=monks-central' );
-	const toggle = page.getByLabel( 'Allow Monks Central to connect' );
+	const toggle = page.getByLabel( 'Allow WP Sites HQ to connect' );
 	await toggle.click();
 	await expect(
 		page.getByRole( 'heading', { name: 'Connected apps' } )
@@ -49,7 +49,7 @@ test( 'connector switches on and off', async ( { page } ) => {
 		page.getByText( '/wp-json/classic-monks/v1/mcp' )
 	).toBeVisible();
 	expect( await page.content() ).not.toMatch( PHP_ERROR );
-	await page.getByLabel( 'Allow Monks Central to connect' ).click();
+	await page.getByLabel( 'Allow WP Sites HQ to connect' ).click();
 	await expect(
 		page.getByRole( 'heading', { name: 'Connected apps' } )
 	).toBeHidden();
@@ -57,5 +57,5 @@ test( 'connector switches on and off', async ( { page } ) => {
 
 test( 'front page has no plugin assets', async ( { page } ) => {
 	await visit( page, '/' );
-	expect( await page.content() ).not.toContain( '/plugins/monks-central/' );
+	expect( await page.content() ).not.toContain( '/plugins/wp-sites-hq/' );
 } );

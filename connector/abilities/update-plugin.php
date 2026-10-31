@@ -19,10 +19,10 @@ function cm_register_update_plugin_ability() {
 	wp_register_ability(
 		'classic-monks/update-plugin',
 		array(
-			'label'               => __( 'Update Plugin', 'monks-central' ),
+			'label'               => __( 'Update Plugin', 'wp-sites-hq' ),
 			'description'         => __(
 				"Updates an installed WordPress plugin when an update is available. Provide the plugin file, slug, or exact installed plugin name. \n\n## Required Parameters\n- Provide one of: **plugin_file**, **slug**, or **name**\n\n## Optional Parameters\n- **force_update_check**: Refresh WordPress update data before checking (default: true)\n- **safe**: For an active plugin, check the home page and the error log right after the update (in maintenance mode) and put the previous version back if the update broke the site (default: false)\n\n## Returns\nThe plugin file, name, previous version, current version, whether an update was applied, and a status message. With safe: checked, rolled_back, reason and the home page status.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -120,7 +120,7 @@ function cm_execute_update_plugin( $input ) {
 		$state                     = cm_ai_get_plugin_state( $plugin_file, $plugin_data );
 		$state['previous_version'] = $previous_version;
 		$state['updated']          = false;
-		$state['message']          = __( 'No update is currently available for this plugin.', 'monks-central' );
+		$state['message']          = __( 'No update is currently available for this plugin.', 'wp-sites-hq' );
 
 		return $state;
 	}
@@ -157,7 +157,7 @@ function cm_execute_update_plugin( $input ) {
 	if ( ! $result ) {
 		return new WP_Error(
 			'cm_plugin_update_failed',
-			__( 'Plugin update failed.', 'monks-central' ),
+			__( 'Plugin update failed.', 'wp-sites-hq' ),
 			array( 'status' => 500 )
 		);
 	}
@@ -186,8 +186,8 @@ function cm_execute_update_plugin( $input ) {
 	$state['updated']          = true;
 	$state['message']          = is_wp_error( $reactivated )
 		/* translators: %s: why the plugin could not be activated. */
-		? sprintf( __( 'Plugin updated, but it could not be turned back on: %s', 'monks-central' ), $reactivated->get_error_message() )
-		: __( 'Plugin updated successfully.', 'monks-central' );
+		? sprintf( __( 'Plugin updated, but it could not be turned back on: %s', 'wp-sites-hq' ), $reactivated->get_error_message() )
+		: __( 'Plugin updated successfully.', 'wp-sites-hq' );
 	if ( ! empty( $input['safe'] ) ) {
 		$state['checked']     = $safe;
 		$state['rolled_back'] = false;
@@ -217,18 +217,18 @@ function cm_ai_update_broke_site( $log_offset ) {
 	$reason = '';
 	if ( null !== $home['error'] ) {
 		/* translators: %s: why the request failed. */
-		$reason = sprintf( __( 'The home page did not answer after the update: %s', 'monks-central' ), $home['error'] );
+		$reason = sprintf( __( 'The home page did not answer after the update: %s', 'wp-sites-hq' ), $home['error'] );
 	} elseif ( null !== $home['fatal'] || $home['status'] >= 500 ) {
 		$reason = null !== $fatal
 			/* translators: 1: HTTP status, 2: the PHP error. */
-			? sprintf( __( 'The home page answered %1$d after the update: %2$s', 'monks-central' ), $home['status'], $fatal )
+			? sprintf( __( 'The home page answered %1$d after the update: %2$s', 'wp-sites-hq' ), $home['status'], $fatal )
 			/* translators: %d: HTTP status. */
-			: sprintf( __( 'The home page answered %d after the update.', 'monks-central' ), $home['status'] );
+			: sprintf( __( 'The home page answered %d after the update.', 'wp-sites-hq' ), $home['status'] );
 	} elseif ( $log['fatal'] ) {
 		$reason = null !== $fatal
 			/* translators: %s: the log line. */
-			? sprintf( __( 'The error log got a new fatal error after the update: %s', 'monks-central' ), $fatal )
-			: __( 'The error log got a new fatal error after the update.', 'monks-central' );
+			? sprintf( __( 'The error log got a new fatal error after the update: %s', 'wp-sites-hq' ), $fatal )
+			: __( 'The error log got a new fatal error after the update.', 'wp-sites-hq' );
 	}
 
 	return array(
@@ -267,7 +267,7 @@ function cm_ai_roll_back_plugin_update( $upgrader, $plugin_file, $previous_versi
 		return new WP_Error(
 			'cm_rollback_failed',
 			/* translators: %s: what failed after the update. */
-			sprintf( __( 'The update broke the site and the previous version could not be put back, so the plugin was turned off. %s', 'monks-central' ), $check['reason'] ),
+			sprintf( __( 'The update broke the site and the previous version could not be put back, so the plugin was turned off. %s', 'wp-sites-hq' ), $check['reason'] ),
 			array( 'status' => 500 )
 		);
 	}
@@ -285,7 +285,7 @@ function cm_ai_roll_back_plugin_update( $upgrader, $plugin_file, $previous_versi
 	$state['status']           = $check['status'];
 	$state['reason']           = $check['reason'];
 	/* translators: %s: what failed after the update. */
-	$state['message'] = sprintf( __( 'The update broke the site, so the previous version was put back. %s', 'monks-central' ), $check['reason'] );
+	$state['message'] = sprintf( __( 'The update broke the site, so the previous version was put back. %s', 'wp-sites-hq' ), $check['reason'] );
 
 	return $state;
 }

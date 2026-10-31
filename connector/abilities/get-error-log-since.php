@@ -20,8 +20,8 @@ function cm_register_get_error_log_since_ability() {
 	wp_register_ability(
 		'classic-monks/get-error-log-since',
 		array(
-			'label'               => __( 'Get Error Log Since', 'monks-central' ),
-			'description'         => __( 'Without offset: returns the size of the PHP error log as a marker. With offset (a marker from before): returns the lines written since then (at most 50, newest last) and how many are fatal errors and warnings. Secrets are redacted and the install path is shown as ABSPATH/.', 'monks-central' ),
+			'label'               => __( 'Get Error Log Since', 'wp-sites-hq' ),
+			'description'         => __( 'Without offset: returns the size of the PHP error log as a marker. With offset (a marker from before): returns the lines written since then (at most 50, newest last) and how many are fatal errors and warnings. Secrets are redacted and the install path is shown as ABSPATH/.', 'wp-sites-hq' ),
 			'category'            => 'system',
 			'input_schema'        => array(
 				'type'                 => 'object',

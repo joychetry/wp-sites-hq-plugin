@@ -17,7 +17,7 @@
 		},
 		{
 			"step": "activatePlugin",
-			"pluginPath": "monks-central/monks-central.php"
+			"pluginPath": "wp-sites-hq/wp-sites-hq.php"
 		}
 	]
 }

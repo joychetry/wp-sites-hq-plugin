@@ -29,10 +29,10 @@ function cm_register_create_post_ability() {
 	wp_register_ability(
 		'classic-monks/create-post',
 		array(
-			'label'               => __( 'Create Post', 'monks-central' ),
+			'label'               => __( 'Create Post', 'wp-sites-hq' ),
 			'description'         => __(
 				"Creates a new WordPress post, page, or custom post type content. Use this ability to generate new content in the WordPress database. \n\n## Required Parameters\n- **title**: The post title (required)\n\n## Optional Parameters\n- **content**: Post body content (HTML allowed)\n- **excerpt**: Post excerpt/summary\n- **post_type**: post, page, or custom post type slug (default: post)\n- **status**: draft, publish, pending, private, future (default: draft)\n- **categories**: Array of category IDs (for post type only)\n- **tags**: Array of tag names or IDs\n- **featured_image**: Attachment ID for featured image\n- **terms**: Terms for any taxonomy, by ID or name: {\"genre\": [\"Jazz\"]}\n- **meta**: Custom fields (protected keys refused)\n- **date**: Publish date, \"YYYY-MM-DD HH:MM:SS\" (a future date schedules it)\n\n## Returns\nCreated post ID, title, permalink, and admin edit link.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'content',
 			'input_schema'        => array(
@@ -150,7 +150,7 @@ function cm_execute_create_post( $input ) {
 		return new WP_Error(
 			'invalid_post_type',
 			/* translators: %s: post type name */
-			sprintf( __( 'Post type "%s" does not exist.', 'monks-central' ), $post_type )
+			sprintf( __( 'Post type "%s" does not exist.', 'wp-sites-hq' ), $post_type )
 		);
 	}
 

@@ -25,10 +25,10 @@ function cm_register_assign_terms_ability() {
 	wp_register_ability(
 		'classic-monks/assign-terms',
 		array(
-			'label'               => __( 'Assign Terms', 'monks-central' ),
+			'label'               => __( 'Assign Terms', 'wp-sites-hq' ),
 			'description'         => __(
 				"Assigns existing taxonomy terms to a post. By default the given terms REPLACE the post's current terms in that taxonomy; pass append=true to add them instead. \n\n## Parameters\n- **post_id**: The post ID (required)\n- **taxonomy**: Taxonomy slug, e.g. category or post_tag (required)\n- **term_ids**: Existing term IDs in that taxonomy, max 100 (required; an empty list with append=false removes all terms)\n- **append**: Add to the current terms instead of replacing them (default false)\n\n## Returns\npost_id, taxonomy, the post's term_ids after the change and its previous_term_ids.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'taxonomy',
 			'input_schema'        => array(
@@ -113,18 +113,18 @@ function cm_execute_assign_terms( $input ) {
 	$post     = get_post( $post_id );
 
 	if ( ! $post ) {
-		return new WP_Error( 'post_not_found', __( 'Post not found.', 'monks-central' ) );
+		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 	}
 	if ( ! is_object_in_taxonomy( $post->post_type, $taxonomy ) ) {
 		/* translators: %s: taxonomy name */
-		return new WP_Error( 'invalid_taxonomy', sprintf( __( 'Taxonomy "%s" is not registered for this post type.', 'monks-central' ), $taxonomy ) );
+		return new WP_Error( 'invalid_taxonomy', sprintf( __( 'Taxonomy "%s" is not registered for this post type.', 'wp-sites-hq' ), $taxonomy ) );
 	}
 
 	$term_ids = array_values( array_unique( array_map( 'absint', (array) $input['term_ids'] ) ) );
 	foreach ( $term_ids as $term_id ) {
 		if ( ! term_exists( $term_id, $taxonomy ) ) {
 			/* translators: 1: term ID, 2: taxonomy name */
-			return new WP_Error( 'term_not_found', sprintf( __( 'Term %1$d does not exist in "%2$s".', 'monks-central' ), $term_id, $taxonomy ) );
+			return new WP_Error( 'term_not_found', sprintf( __( 'Term %1$d does not exist in "%2$s".', 'wp-sites-hq' ), $term_id, $taxonomy ) );
 		}
 	}
 
@@ -181,7 +181,7 @@ function cm_preview_assign_terms( $input ) {
 function cm_undo_assign_terms( $undo ) {
 	$tax = get_taxonomy( $undo['taxonomy'] ?? '' );
 	if ( ! $tax || ! current_user_can( 'edit_post', (int) $undo['post_id'] ) || ! current_user_can( $tax->cap->assign_terms ) ) {
-		return new WP_Error( 'forbidden', __( 'You are not allowed to change this post\'s terms.', 'monks-central' ) );
+		return new WP_Error( 'forbidden', __( 'You are not allowed to change this post\'s terms.', 'wp-sites-hq' ) );
 	}
 	$result = wp_set_object_terms( (int) $undo['post_id'], array_map( 'intval', (array) $undo['term_ids'] ), $tax->name, false );
 	return is_wp_error( $result ) ? $result : true;

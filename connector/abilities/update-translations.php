@@ -20,10 +20,10 @@ function cm_register_update_translations_ability() {
 	wp_register_ability(
 		'classic-monks/update-translations',
 		array(
-			'label'               => __( 'Update Translations', 'monks-central' ),
+			'label'               => __( 'Update Translations', 'wp-sites-hq' ),
 			'description'         => __(
 				'Installs all pending translation updates for WordPress, plugins and themes (see list-updates). Same as "Update Translations" in Dashboard > Updates. Returns each language pack and whether it was installed.',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -68,7 +68,7 @@ function cm_execute_update_translations() {
 			'updated' => 0,
 			'failed'  => 0,
 			'items'   => array(),
-			'message' => __( 'Translations are up to date.', 'monks-central' ),
+			'message' => __( 'Translations are up to date.', 'wp-sites-hq' ),
 		);
 	}
 
@@ -96,6 +96,6 @@ function cm_execute_update_translations() {
 		'failed'  => count( $items ) - $updated,
 		'items'   => $items,
 		/* translators: 1: installed count, 2: total count */
-		'message' => sprintf( __( 'Installed %1$d of %2$d translation updates.', 'monks-central' ), $updated, count( $items ) ),
+		'message' => sprintf( __( 'Installed %1$d of %2$d translation updates.', 'wp-sites-hq' ), $updated, count( $items ) ),
 	);
 }

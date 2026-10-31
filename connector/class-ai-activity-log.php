@@ -115,7 +115,7 @@ class CM_AI_Activity_Log {
 				array(
 					'source' => 'rest',
 					'uuid'   => '',
-					'label'  => __( 'REST API', 'monks-central' ),
+					'label'  => __( 'REST API', 'wp-sites-hq' ),
 				)
 			);
 		}
@@ -165,7 +165,7 @@ class CM_AI_Activity_Log {
 				'ability'         => $name,
 				'input_json'      => substr( (string) wp_json_encode( self::redact( $input ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), 0, 8000 ),
 				'status'          => 'error',
-				'result_summary'  => __( 'Refused before running: invalid input or missing permission.', 'monks-central' ),
+				'result_summary'  => __( 'Refused before running: invalid input or missing permission.', 'wp-sites-hq' ),
 			)
 		);
 
@@ -207,7 +207,7 @@ class CM_AI_Activity_Log {
 		$id = self::current_id( $name );
 		if ( $id ) {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
-			$wpdb->update( self::table(), array( 'result_summary' => __( 'Ran but did not finish cleanly (an error was thrown or the output failed validation). Changes may have been applied.', 'monks-central' ) ), array( 'id' => $id ) );
+			$wpdb->update( self::table(), array( 'result_summary' => __( 'Ran but did not finish cleanly (an error was thrown or the output failed validation). Changes may have been applied.', 'wp-sites-hq' ) ), array( 'id' => $id ) );
 		}
 	}
 
@@ -296,7 +296,7 @@ class CM_AI_Activity_Log {
 		global $wpdb;
 		$table = self::table();
 		$row   = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', $table, absint( $id ) ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
-		$gone  = new WP_Error( 'cm_undo_unavailable', __( 'This change can no longer be undone.', 'monks-central' ) );
+		$gone  = new WP_Error( 'cm_undo_unavailable', __( 'This change can no longer be undone.', 'wp-sites-hq' ) );
 
 		if ( ! $row || 'ok' !== $row['status'] || empty( $row['undo_json'] ) ) {
 			return $gone;
@@ -319,7 +319,7 @@ class CM_AI_Activity_Log {
 			$allowed = get_current_user_id() === (int) $row['user_id'] || is_super_admin();
 		}
 		if ( ! $allowed ) {
-			return new WP_Error( 'cm_undo_forbidden', __( 'You need the same permissions as the original change to undo it.', 'monks-central' ), array( 'status' => 403 ) );
+			return new WP_Error( 'cm_undo_forbidden', __( 'You need the same permissions as the original change to undo it.', 'wp-sites-hq' ), array( 'status' => 403 ) );
 		}
 
 		return array(
@@ -355,14 +355,14 @@ class CM_AI_Activity_Log {
 				'status' => 'ok',
 			)
 		) ) {
-			return new WP_Error( 'cm_undo_unavailable', __( 'This change can no longer be undone.', 'monks-central' ) );
+			return new WP_Error( 'cm_undo_unavailable', __( 'This change can no longer be undone.', 'wp-sites-hq' ) );
 		}
 
 		$after = $undo['_cm_after'] ?? null;
 		$state = null !== $after ? self::target_state( $row, $undo ) : null;
 		unset( $undo['_cm_after'], $undo['_cm_input'] );
 		if ( null !== $after && $state !== $after ) {
-			$result = new WP_Error( 'cm_undo_drift', __( 'This was changed again since, so undoing it would overwrite the newer edit. Undo the newer change first, or fix it by hand.', 'monks-central' ) );
+			$result = new WP_Error( 'cm_undo_drift', __( 'This was changed again since, so undoing it would overwrite the newer edit. Undo the newer change first, or fix it by hand.', 'wp-sites-hq' ) );
 		} else {
 			$result = call_user_func( $target['callback'], $undo );
 		}
@@ -377,12 +377,12 @@ class CM_AI_Activity_Log {
 				'created_at'     => current_time( 'mysql', true ),
 				'user_id'        => get_current_user_id(),
 				'source'         => 'undo',
-				'client_label'   => substr( '' !== $label ? $label : __( 'Dashboard', 'monks-central' ), 0, 190 ),
+				'client_label'   => substr( '' !== $label ? $label : __( 'Dashboard', 'wp-sites-hq' ), 0, 190 ),
 				'ability'        => $row['ability'],
 				'input_json'     => wp_json_encode( array( 'undo_of' => (int) $row['id'] ) ),
 				'status'         => 'ok',
 				/* translators: %d: log row ID */
-				'result_summary' => sprintf( __( 'Undid change #%d.', 'monks-central' ), $row['id'] ),
+				'result_summary' => sprintf( __( 'Undid change #%d.', 'wp-sites-hq' ), $row['id'] ),
 			)
 		);
 
@@ -621,7 +621,7 @@ class CM_AI_Activity_Log {
 			$row['user'] = $user ? $user->user_login : '';
 			$row['when'] = sprintf(
 				/* translators: %s: human time difference */
-				__( '%s ago', 'monks-central' ),
+				__( '%s ago', 'wp-sites-hq' ),
 				human_time_diff( strtotime( $row['created_at'] . ' UTC' ) )
 			);
 			$row['tool'] = preg_replace( '#^classic-monks/#', '', $row['ability'] );

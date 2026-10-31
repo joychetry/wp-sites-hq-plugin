@@ -18,7 +18,7 @@ module.exports = defineConfig( {
 	use: { baseURL, trace: 'retain-on-failure' },
 	webServer: {
 		command:
-			'npx wp-playground-cli server --port=9500 --mount=.:/wordpress/wp-content/plugins/monks-central --blueprint=blueprint.json',
+			'npx wp-playground-cli server --port=9500 --mount=.:/wordpress/wp-content/plugins/wp-sites-hq --blueprint=blueprint.json',
 		cwd: path.resolve( __dirname, '../..' ),
 		// Playground answers 502 while booting and can hang requests sent then,
 		// so wait for its ready line instead of polling a URL. Always a fresh site.

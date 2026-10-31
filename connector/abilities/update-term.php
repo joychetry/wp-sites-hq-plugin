@@ -25,10 +25,10 @@ function cm_register_update_term_ability() {
 	wp_register_ability(
 		'classic-monks/update-term',
 		array(
-			'label'               => __( 'Update Term', 'monks-central' ),
+			'label'               => __( 'Update Term', 'wp-sites-hq' ),
 			'description'         => __(
 				"Updates the name, slug, description or parent of an existing taxonomy term (category, tag, or custom). \n\n## Parameters\n- **term_id**: The term ID (required)\n- **name**: New name\n- **slug**: New slug\n- **description**: New description\n- **parent**: New parent term ID, 0 for top level (hierarchical taxonomies only)\n\n## Returns\nThe term after the update (term_id, taxonomy, name, slug, description, parent) and its previous values.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'taxonomy',
 			'input_schema'        => array(
@@ -124,7 +124,7 @@ function cm_update_term_fields( $term ) {
 function cm_execute_update_term( $input ) {
 	$term = get_term( absint( $input['term_id'] ) );
 	if ( ! $term instanceof WP_Term ) {
-		return new WP_Error( 'term_not_found', __( 'Term not found.', 'monks-central' ) );
+		return new WP_Error( 'term_not_found', __( 'Term not found.', 'wp-sites-hq' ) );
 	}
 
 	$args = array();
@@ -139,12 +139,12 @@ function cm_execute_update_term( $input ) {
 	}
 	if ( isset( $input['parent'] ) ) {
 		if ( ! is_taxonomy_hierarchical( $term->taxonomy ) ) {
-			return new WP_Error( 'not_hierarchical', __( 'This taxonomy does not support parent terms.', 'monks-central' ) );
+			return new WP_Error( 'not_hierarchical', __( 'This taxonomy does not support parent terms.', 'wp-sites-hq' ) );
 		}
 		$args['parent'] = absint( $input['parent'] );
 	}
 	if ( ! $args ) {
-		return new WP_Error( 'nothing_to_update', __( 'Pass at least one of name, slug, description or parent.', 'monks-central' ) );
+		return new WP_Error( 'nothing_to_update', __( 'Pass at least one of name, slug, description or parent.', 'wp-sites-hq' ) );
 	}
 
 	$previous = cm_update_term_fields( $term );
@@ -200,7 +200,7 @@ function cm_preview_update_term( $input ) {
 function cm_undo_update_term( $undo ) {
 	$term_id = (int) ( $undo['term_id'] ?? 0 );
 	if ( ! current_user_can( 'edit_term', $term_id ) ) {
-		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this term.', 'monks-central' ) );
+		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this term.', 'wp-sites-hq' ) );
 	}
 	$result = wp_update_term(
 		$term_id,

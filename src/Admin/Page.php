@@ -11,7 +11,7 @@ use MonksCentral\Plugin;
 use MonksCentral\Rest\ConnectorController;
 
 /**
- * Adds Settings > Monks Central and loads the React app on that screen only.
+ * Adds Settings > WP Sites HQ and loads the React app on that screen only.
  */
 final class Page {
 
@@ -44,8 +44,8 @@ final class Page {
 	 */
 	public function add_page(): void {
 		$this->hook_suffix = (string) add_options_page(
-			__( 'Monks Central', 'monks-central' ),
-			__( 'Monks Central', 'monks-central' ),
+			__( 'WP Sites HQ', 'wp-sites-hq' ),
+			__( 'WP Sites HQ', 'wp-sites-hq' ),
 			'manage_options',
 			self::SLUG,
 			array( $this, 'render' )
@@ -62,7 +62,7 @@ final class Page {
 		printf(
 			'<div class="wrap"><h1>%s</h1><div id="monks-central-admin"></div><noscript>%s</noscript></div>',
 			esc_html( get_admin_page_title() ),
-			esc_html__( 'This screen needs JavaScript.', 'monks-central' )
+			esc_html__( 'This screen needs JavaScript.', 'wp-sites-hq' )
 		);
 	}
 
@@ -80,7 +80,7 @@ final class Page {
 		wp_enqueue_script( 'monks-central-admin', MONKS_CENTRAL_URL . 'build/admin.js', $asset['dependencies'], $asset['version'], true );
 		wp_enqueue_style( 'monks-central-admin', MONKS_CENTRAL_URL . 'build/admin.css', array( 'wp-components' ), $asset['version'] );
 		wp_style_add_data( 'monks-central-admin', 'rtl', 'replace' );
-		wp_set_script_translations( 'monks-central-admin', 'monks-central' );
+		wp_set_script_translations( 'monks-central-admin', 'wp-sites-hq' );
 
 		$modules = array();
 		foreach ( $this->plugin->modules() as $id => $module ) {

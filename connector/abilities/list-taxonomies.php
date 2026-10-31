@@ -27,10 +27,10 @@ function cm_register_list_taxonomies_ability() {
 	wp_register_ability(
 		'classic-monks/list-taxonomies',
 		array(
-			'label'               => __( 'List Taxonomies', 'monks-central' ),
+			'label'               => __( 'List Taxonomies', 'wp-sites-hq' ),
 			'description'         => __(
 				"Lists all registered taxonomies in WordPress. Use this to discover available content organization structures. \n\n## Optional Parameters\n- **public_only**: Only show public taxonomies (default true)\n- **object_type**: Filter by object type (post, page, etc.)\n\n## Returns\nArray of taxonomies with: name, label, description, public, hierarchical, show_in_rest, object_types, term_count.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'taxonomy',
 			'input_schema'        => array(

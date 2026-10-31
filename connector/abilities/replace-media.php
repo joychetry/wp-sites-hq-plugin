@@ -51,10 +51,10 @@ function cm_register_replace_media_abilities() {
 	wp_register_ability(
 		'classic-monks/replace-media',
 		array(
-			'label'               => __( 'Replace Media', 'monks-central' ),
+			'label'               => __( 'Replace Media', 'wp-sites-hq' ),
 			'description'         => __(
 				'Replaces a Media Library item\'s file, keeping its ID, so every post that uses it shows the new file. Chunks work as in upload-media (filename and data first, then upload_id, offset and data, done: true on the last), with id on every call. The URL stays the same unless keep_name is true or the extension changes. Images can only be replaced by images, other files by the same type. Thumbnails are made again. The old file is kept as one backup until the next replace; restore-replaced-media puts it back.',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'media',
 			'input_schema'        => array(
@@ -106,10 +106,10 @@ function cm_register_replace_media_abilities() {
 	wp_register_ability(
 		'classic-monks/restore-replaced-media',
 		array(
-			'label'               => __( 'Restore Replaced Media', 'monks-central' ),
+			'label'               => __( 'Restore Replaced Media', 'wp-sites-hq' ),
 			'description'         => __(
 				'Puts back the file a Media Library item had before its last replace-media. The file it replaces becomes the backup, so running it again swaps back.',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'media',
 			'input_schema'        => array(
@@ -157,9 +157,9 @@ function cm_execute_replace_media( $input ) {
 			'cm_media_type_mismatch',
 			0 === strpos( (string) get_post_mime_type( $id ), 'image/' ) && 'image/svg+xml' !== get_post_mime_type( $id )
 				/* translators: %s: the new file's MIME type */
-				? sprintf( __( 'This image can only be replaced by another image, not %s.', 'monks-central' ), $file['type'] )
+				? sprintf( __( 'This image can only be replaced by another image, not %s.', 'wp-sites-hq' ), $file['type'] )
 				/* translators: 1: current MIME type, 2: new MIME type */
-				: sprintf( __( 'This %1$s file can only be replaced by another %1$s file, not %2$s.', 'monks-central' ), get_post_mime_type( $id ), $file['type'] )
+				: sprintf( __( 'This %1$s file can only be replaced by another %1$s file, not %2$s.', 'wp-sites-hq' ), get_post_mime_type( $id ), $file['type'] )
 		);
 	}
 	if ( is_wp_error( $file ) ) {
@@ -219,11 +219,11 @@ function cm_execute_restore_replaced_media( $input ) {
 function cm_undo_replace_media( $undo ) {
 	$id = absint( $undo['id'] ?? 0 );
 	if ( ! cm_can_edit_media( array( 'id' => $id ) ) ) {
-		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this media item.', 'monks-central' ) );
+		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this media item.', 'wp-sites-hq' ) );
 	}
 	$backup = get_post_meta( $id, '_cm_replaced_backup', true );
 	if ( empty( $undo['token'] ) || ! is_array( $backup ) || $backup['token'] !== $undo['token'] ) {
-		return new WP_Error( 'cm_undo_drift', __( 'This file was replaced or restored again since, so this change can no longer be undone.', 'monks-central' ) );
+		return new WP_Error( 'cm_undo_drift', __( 'This file was replaced or restored again since, so this change can no longer be undone.', 'wp-sites-hq' ) );
 	}
 	$token = cm_restore_replaced_media( $id );
 	return is_wp_error( $token ) ? $token : true;
@@ -254,7 +254,7 @@ function cm_restore_replaced_media( $id ) {
 	$backup = get_post_meta( $id, '_cm_replaced_backup', true );
 	$src    = cm_replaced_backup_path( $id, $backup );
 	if ( ! $src || ! is_file( $src ) ) {
-		return new WP_Error( 'cm_no_backup', __( 'This media item has no earlier file to restore.', 'monks-central' ) );
+		return new WP_Error( 'cm_no_backup', __( 'This media item has no earlier file to restore.', 'wp-sites-hq' ) );
 	}
 	return cm_media_swap( $id, $src, $backup['name'], $backup['mime'] );
 }
@@ -279,7 +279,7 @@ function cm_media_swap( $id, $src, $name, $mime ) {
 	$lock = 'cm_media_swap_' . absint( $id );
 	if ( ! add_option( $lock, time(), '', false ) ) {
 		if ( (int) get_option( $lock ) > time() - 5 * MINUTE_IN_SECONDS ) {
-			return new WP_Error( 'cm_media_busy', __( 'This file is being replaced right now. Try again in a moment.', 'monks-central' ), array( 'status' => 409 ) );
+			return new WP_Error( 'cm_media_busy', __( 'This file is being replaced right now. Try again in a moment.', 'wp-sites-hq' ), array( 'status' => 409 ) );
 		}
 		update_option( $lock, time(), false ); // A run that died left it behind.
 	}
@@ -312,7 +312,7 @@ function cm_media_swap_unlocked( $id, $src, $name, $mime ) {
 			file_put_contents( $uploads['basedir'] . '/cm-replaced/index.html', '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions -- an empty file in our own folder
 		}
 		if ( ! is_dir( dirname( $keep ) ) || ! copy( $old, $keep ) ) {
-			return new WP_Error( 'cm_media_backup_failed', __( 'The current file could not be kept as a backup, so nothing was replaced.', 'monks-central' ) );
+			return new WP_Error( 'cm_media_backup_failed', __( 'The current file could not be kept as a backup, so nothing was replaced.', 'wp-sites-hq' ) );
 		}
 	}
 	// Into the folder first under a temporary name: if that fails, nothing has been deleted yet.
@@ -322,7 +322,7 @@ function cm_media_swap_unlocked( $id, $src, $name, $mime ) {
 		if ( $keep ) {
 			wp_delete_file( $keep );
 		}
-		return new WP_Error( 'cm_media_move_failed', __( 'The new file could not be moved into the uploads folder.', 'monks-central' ) );
+		return new WP_Error( 'cm_media_move_failed', __( 'The new file could not be moved into the uploads folder.', 'wp-sites-hq' ) );
 	}
 	$stat = stat( $dir );
 	chmod( $stage, $stat['mode'] & 0000666 ); // phpcs:ignore WordPress.WP.AlternativeFunctions -- as wp_handle_upload(): temp files are 0600
@@ -360,7 +360,7 @@ function cm_media_swap_unlocked( $id, $src, $name, $mime ) {
 			wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $old ) );
 		}
 		wp_delete_file( $stage );
-		return new WP_Error( 'cm_media_move_failed', __( 'The new file could not be moved into the uploads folder.', 'monks-central' ) );
+		return new WP_Error( 'cm_media_move_failed', __( 'The new file could not be moved into the uploads folder.', 'wp-sites-hq' ) );
 	}
 
 	update_attached_file( $id, $dest );

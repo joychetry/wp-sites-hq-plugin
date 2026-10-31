@@ -19,8 +19,8 @@ function cm_register_revision_abilities() {
 	wp_register_ability(
 		'classic-monks/list-revisions',
 		array(
-			'label'               => __( 'List Revisions', 'monks-central' ),
-			'description'         => __( 'Lists the saved revisions of a post, newest first: id, date, author and title. Restore one with restore-revision.', 'monks-central' ),
+			'label'               => __( 'List Revisions', 'wp-sites-hq' ),
+			'description'         => __( 'Lists the saved revisions of a post, newest first: id, date, author and title. Restore one with restore-revision.', 'wp-sites-hq' ),
 			'category'            => 'content',
 			'input_schema'        => array(
 				'type'                 => 'object',
@@ -71,8 +71,8 @@ function cm_register_revision_abilities() {
 	wp_register_ability(
 		'classic-monks/restore-revision',
 		array(
-			'label'               => __( 'Restore Revision', 'monks-central' ),
-			'description'         => __( 'Puts a saved revision back as the post\'s title, content and excerpt. The current version is kept as a revision first, so this can be reversed.', 'monks-central' ),
+			'label'               => __( 'Restore Revision', 'wp-sites-hq' ),
+			'description'         => __( 'Puts a saved revision back as the post\'s title, content and excerpt. The current version is kept as a revision first, so this can be reversed.', 'wp-sites-hq' ),
 			'category'            => 'content',
 			'input_schema'        => array(
 				'type'                 => 'object',
@@ -118,7 +118,7 @@ function cm_register_revision_abilities() {
 function cm_execute_list_revisions( $input ) {
 	$post = get_post( absint( $input['post_id'] ) );
 	if ( ! $post ) {
-		return new WP_Error( 'post_not_found', __( 'Post not found.', 'monks-central' ) );
+		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 	}
 	$out = array();
 	foreach ( wp_get_post_revisions( $post->ID ) as $r ) {
@@ -136,17 +136,17 @@ function cm_execute_restore_revision( $input ) {
 	$id       = absint( $input['revision_id'] );
 	$revision = wp_get_post_revision( $id );
 	if ( ! $revision ) {
-		return new WP_Error( 'revision_not_found', __( 'Revision not found.', 'monks-central' ) );
+		return new WP_Error( 'revision_not_found', __( 'Revision not found.', 'wp-sites-hq' ) );
 	}
 	// Save what is there now, so this restore can be reversed.
 	wp_save_post_revision( $revision->post_parent );
 	if ( ! wp_restore_post_revision( $revision->ID ) ) {
-		return new WP_Error( 'restore_failed', __( 'The revision could not be restored.', 'monks-central' ) );
+		return new WP_Error( 'restore_failed', __( 'The revision could not be restored.', 'wp-sites-hq' ) );
 	}
 	return array(
 		'post_id'     => (int) $revision->post_parent,
 		'revision_id' => (int) $revision->ID,
-		'message'     => __( 'Revision restored. The version before it is saved as a revision.', 'monks-central' ),
+		'message'     => __( 'Revision restored. The version before it is saved as a revision.', 'wp-sites-hq' ),
 	);
 }
 

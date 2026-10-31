@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # F-24 / T-5: uninstalling revokes MCP app passwords and drops the OAuth table, its version option and the
 # cm_mcp_oauth_* transients on every site, whatever the data-removal setting.
-# WARNING: deactivates and uninstalls monks-central (files kept). CI runs it last on a throwaway site.
+# WARNING: deactivates and uninstalls wp-sites-hq (files kept). CI runs it last on a throwaway site.
 cd "$(dirname "$0")/../.." && . tests/mcp/lib.sh
 
 SITES=$(wpe 'echo implode(" ", is_multisite() ? get_sites(["fields" => "ids", "number" => 0]) : [0]);')
@@ -14,9 +14,9 @@ check 'setup: OAuth table on every site' "$(each 'global $wpdb; echo $wpdb->get_
 
 for s in $SITES; do
     url=$(wpe "echo $s ? get_home_url($s) : home_url();")
-    (cd "$SITE_ROOT" && $WP_CMD plugin deactivate monks-central --url="$url" >/dev/null 2>&1)
+    (cd "$SITE_ROOT" && $WP_CMD plugin deactivate wp-sites-hq --url="$url" >/dev/null 2>&1)
 done
-(cd "$SITE_ROOT" && $WP_CMD plugin uninstall monks-central --skip-delete >/dev/null 2>&1)
+(cd "$SITE_ROOT" && $WP_CMD plugin uninstall wp-sites-hq --skip-delete >/dev/null 2>&1)
 
 want=$(for s in $SITES; do printf '%s:--- ' "$s"; done)
 check 'OAuth table, option and transients gone on every site' \

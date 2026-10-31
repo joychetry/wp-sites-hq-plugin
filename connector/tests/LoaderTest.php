@@ -71,7 +71,7 @@ final class LoaderTest extends TestCase {
 	public function test_first_registered_wins_a_tie(): void {
 		$copies = array(
 			array( 'dir' => 'free', 'connector' => '1.0.0' ),
-			array( 'dir' => 'monks-central', 'connector' => '1.0.0' ),
+			array( 'dir' => 'wp-sites-hq', 'connector' => '1.0.0' ),
 		);
 		$this->assertSame( 'free', monks_central_connector_pick( $copies )['dir'] );
 	}

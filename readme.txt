@@ -1,4 +1,4 @@
-=== Monks Central ===
+=== WP Sites HQ ===
 Contributors: goodmonks
 Tags: site management, remote management, updates, mcp, oauth
 Requires at least: 7.1
@@ -8,28 +8,28 @@ Stable tag: 0.1.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Connects this site to the Monks Central app, so you can manage it with your other WordPress sites from one place.
+Connects this site to the WP Sites HQ app, so you can manage it with your other WordPress sites from one place.
 
 == Description ==
 
-Monks Central is a free desktop app for managing many WordPress sites from one place. This plugin is the site connector: install it, add the site in the app, and approve the connection in wp-admin. The app can then check and run updates, manage plugins and themes, posts, pages, media, users and comments, and show you what changed.
+WP Sites HQ is a free desktop app for managing many WordPress sites from one place. This plugin is the site connector: install it, add the site in the app, and approve the connection in wp-admin. The app can then check and run updates, manage plugins and themes, posts, pages, media, users and comments, and show you what changed.
 
 * Each app signs in with OAuth 2.1 (PKCE) as a WordPress user who approved it on a consent screen, and can only do what that user can do.
 * You choose which tool groups each app gets. Changes that delete or replace something wait for your approval in wp-admin, unless an administrator marked the app as their own.
-* Every change is logged on the Monks Central screen. Many changes have an Undo there, and you can revoke any app.
+* Every change is logged on the WP Sites HQ screen. Many changes have an Undo there, and you can revoke any app.
 * AI agents can use the same tools through the site's MCP endpoint, with their own connection and the same approvals.
 * Classic Monks and Classic Monks Pro include the same connector. With any mix of them installed, only one connector runs and existing connections keep working.
 
 == Installation ==
 
-1. Download `monks-central.zip` from the latest release at https://github.com/joychetry/monks-central-wp/releases.
+1. Download `wp-sites-hq.zip` from the latest release at https://github.com/joychetry/wp-sites-hq-plugin/releases.
 2. In wp-admin, go to Plugins > Add New Plugin > Upload Plugin, choose the zip and activate it.
-3. Open Settings > Monks Central and turn on Allow Monks Central to connect.
-4. In the Monks Central app, add the site and approve the connection when wp-admin asks.
+3. Open Settings > WP Sites HQ and turn on Allow WP Sites HQ to connect.
+4. In the WP Sites HQ app, add the site and approve the connection when wp-admin asks.
 
 == Frequently Asked Questions ==
 
-= Does it need the Monks Central app? =
+= Does it need the WP Sites HQ app? =
 
 Yes. The plugin has no features of its own beyond the connection: it lets the app (and AI agents you allow) manage the site.
 
@@ -47,7 +47,7 @@ Only what the WordPress user who approved it can do, and only in the tool groups
 
 = How do I disconnect an app? =
 
-Open Settings > Monks Central and revoke it under Connected apps. Turning off Allow Monks Central to connect stops every connection at once.
+Open Settings > WP Sites HQ and revoke it under Connected apps. Turning off Allow WP Sites HQ to connect stops every connection at once.
 
 = What happens when I deactivate or delete the plugin? =
 
@@ -61,7 +61,7 @@ From the GitHub releases of this plugin, like any other plugin update in wp-admi
 
 This plugin checks GitHub for updates. It sends nothing else anywhere on its own.
 
-* What: a request to the GitHub API (api.github.com) for the latest release of joychetry/monks-central-wp, and, when you update, the download of the release zip and its SHA-256 checksum from github.com.
+* What: a request to the GitHub API (api.github.com) for the latest release of joychetry/wp-sites-hq-plugin, and, when you update, the download of the release zip and its SHA-256 checksum from github.com.
 * When: during WordPress's regular plugin update checks, at most once every 12 hours, and when you install an update.
 * What is sent: a standard HTTP request. WordPress adds your site's address to the User-Agent header of every request it makes. No other site data is sent.
 * GitHub's terms: https://docs.github.com/en/site-policy/github-terms/github-terms-of-service

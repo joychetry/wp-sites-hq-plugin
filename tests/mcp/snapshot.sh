@@ -15,9 +15,9 @@ check 'core version'                     "$(sc "$S" .core.version)" "\"$(wpe 'ec
 check 'core db version'                  "$(sc "$S" .core.db_version)" "$(wpe 'echo get_option("db_version");')"
 check 'php version'                      "$(sc "$S" .php.version)" "\"$(wpe 'echo PHP_VERSION;')\""
 check 'database server reported'         "$(sc "$S" '.database.server_version | length > 0')" true
-check 'this plugin listed as active'     "$(sc "$S" '.plugins[] | select(.plugin == "monks-central/monks-central.php") | .active')" true
+check 'this plugin listed as active'     "$(sc "$S" '.plugins[] | select(.plugin == "wp-sites-hq/wp-sites-hq.php") | .active')" true
 check 'plugin update shown on the plugin' "$(sc "$S" '.plugins[] | select(.plugin == "akismet/akismet.php") | .update')" '"99.0"'
-check 'no update is null'                "$(sc "$S" '.plugins[] | select(.plugin == "monks-central/monks-central.php") | .update')" null
+check 'no update is null'                "$(sc "$S" '.plugins[] | select(.plugin == "wp-sites-hq/wp-sites-hq.php") | .update')" null
 check 'active theme marked'              "$(sc "$S" '.themes[] | select(.active) | .stylesheet')" "\"$(wpe 'echo get_stylesheet();')\""
 check 'updates include translations'     "$(sc "$S" '.updates | has("translations") and has("counts")')" true
 check 'updates count the plugin'         "$(sc "$S" .updates.counts.plugins)" 1

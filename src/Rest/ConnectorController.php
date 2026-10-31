@@ -124,10 +124,10 @@ final class ConnectorController {
 	 */
 	public function can_manage() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return new WP_Error( 'rest_forbidden', __( 'You are not allowed to manage Monks Central.', 'monks-central' ), array( 'status' => rest_authorization_required_code() ) );
+			return new WP_Error( 'rest_forbidden', __( 'You are not allowed to manage WP Sites HQ.', 'wp-sites-hq' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 		if ( ! class_exists( 'Monks_Central_Connector' ) ) {
-			return new WP_Error( 'monks_central_no_connector', __( 'The connector is not loaded.', 'monks-central' ), array( 'status' => 503 ) );
+			return new WP_Error( 'monks_central_no_connector', __( 'The connector is not loaded.', 'wp-sites-hq' ), array( 'status' => 503 ) );
 		}
 		return true;
 	}

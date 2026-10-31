@@ -25,10 +25,10 @@ function cm_register_moderate_comment_ability() {
 	wp_register_ability(
 		'classic-monks/moderate-comment',
 		array(
-			'label'               => __( 'Moderate Comments', 'monks-central' ),
+			'label'               => __( 'Moderate Comments', 'wp-sites-hq' ),
 			'description'         => __(
 				"Changes the moderation status of one or more comments. Use this to approve held comments, mark spam, or move comments to the trash. \n\n## Parameters\n- **comment_ids**: Comment IDs to moderate (1-50, required)\n- **action**: approve, unapprove, spam, unspam, trash or untrash (required)\n\n## Returns\nPer comment: id, previous_status, status, success. Plus the number of comments updated.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'comments',
 			'input_schema'        => array(
@@ -112,7 +112,7 @@ function cm_execute_moderate_comment( $input ) {
 
 	// With EMPTY_TRASH_DAYS at 0, wp_trash_comment() deletes permanently.
 	if ( 'trash' === $action && ! EMPTY_TRASH_DAYS ) {
-		return new WP_Error( 'trash_disabled', __( 'The trash is disabled on this site, so trashing would delete comments permanently.', 'monks-central' ) );
+		return new WP_Error( 'trash_disabled', __( 'The trash is disabled on this site, so trashing would delete comments permanently.', 'wp-sites-hq' ) );
 	}
 
 	$handlers = array(
@@ -126,7 +126,7 @@ function cm_execute_moderate_comment( $input ) {
 		'untrash'   => 'wp_untrash_comment',
 	);
 	if ( ! isset( $handlers[ $action ] ) ) {
-		return new WP_Error( 'invalid_action', __( 'Unknown moderation action.', 'monks-central' ) );
+		return new WP_Error( 'invalid_action', __( 'Unknown moderation action.', 'wp-sites-hq' ) );
 	}
 
 	$results = array();
@@ -209,7 +209,7 @@ function cm_undo_moderate_comment( $undo ) {
 	);
 	foreach ( (array) ( $undo['statuses'] ?? array() ) as $id => $status ) {
 		if ( ! current_user_can( 'edit_comment', (int) $id ) ) {
-			return new WP_Error( 'forbidden', __( 'You are not allowed to moderate this comment.', 'monks-central' ) );
+			return new WP_Error( 'forbidden', __( 'You are not allowed to moderate this comment.', 'wp-sites-hq' ) );
 		}
 		if ( isset( $map[ $status ] ) && wp_get_comment_status( (int) $id ) !== $status ) {
 			wp_set_comment_status( (int) $id, $map[ $status ] );

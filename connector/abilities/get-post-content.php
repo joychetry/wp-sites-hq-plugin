@@ -27,10 +27,10 @@ function cm_register_get_post_content_ability() {
 	wp_register_ability(
 		'classic-monks/get-post-content',
 		array(
-			'label'               => __( 'Get Post Content', 'monks-central' ),
+			'label'               => __( 'Get Post Content', 'wp-sites-hq' ),
 			'description'         => __(
 				"Retrieves full post content with formatting options. Use this when you need the complete content of a post in a specific format. \n\n## Required Parameters\n- **post_id**: The ID of the post (required)\n\n## Optional Parameters\n- **format**: Content format - raw, rendered, or stripped (default: raw)\n\n## Format Options\n- **raw**: Content exactly as stored in database (Gutenberg blocks, shortcodes)\n- **rendered**: Content with filters applied (shortcodes executed, blocks rendered)\n- **stripped**: Plain text without any HTML tags\n\n## Returns\nPost content in requested format, plus word count and character count.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'content',
 			'input_schema'        => array(
@@ -94,7 +94,7 @@ function cm_execute_get_post_content( $input ) {
 	$post    = get_post( $post_id );
 
 	if ( ! $post ) {
-		return new WP_Error( 'post_not_found', __( 'Post not found.', 'monks-central' ) );
+		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 	}
 
 	$format = isset( $input['format'] ) ? sanitize_key( $input['format'] ) : 'raw';

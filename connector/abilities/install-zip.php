@@ -20,10 +20,10 @@ function cm_register_install_zip_ability() {
 	wp_register_ability(
 		'classic-monks/install-zip',
 		array(
-			'label'               => __( 'Install Plugin or Theme from Zip', 'monks-central' ),
+			'label'               => __( 'Install Plugin or Theme from Zip', 'wp-sites-hq' ),
 			'description'         => __(
 				'Installs a plugin or theme from a zip file, sent in base64 chunks of up to 2 MB (decoded). First call: filename, kind ("plugin" or "theme") and data (no upload_id); the reply gives an upload_id. Next calls: upload_id, offset (the bytes received so far, from the last reply) and data. Set done: true on the last chunk to install. A chunk sent twice with the same offset is ignored, so a retry is safe. overwrite: true replaces an installed copy in the same folder (like WordPress\' "Replace current with uploaded"); activate: true activates the plugin or switches to the theme. Both can be sent on any call. Not available when the site disallows file changes (DISALLOW_FILE_MODS) or needs FTP details to write files.',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -149,20 +149,20 @@ function cm_install_zip_permission( $input ) {
 function cm_execute_install_zip( $input ) {
 	// WP Sites HQ's own connection only: it installs or takes down code for the whole site.
 	if ( ! cm_is_operator_request() ) {
-		return new WP_Error( 'cm_operator_only', __( 'Only the WP Sites HQ app can use this tool.', 'monks-central' ), array( 'status' => 403 ) );
+		return new WP_Error( 'cm_operator_only', __( 'Only the WP Sites HQ app can use this tool.', 'wp-sites-hq' ), array( 'status' => 403 ) );
 	}
 	if ( ! wp_is_file_mod_allowed( 'cm_install_zip' ) ) {
-		return new WP_Error( 'cm_file_mods_disabled', __( 'This site does not allow installing plugins or themes: file changes are turned off (DISALLOW_FILE_MODS in wp-config.php).', 'monks-central' ) );
+		return new WP_Error( 'cm_file_mods_disabled', __( 'This site does not allow installing plugins or themes: file changes are turned off (DISALLOW_FILE_MODS in wp-config.php).', 'wp-sites-hq' ) );
 	}
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	if ( ! WP_Filesystem() ) {
-		return new WP_Error( 'cm_filesystem_credentials', __( 'WordPress needs FTP or SSH details to write files on this site, so nothing can be installed from here. Ask the host to let WordPress write files directly, or add the FTP details to wp-config.php.', 'monks-central' ) );
+		return new WP_Error( 'cm_filesystem_credentials', __( 'WordPress needs FTP or SSH details to write files on this site, so nothing can be installed from here. Ask the host to let WordPress write files directly, or add the FTP details to wp-config.php.', 'wp-sites-hq' ) );
 	}
 
 	$set = array_intersect_key( $input, array_flip( array( 'overwrite', 'activate' ) ) );
 	if ( empty( $input['upload_id'] ) ) {
 		if ( empty( $input['kind'] ) ) {
-			return new WP_Error( 'missing_kind', __( 'kind ("plugin" or "theme") is required on the first call.', 'monks-central' ) );
+			return new WP_Error( 'missing_kind', __( 'kind ("plugin" or "theme") is required on the first call.', 'wp-sites-hq' ) );
 		}
 		$set['kind'] = $input['kind'];
 	}
@@ -188,7 +188,7 @@ function cm_execute_install_zip( $input ) {
 	$path = $o['path'];
 	if ( "PK\x03\x04" !== file_get_contents( $path, false, null, 0, 4 ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- the first bytes of a local temp file
 		wp_delete_file( $path );
-		return new WP_Error( 'cm_not_a_zip', __( 'This file is not a zip. Send the plugin or theme as a .zip file.', 'monks-central' ) );
+		return new WP_Error( 'cm_not_a_zip', __( 'This file is not a zip. Send the plugin or theme as a .zip file.', 'wp-sites-hq' ) );
 	}
 
 	cm_ai_require_plugin_management_files();
@@ -207,8 +207,8 @@ function cm_execute_install_zip( $input ) {
 			return new WP_Error(
 				'cm_already_installed',
 				$theme
-				? __( 'A theme with this folder is already installed. Send overwrite: true to replace it.', 'monks-central' )
-				: __( 'A plugin with this folder is already installed. Send overwrite: true to replace it.', 'monks-central' )
+				? __( 'A theme with this folder is already installed. Send overwrite: true to replace it.', 'wp-sites-hq' )
+				: __( 'A plugin with this folder is already installed. Send overwrite: true to replace it.', 'wp-sites-hq' )
 			);
 		}
 		if ( 0 === strpos( $result->get_error_code(), 'incompatible_archive' ) && is_string( $result->get_error_data() ) ) {
@@ -218,7 +218,7 @@ function cm_execute_install_zip( $input ) {
 		return $result;
 	}
 	if ( ! $result ) {
-		return new WP_Error( 'cm_install_failed', __( 'The install failed: WordPress could not write the files.', 'monks-central' ) );
+		return new WP_Error( 'cm_install_failed', __( 'The install failed: WordPress could not write the files.', 'wp-sites-hq' ) );
 	}
 
 	$slug = (string) $upgrader->result['destination_name'];
@@ -231,12 +231,12 @@ function cm_execute_install_zip( $input ) {
 	if ( $theme ) {
 		$info = $upgrader->theme_info();
 		if ( ! $info ) {
-			return new WP_Error( 'cm_install_unknown', __( 'The theme was installed, but WordPress cannot read it.', 'monks-central' ) );
+			return new WP_Error( 'cm_install_unknown', __( 'The theme was installed, but WordPress cannot read it.', 'wp-sites-hq' ) );
 		}
 		if ( $o['activate'] && get_stylesheet() !== $info->get_stylesheet() ) {
 			if ( $info->errors() ) {
 				/* translators: %s: why the theme cannot be used */
-				return new WP_Error( 'cm_theme_broken', sprintf( __( 'The theme was installed but not switched on: %s', 'monks-central' ), $info->errors()->get_error_message() ) );
+				return new WP_Error( 'cm_theme_broken', sprintf( __( 'The theme was installed but not switched on: %s', 'wp-sites-hq' ), $info->errors()->get_error_message() ) );
 			}
 			switch_theme( $info->get_stylesheet() );
 		}
@@ -249,13 +249,13 @@ function cm_execute_install_zip( $input ) {
 
 	$file = $upgrader->plugin_info();
 	if ( ! $file ) {
-		return new WP_Error( 'cm_install_unknown', __( 'The zip was installed, but WordPress found no plugin file in it.', 'monks-central' ) );
+		return new WP_Error( 'cm_install_unknown', __( 'The zip was installed, but WordPress found no plugin file in it.', 'wp-sites-hq' ) );
 	}
 	if ( $o['activate'] ) {
 		$activated = activate_plugin( $file );
 		if ( is_wp_error( $activated ) ) {
 			/* translators: %s: activation error */
-			return new WP_Error( 'cm_plugin_activation_failed', sprintf( __( 'The plugin was installed but could not be activated: %s', 'monks-central' ), $activated->get_error_message() ) );
+			return new WP_Error( 'cm_plugin_activation_failed', sprintf( __( 'The plugin was installed but could not be activated: %s', 'wp-sites-hq' ), $activated->get_error_message() ) );
 		}
 	}
 	$data = get_plugin_data( WP_PLUGIN_DIR . '/' . $file, false, false );

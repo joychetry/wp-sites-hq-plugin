@@ -206,7 +206,7 @@ class CM_MCP_Approvals {
 			// Approved: the state must still match what the approver saw, and it runs once.
 			if ( self::preview( $ability, $input ) !== $approval['preview'] ) {
 				$wpdb->update( $table, array( 'status' => 'expired' ), array( 'id' => $row['id'] ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
-				$message = __( 'The content changed after it was approved, so the approval no longer applies. Call the tool again to request a fresh approval.', 'monks-central' );
+				$message = __( 'The content changed after it was approved, so the approval no longer applies. Call the tool again to request a fresh approval.', 'wp-sites-hq' );
 				CM_AI_Activity_Log::mark( $name, 'denied', $message );
 				return new WP_Error( 'cm_approval_drift', $message, array( 'status' => 409 ) );
 			}
@@ -225,7 +225,7 @@ class CM_MCP_Approvals {
 			// The request row carries the run's result, so the log shows one entry: requested, approved, done.
 			CM_AI_Activity_Log::continue_on( $name, (int) $row['id'] );
 			/* translators: %s: username of the approver */
-			CM_AI_Activity_Log::tag( $name, sprintf( __( '[approved by %s]', 'monks-central' ), $approval['approved_by'] ?? '?' ) );
+			CM_AI_Activity_Log::tag( $name, sprintf( __( '[approved by %s]', 'wp-sites-hq' ), $approval['approved_by'] ?? '?' ) );
 			return $pre;
 		}
 
@@ -237,7 +237,7 @@ class CM_MCP_Approvals {
 			'input'   => CM_AI_Activity_Log::redact( $input ),
 			'expires' => time() + self::TTL,
 		);
-		$id       = CM_AI_Activity_Log::request_approval( $name, $approval, __( 'Waiting for approval in the dashboard.', 'monks-central' ) );
+		$id       = CM_AI_Activity_Log::request_approval( $name, $approval, __( 'Waiting for approval in the dashboard.', 'wp-sites-hq' ) );
 		return self::required_error( $id, $approval );
 	}
 
@@ -247,7 +247,7 @@ class CM_MCP_Approvals {
 			'cm_approval_required',
 			sprintf(
 				/* translators: %s: approval URL */
-				__( 'This change needs approval. Ask the user to open %s and approve it, then call the same tool again with exactly the same arguments.', 'monks-central' ),
+				__( 'This change needs approval. Ask the user to open %s and approve it, then call the same tool again with exactly the same arguments.', 'wp-sites-hq' ),
 				$url
 			),
 			array(
@@ -269,7 +269,7 @@ class CM_MCP_Approvals {
 			CM_AI_Activity_Log::table(),
 			array(
 				'status'         => 'declined',
-				'result_summary' => __( 'Declined in the MCP client.', 'monks-central' ),
+				'result_summary' => __( 'Declined in the MCP client.', 'wp-sites-hq' ),
 			),
 			array(
 				'id'     => $id,
@@ -285,12 +285,12 @@ class CM_MCP_Approvals {
 
 	public static function register_page() {
 		// Hidden page (no parent menu); access is checked per request.
-		$hook = add_submenu_page( '', __( 'Approve AI change', 'monks-central' ), '', 'read', self::PAGE, array( __CLASS__, 'render_page' ) );
+		$hook = add_submenu_page( '', __( 'Approve AI change', 'wp-sites-hq' ), '', 'read', self::PAGE, array( __CLASS__, 'render_page' ) );
 		// Parentless pages get no admin title of their own.
 		add_action(
 			'load-' . $hook,
 			function () {
-				$GLOBALS['title'] = __( 'Approve AI change', 'monks-central' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- the hidden approval page has no menu title, so admin-header.php needs one
+				$GLOBALS['title'] = __( 'Approve AI change', 'wp-sites-hq' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- the hidden approval page has no menu title, so admin-header.php needs one
 			}
 		);
 	}
@@ -341,7 +341,7 @@ class CM_MCP_Approvals {
 		$row = self::load_request( $id );
 
 		if ( ! $row || ! self::can_decide( $row ) ) {
-			wp_die( esc_html__( 'This approval request does not exist, or you cannot decide it.', 'monks-central' ) );
+			wp_die( esc_html__( 'This approval request does not exist, or you cannot decide it.', 'wp-sites-hq' ) );
 		}
 
 		$ability = wp_get_ability( $row['ability'] );
@@ -351,18 +351,18 @@ class CM_MCP_Approvals {
 		$input = array_key_exists( 'input', $row['approval'] ) ? wp_json_encode( $row['approval']['input'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) : (string) $row['input_json'];
 
 		$states = array(
-			'approved' => __( 'Approved. The agent can now run it once.', 'monks-central' ),
-			'declined' => __( 'Declined.', 'monks-central' ),
-			'used'     => __( 'Approved and already run.', 'monks-central' ),
-			'ok'       => __( 'Approved and already run.', 'monks-central' ),
-			'error'    => __( 'Approved and run, but it failed. The activity log on the WP Sites HQ connection screen has the reason.', 'monks-central' ),
-			'undone'   => __( 'Approved and run, then undone.', 'monks-central' ),
-			'expired'  => __( 'This request expired. The agent can ask again.', 'monks-central' ),
+			'approved' => __( 'Approved. The agent can now run it once.', 'wp-sites-hq' ),
+			'declined' => __( 'Declined.', 'wp-sites-hq' ),
+			'used'     => __( 'Approved and already run.', 'wp-sites-hq' ),
+			'ok'       => __( 'Approved and already run.', 'wp-sites-hq' ),
+			'error'    => __( 'Approved and run, but it failed. The activity log on the WP Sites HQ connection screen has the reason.', 'wp-sites-hq' ),
+			'undone'   => __( 'Approved and run, then undone.', 'wp-sites-hq' ),
+			'expired'  => __( 'This request expired. The agent can ask again.', 'wp-sites-hq' ),
 		);
 
 		$ui = Monks_Central_Connector::ui();
 		if ( ! $ui ) {
-			wp_die( esc_html__( 'The plugin running the connection has no approval page.', 'monks-central' ), '', 500 );
+			wp_die( esc_html__( 'The plugin running the connection has no approval page.', 'wp-sites-hq' ), '', 500 );
 		}
 		$ui->render_approval(
 			array(
@@ -392,7 +392,7 @@ class CM_MCP_Approvals {
 
 		$row = self::load_request( $id );
 		if ( ! $row || ! self::can_decide( $row ) ) {
-			wp_die( esc_html__( 'This approval request does not exist, or you cannot decide it.', 'monks-central' ) );
+			wp_die( esc_html__( 'This approval request does not exist, or you cannot decide it.', 'wp-sites-hq' ) );
 		}
 
 		if ( 'pending' === $row['status'] && $row['approval']['expires'] >= time() ) {
@@ -401,7 +401,7 @@ class CM_MCP_Approvals {
 			$update  = array(
 				'status'         => $approve ? 'approved' : 'declined',
 				/* translators: %s: username */
-				'result_summary' => sprintf( $approve ? __( 'Approved by %s.', 'monks-central' ) : __( 'Declined by %s.', 'monks-central' ), wp_get_current_user()->user_login ),
+				'result_summary' => sprintf( $approve ? __( 'Approved by %s.', 'wp-sites-hq' ) : __( 'Declined by %s.', 'wp-sites-hq' ), wp_get_current_user()->user_login ),
 			);
 			// No preview means no drift check at run time, so keep the gap between approving and running short.
 			$ability = wp_get_ability( $row['ability'] );

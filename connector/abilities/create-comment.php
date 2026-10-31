@@ -19,10 +19,10 @@ function cm_register_create_comment_ability() {
 	wp_register_ability(
 		'classic-monks/create-comment',
 		array(
-			'label'               => __( 'Create Comment', 'monks-central' ),
+			'label'               => __( 'Create Comment', 'wp-sites-hq' ),
 			'description'         => __(
 				"Posts a new top-level comment on a post as the current user. To answer an existing comment use reply-to-comment. The comment is approved immediately when the user can moderate comments, otherwise it is held for moderation. \n\n## Parameters\n- **post_id**: ID of the post to comment on (required)\n- **content**: Comment text; basic HTML allowed (required)\n\n## Returns\nThe new comment: comment_id, post_id, status, link.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'comments',
 			'input_schema'        => array(
@@ -74,7 +74,7 @@ function cm_register_create_comment_ability() {
 function cm_execute_create_comment( $input ) {
 	$post = get_post( absint( $input['post_id'] ) );
 	if ( ! $post ) {
-		return new WP_Error( 'post_not_found', __( 'Post not found.', 'monks-central' ) );
+		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 	}
 
 	$content = trim( (string) $input['content'] );
@@ -82,7 +82,7 @@ function cm_execute_create_comment( $input ) {
 		$content = wp_kses_data( $content );
 	}
 	if ( '' === $content ) {
-		return new WP_Error( 'empty_content', __( 'Comment content is empty.', 'monks-central' ) );
+		return new WP_Error( 'empty_content', __( 'Comment content is empty.', 'wp-sites-hq' ) );
 	}
 
 	$user = wp_get_current_user();
@@ -104,7 +104,7 @@ function cm_execute_create_comment( $input ) {
 	);
 
 	if ( ! $comment_id ) {
-		return new WP_Error( 'comment_failed', __( 'Could not save the comment.', 'monks-central' ) );
+		return new WP_Error( 'comment_failed', __( 'Could not save the comment.', 'wp-sites-hq' ) );
 	}
 
 	if ( class_exists( 'CM_AI_Activity_Log' ) ) {

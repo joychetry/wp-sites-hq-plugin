@@ -19,10 +19,10 @@ function cm_register_update_core_ability() {
 	wp_register_ability(
 		'classic-monks/update-core',
 		array(
-			'label'               => __( 'Update Core', 'monks-central' ),
+			'label'               => __( 'Update Core', 'wp-sites-hq' ),
 			'description'         => __(
 				"Updates WordPress itself to the newest release offered by WordPress.org, or to the version (and locale) you name. Use get-core-version or list-updates first: only versions WordPress.org offers this site can be installed. Does nothing when WordPress is already at that version. \n\n## Notes\n- Not available when the site disallows file changes (DISALLOW_FILE_MODS).\n- The site is in maintenance mode for a short time during the update.\n\n## Returns\nThe version before and after, whether it was updated, and a message.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -94,7 +94,7 @@ function cm_execute_update_core( $input = array() ) {
 	$locale   = (string) ( $input['locale'] ?? '' );
 
 	if ( '' !== $locale && '' === $version ) {
-		return new WP_Error( 'cm_core_locale_without_version', __( 'Name a version together with the locale.', 'monks-central' ), array( 'status' => 400 ) );
+		return new WP_Error( 'cm_core_locale_without_version', __( 'Name a version together with the locale.', 'wp-sites-hq' ), array( 'status' => 400 ) );
 	}
 	if ( '' !== $version && $version === $previous && ( '' === $locale || get_locale() === $locale ) ) {
 		$offer = null;
@@ -110,7 +110,7 @@ function cm_execute_update_core( $input = array() ) {
 			return new WP_Error(
 				'cm_core_version_not_offered',
 				/* translators: 1: version, 2: list of offered versions */
-				sprintf( __( 'WordPress.org does not offer %1$s for this site. Offered: %2$s.', 'monks-central' ), trim( $version . ' ' . $locale ), $offered ? implode( ', ', $offered ) : __( 'none', 'monks-central' ) ),
+				sprintf( __( 'WordPress.org does not offer %1$s for this site. Offered: %2$s.', 'wp-sites-hq' ), trim( $version . ' ' . $locale ), $offered ? implode( ', ', $offered ) : __( 'none', 'wp-sites-hq' ) ),
 				array( 'status' => 400 )
 			);
 		}
@@ -123,7 +123,7 @@ function cm_execute_update_core( $input = array() ) {
 			'previous_version' => $previous,
 			'version'          => $previous,
 			'updated'          => false,
-			'message'          => '' === $version ? __( 'WordPress is already up to date.', 'monks-central' ) : __( 'WordPress is already at that version.', 'monks-central' ),
+			'message'          => '' === $version ? __( 'WordPress is already up to date.', 'wp-sites-hq' ) : __( 'WordPress is already at that version.', 'wp-sites-hq' ),
 		);
 	}
 
@@ -135,13 +135,13 @@ function cm_execute_update_core( $input = array() ) {
 		return $result;
 	}
 	if ( ! $result ) {
-		return new WP_Error( 'cm_core_update_failed', __( 'WordPress update failed.', 'monks-central' ) );
+		return new WP_Error( 'cm_core_update_failed', __( 'WordPress update failed.', 'wp-sites-hq' ) );
 	}
 
 	return array(
 		'previous_version' => $previous,
 		'version'          => (string) $result,
 		'updated'          => true,
-		'message'          => __( 'WordPress updated.', 'monks-central' ),
+		'message'          => __( 'WordPress updated.', 'wp-sites-hq' ),
 	);
 }

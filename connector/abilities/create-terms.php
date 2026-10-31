@@ -27,10 +27,10 @@ function cm_register_create_term_ability() {
 	wp_register_ability(
 		'classic-monks/create-term',
 		array(
-			'label'               => __( 'Create Term', 'monks-central' ),
+			'label'               => __( 'Create Term', 'wp-sites-hq' ),
 			'description'         => __(
 				"Creates a new taxonomy term (category, tag, or custom taxonomy). Use this ability to add new categories, tags, or custom taxonomy terms. \n\n## Required Parameters\n- **name**: The term name (required)\n- **taxonomy**: Taxonomy slug - category, post_tag, or custom (required)\n\n## Optional Parameters\n- **slug**: Term slug (auto-generated from name if not provided)\n- **description**: Term description\n- **parent**: Parent term ID (for hierarchical taxonomies)\n\n## Returns\nCreated term ID, name, slug, and taxonomy.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'taxonomy',
 			'input_schema'        => array(
@@ -111,7 +111,7 @@ function cm_execute_create_term( $input ) {
 		return new WP_Error(
 			'invalid_taxonomy',
 			/* translators: %s: taxonomy name */
-			sprintf( __( 'Taxonomy "%s" does not exist.', 'monks-central' ), $taxonomy )
+			sprintf( __( 'Taxonomy "%s" does not exist.', 'wp-sites-hq' ), $taxonomy )
 		);
 	}
 

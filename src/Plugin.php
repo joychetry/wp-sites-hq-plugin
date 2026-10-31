@@ -111,8 +111,8 @@ final class Plugin {
 		wp_register_ability_category(
 			self::ABILITY_CATEGORY,
 			array(
-				'label'       => __( 'Monks Central', 'monks-central' ),
-				'description' => __( 'Abilities provided by the Monks Central plugin.', 'monks-central' ),
+				'label'       => __( 'WP Sites HQ', 'wp-sites-hq' ),
+				'description' => __( 'Abilities provided by the WP Sites HQ plugin.', 'wp-sites-hq' ),
 			)
 		);
 	}

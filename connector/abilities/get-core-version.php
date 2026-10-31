@@ -19,10 +19,10 @@ function cm_register_get_core_version_ability() {
 	wp_register_ability(
 		'classic-monks/get-core-version',
 		array(
-			'label'               => __( 'Get Core Version', 'monks-central' ),
+			'label'               => __( 'Get Core Version', 'wp-sites-hq' ),
 			'description'         => __(
 				"Reports the installed WordPress version and whether a newer one is available. Refreshes the update check when it is more than 12 hours old. \n\n## Returns\n- **version**: Installed version.\n- **update_available**: true when a newer release is offered.\n- **latest_version**: Newest version offered (the installed one when up to date).\n- **last_checked**: Unix time of the last update check.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'output_schema'       => array(

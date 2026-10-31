@@ -20,10 +20,10 @@ function cm_register_update_media_ability() {
 	wp_register_ability(
 		'classic-monks/update-media',
 		array(
-			'label'               => __( 'Update Media', 'monks-central' ),
+			'label'               => __( 'Update Media', 'wp-sites-hq' ),
 			'description'         => __(
 				'Changes a Media Library item\'s alt text, title, caption or description. Send only the fields to change; an empty string clears one. The file itself is not touched (replace-media does that).',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'media',
 			'input_schema'        => array(
@@ -102,7 +102,7 @@ function cm_execute_update_media( $input ) {
 	$before = cm_media_details( $id );
 	$fields = array_intersect_key( $input, array_flip( array( 'alt', 'title', 'caption', 'description' ) ) );
 	if ( ! $fields ) {
-		return new WP_Error( 'missing_fields', __( 'Send at least one of alt, title, caption or description.', 'monks-central' ) );
+		return new WP_Error( 'missing_fields', __( 'Send at least one of alt, title, caption or description.', 'wp-sites-hq' ) );
 	}
 	$error = cm_apply_media_details( $id, $fields );
 	if ( is_wp_error( $error ) ) {
@@ -157,7 +157,7 @@ function cm_preview_update_media( $input ) {
 function cm_undo_update_media( $undo ) {
 	$id = absint( $undo['id'] ?? 0 );
 	if ( ! cm_can_edit_media( array( 'id' => $id ) ) ) {
-		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this media item.', 'monks-central' ) );
+		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this media item.', 'wp-sites-hq' ) );
 	}
 	unset( $undo['id'] );
 	return cm_apply_media_details( $id, $undo );

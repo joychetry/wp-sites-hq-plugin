@@ -27,10 +27,10 @@ function cm_register_get_users_ability() {
 	wp_register_ability(
 		'classic-monks/get-users',
 		array(
-			'label'               => __( 'Get Users', 'monks-central' ),
+			'label'               => __( 'Get Users', 'wp-sites-hq' ),
 			'description'         => __(
 				"Lists WordPress users with filtering options. Use this ability to retrieve user information for content attribution, permissions, or user management. \n\n## Optional Parameters\n- **role**: Filter by user role slug (administrator, editor, shop_manager, any role the site has)\n- **limit**: Number of users to return (1-100, default 10)\n- **offset**: Number of users to skip (for pagination)\n- **search**: Search term to filter by name, login, or email\n- **orderby**: Order by ID, display_name, user_login, registered (default registered)\n- **order**: ASC or DESC (default DESC)\n\n## Returns\nArray of users with: id, username, email, display_name, role, registered_date. Also includes total count for pagination, and roles: the roles you may give a user (id and name).",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'users',
 			'input_schema'        => array(
@@ -141,7 +141,7 @@ function cm_execute_get_users( $input = array() ) {
 	if ( ! empty( $input['role'] ) ) {
 		$args['role'] = sanitize_key( $input['role'] );
 		if ( ! wp_roles()->is_role( $args['role'] ) ) {
-			return new WP_Error( 'cm_user_role_not_found', __( 'This site has no such role.', 'monks-central' ) );
+			return new WP_Error( 'cm_user_role_not_found', __( 'This site has no such role.', 'wp-sites-hq' ) );
 		}
 	}
 

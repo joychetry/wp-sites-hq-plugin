@@ -17,11 +17,11 @@ check 'site toolset lists get-plugins'        "$L" '~"name":"get-plugins"'
 check 'site toolset hides content tools'      "$L" '!~"name":"get-posts"'
 
 settoolsets "array_keys(CM_MCP_Server::toolsets())"
-check 'get-plugins lists Monks Central'      "$(call get-plugins)" '~"name":"Monks Central"'
+check 'get-plugins lists WP Sites HQ'      "$(call get-plugins)" '~"name":"WP Sites HQ"'
 check 'search-plugins'                        "$(call search-plugins '{"search":"classic monks"}')" '!~"isError":true'
-check 'set-plugin-auto-update'                "$(call set-plugin-auto-update '{"slug":"monks-central","enabled":true}')" '!~"isError":true'
-check '... stored'                            "$(wpe 'echo in_array("monks-central/monks-central.php", (array) get_site_option("auto_update_plugins"), true) ? "on" : "off";')" on
-call set-plugin-auto-update '{"slug":"monks-central","enabled":false}' >/dev/null
+check 'set-plugin-auto-update'                "$(call set-plugin-auto-update '{"slug":"wp-sites-hq","enabled":true}')" '!~"isError":true'
+check '... stored'                            "$(wpe 'echo in_array("wp-sites-hq/wp-sites-hq.php", (array) get_site_option("auto_update_plugins"), true) ? "on" : "off";')" on
+call set-plugin-auto-update '{"slug":"wp-sites-hq","enabled":false}' >/dev/null
 # wp.org guideline 8: Free installs from WordPress.org by slug only.
 check 'install-plugin has no source_url'      "$L" '!~source_url'
 check 'install-plugin refuses source_url'     "$(call install-plugin '{"source_url":"https://example.com/x.zip"}')" '~source_url is not a valid property'

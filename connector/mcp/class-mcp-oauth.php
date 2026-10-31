@@ -357,7 +357,7 @@ class CM_MCP_OAuth {
 		if ( 0 === strpos( $client_id, 'cmc_' ) ) {
 			$parts = explode( '.', substr( $client_id, 4 ), 2 );
 			if ( 2 !== count( $parts ) || ! hash_equals( self::sign( $parts[0] ), $parts[1] ) ) {
-				return new WP_Error( 'invalid_client', __( 'Unknown client. Ask the app to connect again.', 'monks-central' ) );
+				return new WP_Error( 'invalid_client', __( 'Unknown client. Ask the app to connect again.', 'wp-sites-hq' ) );
 			}
 			$data = json_decode( (string) base64_decode( strtr( $parts[0], '-_', '+/' ) ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- base64url PKCE and token encoding
 			return array(
@@ -371,7 +371,7 @@ class CM_MCP_OAuth {
 			return self::fetch_metadata_document( $client_id );
 		}
 
-		return new WP_Error( 'invalid_client', __( 'Unknown client. Ask the app to connect again.', 'monks-central' ) );
+		return new WP_Error( 'invalid_client', __( 'Unknown client. Ask the app to connect again.', 'wp-sites-hq' ) );
 	}
 
 	/**
@@ -380,7 +380,7 @@ class CM_MCP_OAuth {
 	private static function fetch_metadata_document( $url ) {
 		$parts = wp_parse_url( $url );
 		if ( strlen( $url ) > 512 || empty( $parts['host'] ) || empty( $parts['path'] ) || '/' === $parts['path'] || isset( $parts['fragment'] ) || isset( $parts['user'] ) ) {
-			return new WP_Error( 'invalid_client', __( 'The client ID is not a valid metadata document URL.', 'monks-central' ) );
+			return new WP_Error( 'invalid_client', __( 'The client ID is not a valid metadata document URL.', 'wp-sites-hq' ) );
 		}
 
 		$key    = 'cm_mcp_oauth_cimd_' . hash( 'sha256', $url );
@@ -405,13 +405,13 @@ class CM_MCP_OAuth {
 
 		$error = null;
 		if ( ! is_array( $doc ) ) {
-			$error = __( 'Could not read the client metadata document.', 'monks-central' );
+			$error = __( 'Could not read the client metadata document.', 'wp-sites-hq' );
 		} elseif ( ( $doc['client_id'] ?? '' ) !== $url ) {
-			$error = __( 'The client metadata document does not name itself as this client.', 'monks-central' );
+			$error = __( 'The client metadata document does not name itself as this client.', 'wp-sites-hq' );
 		} else {
 			$uris = array_values( array_filter( (array) ( $doc['redirect_uris'] ?? array() ), array( __CLASS__, 'valid_redirect_uri' ) ) );
 			if ( ! $uris ) {
-				$error = __( 'The client metadata document lists no usable redirect URIs.', 'monks-central' );
+				$error = __( 'The client metadata document lists no usable redirect URIs.', 'wp-sites-hq' );
 			}
 		}
 
@@ -515,7 +515,7 @@ class CM_MCP_OAuth {
 		}
 		$redirect = (string) ( $q['redirect_uri'] ?? '' );
 		if ( '' === $redirect || ! self::redirect_allowed( $client['redirect_uris'], $redirect ) ) {
-			return new WP_Error( 'invalid_request', __( 'This app asked to return to an address it did not register, so the request was stopped.', 'monks-central' ) );
+			return new WP_Error( 'invalid_request', __( 'This app asked to return to an address it did not register, so the request was stopped.', 'wp-sites-hq' ) );
 		}
 
 		$ctx = array(
@@ -527,13 +527,13 @@ class CM_MCP_OAuth {
 			'resource'       => self::resource(),
 		);
 		if ( 'code' !== ( $q['response_type'] ?? '' ) ) {
-			return new WP_Error( 'unsupported_response_type', __( 'This app asked for a sign-in type this site does not support (only response_type=code).', 'monks-central' ) );
+			return new WP_Error( 'unsupported_response_type', __( 'This app asked for a sign-in type this site does not support (only response_type=code).', 'wp-sites-hq' ) );
 		}
 		if ( ! preg_match( '/^[A-Za-z0-9._~-]{43,128}$/', $ctx['code_challenge'] ) || 'S256' !== ( $q['code_challenge_method'] ?? '' ) ) {
-			return new WP_Error( 'invalid_request', __( 'This app did not use PKCE with code_challenge_method=S256, which this site requires.', 'monks-central' ) );
+			return new WP_Error( 'invalid_request', __( 'This app did not use PKCE with code_challenge_method=S256, which this site requires.', 'wp-sites-hq' ) );
 		}
 		if ( isset( $q['resource'] ) && ! self::same_resource( $q['resource'] ) ) {
-			return new WP_Error( 'invalid_target', __( 'This app asked for access to a different server than this site\'s MCP endpoint.', 'monks-central' ) );
+			return new WP_Error( 'invalid_target', __( 'This app asked for access to a different server than this site\'s MCP endpoint.', 'wp-sites-hq' ) );
 		}
 		return $ctx;
 	}
@@ -548,7 +548,7 @@ class CM_MCP_OAuth {
 	}
 
 	public static function register_page() {
-		$hook = add_submenu_page( '', __( 'Connect an AI app', 'monks-central' ), '', 'read', self::PAGE, '__return_null' );
+		$hook = add_submenu_page( '', __( 'Connect an AI app', 'wp-sites-hq' ), '', 'read', self::PAGE, '__return_null' );
 		add_action( 'load-' . $hook, array( __CLASS__, 'render_consent' ) );
 	}
 
@@ -571,11 +571,11 @@ class CM_MCP_OAuth {
 		// Capability first, so a subscriber can't make the site fetch metadata URLs.
 		$ctx = self::can_consent()
 			? self::validate_request( wp_unslash( $_GET ) ) // phpcs:ignore WordPress.Security.NonceVerification -- read-only render; the decision is nonce-checked
-			: new WP_Error( 'access_denied', __( 'Your account cannot connect AI apps to this site. Sign in as an author, editor or administrator.', 'monks-central' ) );
+			: new WP_Error( 'access_denied', __( 'Your account cannot connect AI apps to this site. Sign in as an author, editor or administrator.', 'wp-sites-hq' ) );
 
 		$ui = Monks_Central_Connector::ui();
 		if ( ! $ui ) {
-			wp_die( esc_html__( 'The plugin running the connection has no consent page.', 'monks-central' ), '', 500 );
+			wp_die( esc_html__( 'The plugin running the connection has no consent page.', 'wp-sites-hq' ), '', 500 );
 		}
 		nocache_headers();
 		header( 'X-Frame-Options: DENY' );
@@ -621,9 +621,9 @@ class CM_MCP_OAuth {
 		}
 		$warning = '';
 		if ( $local ) {
-			$warning = __( 'This app returns to a program on your own computer. Only continue if you just started this connection yourself, from an app you trust.', 'monks-central' );
+			$warning = __( 'This app returns to a program on your own computer. Only continue if you just started this connection yourself, from an app you trust.', 'wp-sites-hq' );
 		} elseif ( $app ) {
-			$warning = __( 'This app returns to an app installed on your computer. Only continue if you just started this connection yourself.', 'monks-central' );
+			$warning = __( 'This app returns to an app installed on your computer. Only continue if you just started this connection yourself.', 'wp-sites-hq' );
 		}
 		return $view + array(
 			'app'              => $client['name'] ? $client['name'] : ( $host ? $host : $scheme ),
@@ -642,14 +642,14 @@ class CM_MCP_OAuth {
 
 	public static function handle_decision() {
 		if ( 'POST' !== sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) {
-			wp_die( esc_html__( 'This connection request is no longer valid. Start again from the app.', 'monks-central' ), '', 405 );
+			wp_die( esc_html__( 'This connection request is no longer valid. Start again from the app.', 'wp-sites-hq' ), '', 405 );
 		}
 		$q = wp_unslash( $_POST );
 		check_admin_referer( self::nonce_action( $q ) );
 
 		$ctx = self::validate_request( $q );
 		if ( is_wp_error( $ctx ) || ! self::can_consent() ) {
-			wp_die( esc_html__( 'This connection request is no longer valid. Start again from the app.', 'monks-central' ) );
+			wp_die( esc_html__( 'This connection request is no longer valid. Start again from the app.', 'wp-sites-hq' ) );
 		}
 		if ( 'approve' !== ( $q['decision'] ?? '' ) ) {
 			self::redirect_with(

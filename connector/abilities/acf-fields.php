@@ -37,10 +37,10 @@ function cm_register_acf_fields_abilities() {
 	wp_register_ability(
 		'classic-monks/get-acf-fields',
 		array(
-			'label'               => __( 'Get ACF Fields', 'monks-central' ),
+			'label'               => __( 'Get ACF Fields', 'wp-sites-hq' ),
 			'description'         => __(
 				'Lists the Advanced Custom Fields groups shown on an entry, with each field\'s key, name, label, type, instructions, required flag, settings (choices, limits, formats) and current value as ACF stores it (image and post fields hold IDs, dates Ymd, sub-fields of groups and repeater rows are keyed by field key). editable is false for types to change in WordPress (flexible content, clone, others). refs gives titles and URLs for the media, posts, terms and users the values point at.',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'content',
 			'input_schema'        => array(
@@ -90,10 +90,10 @@ function cm_register_acf_fields_abilities() {
 	wp_register_ability(
 		'classic-monks/update-acf-fields',
 		array(
-			'label'               => __( 'Update ACF Fields', 'monks-central' ),
+			'label'               => __( 'Update ACF Fields', 'wp-sites-hq' ),
 			'description'         => __(
 				'Saves Advanced Custom Fields values on an entry through ACF (update_field), so its formatting and hooks run. fields maps field keys (or names) from get-acf-fields to values in the same shape get-acf-fields returns. ACF validates every value first; if any fails, nothing is saved and the messages say why.',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'content',
 			'input_schema'        => array(
@@ -308,7 +308,7 @@ function cm_acf_refs( array $ids ) {
 function cm_execute_get_acf_fields( $input ) {
 	$post = get_post( absint( $input['post_id'] ) );
 	if ( ! $post ) {
-		return new WP_Error( 'post_not_found', __( 'Post not found.', 'monks-central' ) );
+		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 	}
 	$groups = array();
 	$ids    = array();
@@ -338,7 +338,7 @@ function cm_execute_get_acf_fields( $input ) {
 function cm_execute_update_acf_fields( $input ) {
 	$post = get_post( absint( $input['post_id'] ) );
 	if ( ! $post ) {
-		return new WP_Error( 'post_not_found', __( 'Post not found.', 'monks-central' ) );
+		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 	}
 	$known = cm_acf_entry_fields( $post );
 	$names = array_column( $known, 'key', 'name' );
@@ -347,11 +347,11 @@ function cm_execute_update_acf_fields( $input ) {
 		$field = $known[ $selector ] ?? ( isset( $names[ $selector ] ) ? $known[ $names[ $selector ] ] : null );
 		if ( ! $field ) {
 			/* translators: %s: field key or name */
-			return new WP_Error( 'acf_field_not_found', sprintf( __( '%s is not an ACF field of this entry.', 'monks-central' ), $selector ) );
+			return new WP_Error( 'acf_field_not_found', sprintf( __( '%s is not an ACF field of this entry.', 'wp-sites-hq' ), $selector ) );
 		}
 		if ( ! cm_acf_editable( $field ) ) {
 			/* translators: 1: field label, 2: field type */
-			return new WP_Error( 'acf_field_read_only', sprintf( __( '%1$s (%2$s) can only be changed in WordPress.', 'monks-central' ), $field['label'], $field['type'] ) );
+			return new WP_Error( 'acf_field_read_only', sprintf( __( '%1$s (%2$s) can only be changed in WordPress.', 'wp-sites-hq' ), $field['label'], $field['type'] ) );
 		}
 		// Booleans as ACF's true/false stores them; HTML filtered for users who may not post it.
 		$set[ $field['key'] ] = map_deep(
@@ -365,7 +365,7 @@ function cm_execute_update_acf_fields( $input ) {
 		);
 	}
 	if ( ! $set ) {
-		return new WP_Error( 'missing_fields', __( 'Send at least one field.', 'monks-central' ) );
+		return new WP_Error( 'missing_fields', __( 'Send at least one field.', 'wp-sites-hq' ) );
 	}
 
 	acf_reset_validation_errors();
@@ -449,10 +449,10 @@ function cm_preview_update_acf_fields( $input ) {
 function cm_undo_update_acf_fields( $undo ) {
 	$post_id = absint( $undo['post_id'] ?? 0 );
 	if ( ! current_user_can( 'edit_post', $post_id ) ) {
-		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this post.', 'monks-central' ) );
+		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this post.', 'wp-sites-hq' ) );
 	}
 	if ( ! function_exists( 'update_field' ) ) {
-		return new WP_Error( 'cm_acf_missing', __( 'Advanced Custom Fields is not active on this site.', 'monks-central' ) );
+		return new WP_Error( 'cm_acf_missing', __( 'Advanced Custom Fields is not active on this site.', 'wp-sites-hq' ) );
 	}
 	foreach ( (array) ( $undo['fields'] ?? array() ) as $key => $old ) {
 		if ( empty( $old['existed'] ) ) {
