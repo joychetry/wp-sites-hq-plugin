@@ -1,4 +1,4 @@
-# Monks Central connector test suites
+# WP Sites HQ connector test suites
 
 Bash suites that drive the MCP endpoint and the OAuth server over HTTP (curl) and check state with WP-CLI. Ported from Classic Monks Free (`tests/mcp/`), which ported them from Pro. They run against this plugin, which bundles the shared connector (`connector/`). Nothing secret is committed; `bin/build-zip.sh` leaves this folder out of the zip.
 
@@ -40,7 +40,7 @@ Against another site, set `CM_SITE` (URL), `CM_SITE_ROOT` (WordPress root) and `
 | `acf.sh` | Monks Central `get-acf-fields` and `update-acf-fields`: installs ACF free from wordpress.org, then Secure Custom Fields for the PRO types (repeater, gallery, flexible content); reads, saves, ACF validation as plain messages, refusals and undo. The field group comes from `acf-fixture.php`, which also sets up a Studio site (`studio wp eval-file tests/mcp/acf-fixture.php "Monks test fields" <post ID>`). Both plugins, the groups and the posts are deleted at the end. |
 | `oauth.sh`, `oauth-grace.sh`, `revoke.sh`, `operator.sh`, `login-link.sh` | Discovery, DCR, CIMD, PKCE, refresh rotation with the 60-second replay grace, revoke, operator grants, one-time login links. |
 | `hq-status.sh` | `get-hq-status` (plugin, connector version and hosts), the WordPress 7.1 header and readme. |
-| `admin-page.sh` | Settings › Monks Central and its REST routes: the switch, connections, approval requests, activity and undo; editors are refused. |
+| `admin-page.sh` | Settings › WP Sites HQ and its REST routes: the switch, connections, approval requests, activity and undo; editors are refused. |
 | `loader.sh` | Version-wins loader: a fixture plugin bundles a newer copy (9.9.9), which runs while the bundled copy sleeps; host versions, the `monks_central_register_abilities` hook, grants kept when either plugin is deactivated. |
 | `standdown.sh` | With a Classic Monks build that carries its own connector (simulated), the shared connector stands down. |
 | `deactivate.sh`, `uninstall.sh` | Deactivation and uninstall revoke every connection. They run last; use a throwaway site. |
