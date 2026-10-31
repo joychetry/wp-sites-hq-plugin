@@ -91,10 +91,8 @@ final class Plugin {
 		if ( is_admin() ) {
 			( new Admin\Page( $this ) )->register();
 		}
-		// The wp.org build has no Updater class (bin/build-zip.sh --wporg).
-		if ( class_exists( Updater::class ) ) {
-			( new Updater() )->register();
-		}
+		// The 0.1.4 bridge: no updates (every later tag would offer the bridge again), only the move to WP Sites HQ.
+		( new Move() )->register();
 
 		foreach ( $this->modules as $id => $module ) {
 			if ( $module->is_enabled( $this->settings ) ) {

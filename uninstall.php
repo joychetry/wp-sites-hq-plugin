@@ -7,7 +7,10 @@
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
-delete_option( 'monks_central_settings' );
+// WP Sites HQ reads the same settings after the move, so they stay while it is installed.
+if ( ! file_exists( WP_PLUGIN_DIR . '/wp-sites-hq/wp-sites-hq.php' ) ) {
+	delete_option( 'monks_central_settings' );
+}
 delete_site_transient( 'monks_central_release' );
 
 // The connector's data is shared with other plugins that bundle it; it decides what may go.
