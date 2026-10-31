@@ -20,10 +20,10 @@ function cm_register_list_pending_approvals_ability() {
 	wp_register_ability(
 		'classic-monks/list-pending-approvals',
 		array(
-			'label'               => __( 'List Pending Approvals', 'monks-central' ),
+			'label'               => __( 'List Pending Approvals', 'wp-sites-hq' ),
 			'description'         => __(
 				'Lists approval requests that are still waiting and that you may decide: the tool, the connection that asked, the arguments, the preview a person will see, seconds until it expires and the approve_url. There is no tool to approve or decline; a person does that on the approve page.',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'classic-monks',
 			'input_schema'        => array(

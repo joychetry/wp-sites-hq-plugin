@@ -20,10 +20,10 @@ function cm_register_get_hq_status_ability() {
 	wp_register_ability(
 		'classic-monks/get-hq-status',
 		array(
-			'label'               => __( 'Get HQ Status', 'monks-central' ),
+			'label'               => __( 'Get HQ Status', 'wp-sites-hq' ),
 			'description'         => __(
 				'Returns a short status of this site for a dashboard that manages several sites: the plugin running the connection, the connector version and every plugin that bundles it, WordPress and PHP versions, MCP protocol versions, whether approvals work, which modules (WooCommerce, Bricks) are on, your role, this connection\'s access level and tool groups, and how many approval requests you can decide.',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'classic-monks',
 			'input_schema'        => array(

@@ -136,7 +136,7 @@ function cm_ai_resolve_installed_plugin( $input ) {
 	if ( empty( $matches ) ) {
 		return new WP_Error(
 			'cm_plugin_not_found',
-			__( 'No installed plugin matched the provided plugin file, slug, or name.', 'monks-central' ),
+			__( 'No installed plugin matched the provided plugin file, slug, or name.', 'wp-sites-hq' ),
 			array( 'status' => 404 )
 		);
 	}
@@ -164,7 +164,7 @@ function cm_ai_resolve_installed_plugin( $input ) {
 			'cm_plugin_ambiguous',
 			sprintf(
 				/* translators: %s: comma-separated plugin names */
-				__( 'Multiple installed plugins matched the request: %s. Provide the plugin_file or exact slug.', 'monks-central' ),
+				__( 'Multiple installed plugins matched the request: %s. Provide the plugin_file or exact slug.', 'wp-sites-hq' ),
 				implode( ', ', $candidate_names )
 			),
 			array( 'status' => 409 )
@@ -214,7 +214,7 @@ function cm_ai_resolve_plugin_install_source( $input ) {
 	if ( ! $name ) {
 		return new WP_Error(
 			'cm_plugin_install_missing_target',
-			__( 'Provide a WordPress.org plugin slug or plugin name to install a plugin.', 'monks-central' ),
+			__( 'Provide a WordPress.org plugin slug or plugin name to install a plugin.', 'wp-sites-hq' ),
 			array( 'status' => 400 )
 		);
 	}
@@ -240,7 +240,7 @@ function cm_ai_resolve_plugin_install_source( $input ) {
 	if ( empty( $plugins ) ) {
 		return new WP_Error(
 			'cm_plugin_install_not_found',
-			__( 'No WordPress.org plugin matched the requested name.', 'monks-central' ),
+			__( 'No WordPress.org plugin matched the requested name.', 'wp-sites-hq' ),
 			array( 'status' => 404 )
 		);
 	}
@@ -262,7 +262,7 @@ function cm_ai_resolve_plugin_install_source( $input ) {
 		if ( count( $plugins ) > 1 ) {
 			return new WP_Error(
 				'cm_plugin_install_ambiguous',
-				__( 'Multiple WordPress.org plugins matched the provided name. Provide the exact slug to install the correct plugin.', 'monks-central' ),
+				__( 'Multiple WordPress.org plugins matched the provided name. Provide the exact slug to install the correct plugin.', 'wp-sites-hq' ),
 				array( 'status' => 409 )
 			);
 		}

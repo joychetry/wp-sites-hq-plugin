@@ -20,10 +20,10 @@ function cm_register_import_media_from_url_ability() {
 	wp_register_ability(
 		'classic-monks/import-media-from-url',
 		array(
-			'label'               => __( 'Import Media From URL', 'monks-central' ),
+			'label'               => __( 'Import Media From URL', 'wp-sites-hq' ),
 			'description'         => __(
 				"Downloads an image from a public http(s) URL and adds it to the Media Library as a new attachment. Private, loopback and link-local addresses are refused, also after redirects. The file type is read from its content: only image types this site accepts are imported (SVG is sanitized), up to the site's maximum upload size. Each call creates a new attachment.\n\n## Parameters\n- **url**: Public http(s) image URL (required).\n- **title**: Attachment title. Defaults to the file name.\n- **alt**: Image alt text.\n- **caption**: Attachment caption.\n- **post_id**: Post to attach the image to (you must be able to edit it).\n\n## Returns\nattachment_id, url, mime_type, filename, original_url and edit_url.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'media',
 			'input_schema'        => array(
@@ -86,17 +86,17 @@ function cm_register_import_media_from_url_ability() {
 function cm_execute_import_media_from_url( $input = array() ) {
 	$url = esc_url_raw( (string) ( $input['url'] ?? '' ), array( 'http', 'https' ) );
 	if ( '' === $url ) {
-		return new WP_Error( 'invalid_url', __( 'A valid http(s) image URL is required.', 'monks-central' ) );
+		return new WP_Error( 'invalid_url', __( 'A valid http(s) image URL is required.', 'wp-sites-hq' ) );
 	}
 
 	$post_id = absint( $input['post_id'] ?? 0 );
 	if ( $post_id ) {
 		$parent = get_post( $post_id );
 		if ( ! $parent || 'attachment' === $parent->post_type ) {
-			return new WP_Error( 'post_not_found', __( 'Post not found.', 'monks-central' ) );
+			return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new WP_Error( 'forbidden', __( 'You are not allowed to edit this post.', 'monks-central' ) );
+			return new WP_Error( 'forbidden', __( 'You are not allowed to edit this post.', 'wp-sites-hq' ) );
 		}
 	}
 

@@ -19,10 +19,10 @@ function cm_register_activate_plugin_ability() {
 	wp_register_ability(
 		'classic-monks/activate-plugin',
 		array(
-			'label'               => __( 'Activate Plugin', 'monks-central' ),
+			'label'               => __( 'Activate Plugin', 'wp-sites-hq' ),
 			'description'         => __(
 				"Activates an installed WordPress plugin. Provide the plugin file, slug, or exact installed plugin name. \n\n## Required Parameters\n- Provide one of: **plugin_file**, **slug**, or **name**\n\n## Returns\nThe plugin file, slug, name, current version, activation state, and a status message.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -98,7 +98,7 @@ function cm_execute_activate_plugin( $input ) {
 	$state        = cm_ai_get_plugin_state( $plugin_file, $plugin_data );
 
 	if ( $state['active'] ) {
-		$state['message'] = __( 'Plugin is already active.', 'monks-central' );
+		$state['message'] = __( 'Plugin is already active.', 'wp-sites-hq' );
 		return $state;
 	}
 
@@ -108,7 +108,7 @@ function cm_execute_activate_plugin( $input ) {
 	}
 
 	$state            = cm_ai_get_plugin_state( $plugin_file, $plugin_data );
-	$state['message'] = __( 'Plugin activated successfully.', 'monks-central' );
+	$state['message'] = __( 'Plugin activated successfully.', 'wp-sites-hq' );
 
 	return $state;
 }

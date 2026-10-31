@@ -20,8 +20,8 @@ function cm_register_send_password_reset_ability() {
 	wp_register_ability(
 		'classic-monks/send-password-reset',
 		array(
-			'label'               => __( 'Send Password Reset', 'monks-central' ),
-			'description'         => __( 'Emails a user the link to set a new password, as "Lost your password?" on the login screen does. Their current password keeps working until they set a new one.', 'monks-central' ),
+			'label'               => __( 'Send Password Reset', 'wp-sites-hq' ),
+			'description'         => __( 'Emails a user the link to set a new password, as "Lost your password?" on the login screen does. Their current password keeps working until they set a new one.', 'wp-sites-hq' ),
 			'category'            => 'users',
 			'input_schema'        => array(
 				'type'                 => 'object',
@@ -64,7 +64,7 @@ function cm_register_send_password_reset_ability() {
 function cm_execute_send_password_reset( $input ) {
 	$user = get_userdata( absint( $input['user_id'] ) );
 	if ( ! $user ) {
-		return new WP_Error( 'cm_user_not_found', __( 'User not found.', 'monks-central' ) );
+		return new WP_Error( 'cm_user_not_found', __( 'User not found.', 'wp-sites-hq' ) );
 	}
 	// Core's own flow: honours allow_password_reset and sends the site's reset email.
 	$sent = retrieve_password( $user->user_login );

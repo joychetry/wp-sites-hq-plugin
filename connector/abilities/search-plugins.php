@@ -19,10 +19,10 @@ function cm_register_search_plugins_ability() {
 	wp_register_ability(
 		'classic-monks/search-plugins',
 		array(
-			'label'               => __( 'Search Plugins', 'monks-central' ),
+			'label'               => __( 'Search Plugins', 'wp-sites-hq' ),
 			'description'         => __(
 				"Searches the WordPress.org plugin directory. Use the slug with install-plugin. \n\n## Parameters\n- **search**: Search words (required).\n- **per_page**: Results per page (1-24, default 10).\n- **page**: Page number (default 1).\n\n## Returns\nMatching plugins with slug, name, version, author, rating (0-100), active installs, last update, tested-up-to version, short description and whether it is installed here.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(

@@ -27,10 +27,10 @@ function cm_register_get_environment_info_ability() {
 	wp_register_ability(
 		'classic-monks/get-environment-info',
 		array(
-			'label'               => __( 'Get Environment Info', 'monks-central' ),
+			'label'               => __( 'Get Environment Info', 'wp-sites-hq' ),
 			'description'         => __(
 				"Retrieves detailed server environment information. Use this ability to debug server-related issues or check compatibility. \n\n## Returns\n- **PHP**: Version, memory limit, max execution time\n- **MySQL**: Version\n- **Server**: Software, OS\n- **WordPress**: Memory limits, debug mode status\n\n## No Parameters Required\nThis ability takes no input parameters.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'output_schema'       => array(

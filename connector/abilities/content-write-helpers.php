@@ -87,10 +87,10 @@ function cm_content_post_fields( $post_type, $post_id, $input, array &$post_data
 		$author = absint( $input['author'] );
 		$was    = $post_id ? (int) get_post_field( 'post_author', $post_id ) : get_current_user_id();
 		if ( $author !== $was && ! current_user_can( $type->cap->edit_others_posts ) ) {
-			return new WP_Error( 'forbidden', __( 'You are not allowed to give entries to someone else.', 'monks-central' ) );
+			return new WP_Error( 'forbidden', __( 'You are not allowed to give entries to someone else.', 'wp-sites-hq' ) );
 		}
 		if ( $author !== $was && ! user_can( $author, $type->cap->edit_posts ) ) {
-			return new WP_Error( 'invalid_author', __( 'That user can\'t write this type of entry.', 'monks-central' ) );
+			return new WP_Error( 'invalid_author', __( 'That user can\'t write this type of entry.', 'wp-sites-hq' ) );
 		}
 		$post_data['post_author'] = $author;
 		$fields[]                 = 'author';
@@ -98,7 +98,7 @@ function cm_content_post_fields( $post_type, $post_id, $input, array &$post_data
 	if ( isset( $input['parent'] ) ) {
 		$parent = absint( $input['parent'] );
 		if ( $parent && ( ! is_post_type_hierarchical( $post_type ) || get_post_type( $parent ) !== $post_type || $parent === (int) $post_id ) ) {
-			return new WP_Error( 'invalid_parent', __( 'The parent must be another entry of the same type.', 'monks-central' ) );
+			return new WP_Error( 'invalid_parent', __( 'The parent must be another entry of the same type.', 'wp-sites-hq' ) );
 		}
 		$post_data['post_parent'] = $parent;
 		$fields[]                 = 'parent';
@@ -111,7 +111,7 @@ function cm_content_post_fields( $post_type, $post_id, $input, array &$post_data
 		$template = (string) $input['template'];
 		if ( '' !== $template && 'default' !== $template && ! isset( wp_get_theme()->get_page_templates( $post_id ? get_post( $post_id ) : null, $post_type )[ $template ] ) ) {
 			/* translators: %s: template file */
-			return new WP_Error( 'invalid_template', sprintf( __( 'The theme has no template "%s" for this type.', 'monks-central' ), $template ) );
+			return new WP_Error( 'invalid_template', sprintf( __( 'The theme has no template "%s" for this type.', 'wp-sites-hq' ), $template ) );
 		}
 		$post_data['page_template'] = '' === $template ? 'default' : $template;
 		$fields[]                   = 'template';
@@ -190,23 +190,23 @@ function cm_content_write_check( $post_type, $post_id, $input ) {
 		$tax = get_taxonomy( $taxonomy );
 		if ( ! $tax || ! is_object_in_taxonomy( $post_type, $taxonomy ) ) {
 			/* translators: 1: taxonomy slug, 2: post type slug */
-			return new WP_Error( 'invalid_taxonomy', sprintf( __( 'The taxonomy "%1$s" is not used by %2$s.', 'monks-central' ), $taxonomy, $post_type ) );
+			return new WP_Error( 'invalid_taxonomy', sprintf( __( 'The taxonomy "%1$s" is not used by %2$s.', 'wp-sites-hq' ), $taxonomy, $post_type ) );
 		}
 		if ( ! current_user_can( $tax->cap->assign_terms ) ) {
 			/* translators: %s: taxonomy label */
-			return new WP_Error( 'forbidden', sprintf( __( 'You are not allowed to assign %s.', 'monks-central' ), $tax->label ) );
+			return new WP_Error( 'forbidden', sprintf( __( 'You are not allowed to assign %s.', 'wp-sites-hq' ), $tax->label ) );
 		}
 		foreach ( (array) $items as $item ) {
 			if ( is_int( $item ) ) {
 				if ( ! get_term( $item, $taxonomy ) instanceof WP_Term ) {
 					/* translators: 1: term ID, 2: taxonomy label */
-					return new WP_Error( 'term_not_found', sprintf( __( 'There is no term %1$d in %2$s.', 'monks-central' ), $item, $tax->label ) );
+					return new WP_Error( 'term_not_found', sprintf( __( 'There is no term %1$d in %2$s.', 'wp-sites-hq' ), $item, $tax->label ) );
 				}
 			} elseif ( '' === trim( (string) $item ) ) {
-				return new WP_Error( 'invalid_term', __( 'A term name is empty.', 'monks-central' ) );
+				return new WP_Error( 'invalid_term', __( 'A term name is empty.', 'wp-sites-hq' ) );
 			} elseif ( ! term_exists( (string) $item, $taxonomy ) && ! current_user_can( $tax->cap->edit_terms ) ) {
 				/* translators: 1: term name, 2: taxonomy label */
-				return new WP_Error( 'forbidden', sprintf( __( '"%1$s" is not in %2$s yet, and you are not allowed to add terms there.', 'monks-central' ), $item, $tax->label ) );
+				return new WP_Error( 'forbidden', sprintf( __( '"%1$s" is not in %2$s yet, and you are not allowed to add terms there.', 'wp-sites-hq' ), $item, $tax->label ) );
 			}
 		}
 	}
@@ -215,19 +215,19 @@ function cm_content_write_check( $post_type, $post_id, $input ) {
 		$key = (string) $key;
 		if ( '' === $key || is_protected_meta( $key, 'post' ) ) {
 			/* translators: %s: meta key */
-			return new WP_Error( 'protected_meta', sprintf( __( 'The custom field "%s" is protected. Its plugin manages it.', 'monks-central' ), $key ) );
+			return new WP_Error( 'protected_meta', sprintf( __( 'The custom field "%s" is protected. Its plugin manages it.', 'wp-sites-hq' ), $key ) );
 		}
 		$cap = $post_id ? current_user_can( 'edit_post_meta', $post_id, $key ) : current_user_can( get_post_type_object( $post_type )->cap->edit_posts );
 		if ( ! $cap ) {
 			/* translators: %s: meta key */
-			return new WP_Error( 'forbidden', sprintf( __( 'You are not allowed to change the custom field "%s".', 'monks-central' ), $key ) );
+			return new WP_Error( 'forbidden', sprintf( __( 'You are not allowed to change the custom field "%s".', 'wp-sites-hq' ), $key ) );
 		}
 	}
 
 	if ( isset( $input['date'] ) ) {
 		$d = DateTime::createFromFormat( 'Y-m-d H:i:s', (string) $input['date'] );
 		if ( ! $d || $d->format( 'Y-m-d H:i:s' ) !== $input['date'] ) {
-			return new WP_Error( 'invalid_date', __( 'date must look like 2026-11-02 09:30:00.', 'monks-central' ) );
+			return new WP_Error( 'invalid_date', __( 'date must look like 2026-11-02 09:30:00.', 'wp-sites-hq' ) );
 		}
 	}
 	return true;
@@ -246,7 +246,7 @@ function cm_content_write_after( $post_id, $input ) {
 	foreach ( array_keys( (array) ( $input['meta'] ?? array() ) ) as $key ) {
 		if ( ! current_user_can( 'edit_post_meta', $post_id, (string) $key ) ) {
 			/* translators: %s: meta key */
-			return new WP_Error( 'forbidden', sprintf( __( 'You are not allowed to change the custom field "%s".', 'monks-central' ), $key ) );
+			return new WP_Error( 'forbidden', sprintf( __( 'You are not allowed to change the custom field "%s".', 'wp-sites-hq' ), $key ) );
 		}
 	}
 	$written = array();

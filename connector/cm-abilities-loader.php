@@ -143,7 +143,7 @@ function cm_block_operator_only_writes( $pre, $ability_name, $input, $ability ) 
 	if ( ! empty( $annotations['readonly'] ) || ( function_exists( 'cm_is_operator_request' ) && cm_is_operator_request() ) ) {
 		return $pre;
 	}
-	$message = __( 'Only the WP Sites HQ app can use this tool.', 'monks-central' );
+	$message = __( 'Only the WP Sites HQ app can use this tool.', 'wp-sites-hq' );
 	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
 		CM_AI_Activity_Log::mark( $ability_name, 'denied', $message );
 	}

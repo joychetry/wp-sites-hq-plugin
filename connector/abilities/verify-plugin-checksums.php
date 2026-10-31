@@ -18,10 +18,10 @@ function cm_register_verify_plugin_checksums_ability() {
 	wp_register_ability(
 		'classic-monks/verify-plugin-checksums',
 		array(
-			'label'               => __( 'Verify Plugin Checksums', 'monks-central' ),
+			'label'               => __( 'Verify Plugin Checksums', 'wp-sites-hq' ),
 			'description'         => __(
 				"Checks an installed plugin's files against the official WordPress.org release of the same version, to spot tampering or hacked files. \n\n## Parameters\n- One of **plugin_file**, **slug** or **name** to pick the plugin.\n\n## Notes\n- Plugins not hosted on WordPress.org (premium or custom) return verifiable=false.\n- At most 5000 files are checked; each list returns up to 100 paths.\n\n## Returns\nWhether the plugin could be verified, how many files were checked, and lists of modified, added and missing files.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -105,7 +105,7 @@ function cm_execute_verify_plugin_checksums( $input ) {
 	);
 
 	if ( false === strpos( $file, '/' ) || '' === $version ) {
-		$report['message'] = __( 'Single-file plugins and plugins without a version cannot be verified.', 'monks-central' );
+		$report['message'] = __( 'Single-file plugins and plugins without a version cannot be verified.', 'wp-sites-hq' );
 		return $report;
 	}
 
@@ -115,7 +115,7 @@ function cm_execute_verify_plugin_checksums( $input ) {
 	}
 	$body = json_decode( wp_remote_retrieve_body( $response ), true );
 	if ( 200 !== wp_remote_retrieve_response_code( $response ) || empty( $body['files'] ) || ! is_array( $body['files'] ) ) {
-		$report['message'] = __( 'Not verifiable: WordPress.org has no checksums for this plugin and version (premium, custom or retired plugin).', 'monks-central' );
+		$report['message'] = __( 'Not verifiable: WordPress.org has no checksums for this plugin and version (premium, custom or retired plugin).', 'wp-sites-hq' );
 		return $report;
 	}
 
@@ -157,8 +157,8 @@ function cm_execute_verify_plugin_checksums( $input ) {
 
 	$report['verifiable'] = true;
 	$report['message']    = ( $report['modified'] || $report['added'] || $report['missing'] )
-		? __( 'Some files differ from the official release.', 'monks-central' )
-		: __( 'All files match the official release.', 'monks-central' );
+		? __( 'Some files differ from the official release.', 'wp-sites-hq' )
+		: __( 'All files match the official release.', 'wp-sites-hq' );
 
 	return $report;
 }

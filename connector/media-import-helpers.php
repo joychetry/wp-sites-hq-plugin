@@ -67,7 +67,7 @@ function cm_ai_resolve_public_ip( $url ) {
 	$host   = trim( (string) wp_parse_url( $url, PHP_URL_HOST ), '[]' );
 
 	if ( ! in_array( $scheme, array( 'http', 'https' ), true ) || '' === $host ) {
-		return new WP_Error( 'cm_ai_invalid_url', __( 'Only http(s) image URLs can be imported.', 'monks-central' ) );
+		return new WP_Error( 'cm_ai_invalid_url', __( 'Only http(s) image URLs can be imported.', 'wp-sites-hq' ) );
 	}
 
 	if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
@@ -82,12 +82,12 @@ function cm_ai_resolve_public_ip( $url ) {
 	}
 
 	if ( empty( $ips ) ) {
-		return new WP_Error( 'cm_ai_unresolvable_host', __( 'The image host could not be resolved.', 'monks-central' ) );
+		return new WP_Error( 'cm_ai_unresolvable_host', __( 'The image host could not be resolved.', 'wp-sites-hq' ) );
 	}
 
 	foreach ( $ips as $ip ) {
 		if ( ! cm_ai_ip_is_public( $ip ) ) {
-			return new WP_Error( 'cm_ai_private_host', __( 'The image URL points to a private or reserved network address and cannot be imported.', 'monks-central' ) );
+			return new WP_Error( 'cm_ai_private_host', __( 'The image URL points to a private or reserved network address and cannot be imported.', 'wp-sites-hq' ) );
 		}
 	}
 
@@ -141,7 +141,7 @@ function cm_ai_safe_download( $url, $timeout = 30 ) {
 			return is_wp_error( $response )
 				? new WP_Error( 'download_failed', $response->get_error_message() )
 				// Without cURL the IP cannot be pinned, so DNS rebinding cannot be ruled out.
-				: new WP_Error( 'download_failed', __( 'The image could not be downloaded safely (the cURL HTTP transport is required).', 'monks-central' ) );
+				: new WP_Error( 'download_failed', __( 'The image could not be downloaded safely (the cURL HTTP transport is required).', 'wp-sites-hq' ) );
 		}
 
 		$code     = (int) wp_remote_retrieve_response_code( $response );
@@ -156,19 +156,19 @@ function cm_ai_safe_download( $url, $timeout = 30 ) {
 		if ( 200 !== $code ) {
 			wp_delete_file( $tmp );
 			/* translators: %d: HTTP status code */
-			return new WP_Error( 'download_failed', sprintf( __( 'The image download failed with HTTP status %d.', 'monks-central' ), $code ) );
+			return new WP_Error( 'download_failed', sprintf( __( 'The image download failed with HTTP status %d.', 'wp-sites-hq' ), $code ) );
 		}
 
 		// limit_response_size truncates silently; a file that reached the cap is too large.
 		if ( filesize( $tmp ) >= wp_max_upload_size() ) {
 			wp_delete_file( $tmp );
-			return new WP_Error( 'cm_ai_file_too_large', __( 'The file is larger than the maximum upload size.', 'monks-central' ) );
+			return new WP_Error( 'cm_ai_file_too_large', __( 'The file is larger than the maximum upload size.', 'wp-sites-hq' ) );
 		}
 
 		return $tmp;
 	}
 
-	return new WP_Error( 'download_failed', __( 'The image URL redirected too many times.', 'monks-central' ) );
+	return new WP_Error( 'download_failed', __( 'The image URL redirected too many times.', 'wp-sites-hq' ) );
 }
 
 /**
@@ -194,14 +194,14 @@ function cm_ai_prepare_image_file( $path, $stem ) {
 
 	// SVG can carry scripts: import it only when a full sanitizer is loaded (Classic Monks Pro's cm_sanitize_svg()).
 	if ( 'image/svg+xml' === $mime && ! function_exists( 'cm_sanitize_svg' ) ) {
-		return new WP_Error( 'cm_ai_not_an_image', __( 'SVG files cannot be imported or uploaded here: this site has no SVG cleaner. Upload them in the Media Library instead.', 'monks-central' ) );
+		return new WP_Error( 'cm_ai_not_an_image', __( 'SVG files cannot be imported or uploaded here: this site has no SVG cleaner. Upload them in the Media Library instead.', 'wp-sites-hq' ) );
 	}
 
 	// Core's mime_types list has no SVG entry, so it needs naming here.
 	$extension = 'image/svg+xml' === $mime ? 'svg' : ( $mime ? wp_get_default_extension_for_mime_type( $mime ) : false );
 
 	if ( ! $extension || ! in_array( $mime, get_allowed_mime_types(), true ) ) {
-		return new WP_Error( 'cm_ai_not_an_image', __( 'The file is not an image type this site accepts.', 'monks-central' ) );
+		return new WP_Error( 'cm_ai_not_an_image', __( 'The file is not an image type this site accepts.', 'wp-sites-hq' ) );
 	}
 
 	if ( 'image/svg+xml' === $mime ) {
@@ -241,7 +241,7 @@ function cm_ai_prepare_media_file( $path, $name ) {
 	}
 	$image = cm_ai_prepare_image_file( $path, $name );
 	if ( is_wp_error( $image ) && 'cm_ai_not_an_image' === $image->get_error_code() && 'image/svg+xml' !== wp_check_filetype( $name )['type'] ) {
-		return new WP_Error( 'cm_ai_type_not_allowed', __( 'This file type is not allowed on this site, or the file does not match its extension.', 'monks-central' ) );
+		return new WP_Error( 'cm_ai_type_not_allowed', __( 'This file type is not allowed on this site, or the file does not match its extension.', 'wp-sites-hq' ) );
 	}
 	return $image;
 }

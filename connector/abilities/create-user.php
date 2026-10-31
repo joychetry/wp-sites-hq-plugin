@@ -19,10 +19,10 @@ function cm_register_create_user_ability() {
 	wp_register_ability(
 		'classic-monks/create-user',
 		array(
-			'label'               => __( 'Create User', 'monks-central' ),
+			'label'               => __( 'Create User', 'wp-sites-hq' ),
 			'description'         => __(
 				"Creates a WordPress user account. A random password is set and never returned; the person sets their own with \"Lost your password?\" on the login screen. No email is sent. \n\n## Parameters\n- **username**: Login name (required).\n- **email**: Email address (required).\n- **role**: Role slug (default: the site's default role). Must be a role you are allowed to assign.\n- **first_name**, **last_name**, **display_name**: Optional.\n- **confirm_admin_role**: Must be true to create a user whose role can manage the site (e.g. administrator). Only administrators can do that.\n\n## Returns\nThe new user's id, username, email and role.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'users',
 			'input_schema'        => array(
@@ -84,21 +84,21 @@ function cm_execute_create_user( $input ) {
 	$roles = get_editable_roles();
 
 	if ( ! isset( $roles[ $role ] ) || ! current_user_can( 'promote_users' ) ) {
-		return new WP_Error( 'cm_user_role_not_allowed', __( 'That role does not exist or you are not allowed to assign it.', 'monks-central' ) );
+		return new WP_Error( 'cm_user_role_not_allowed', __( 'That role does not exist or you are not allowed to assign it.', 'wp-sites-hq' ) );
 	}
 
 	if ( ! empty( $roles[ $role ]['capabilities']['manage_options'] ) ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return new WP_Error( 'cm_user_admin_role_forbidden', __( 'Only administrators can create users with this role.', 'monks-central' ) );
+			return new WP_Error( 'cm_user_admin_role_forbidden', __( 'Only administrators can create users with this role.', 'wp-sites-hq' ) );
 		}
 		if ( empty( $input['confirm_admin_role'] ) ) {
-			return new WP_Error( 'cm_user_admin_role_unconfirmed', __( 'This role can manage the whole site. Ask the user to confirm, then call again with confirm_admin_role set to true.', 'monks-central' ) );
+			return new WP_Error( 'cm_user_admin_role_unconfirmed', __( 'This role can manage the whole site. Ask the user to confirm, then call again with confirm_admin_role set to true.', 'wp-sites-hq' ) );
 		}
 	}
 
 	$email = sanitize_email( $input['email'] );
 	if ( ! is_email( $email ) ) {
-		return new WP_Error( 'cm_user_bad_email', __( 'The email address is not valid.', 'monks-central' ) );
+		return new WP_Error( 'cm_user_bad_email', __( 'The email address is not valid.', 'wp-sites-hq' ) );
 	}
 
 	// wp_insert_user() rejects duplicate or invalid usernames and duplicate emails.

@@ -12,7 +12,7 @@ body() { echo "${1#* }"; }
 
 PAGE=$(curl -sk -b "$JAR" "$MC_PAGE")
 check 'page renders for admins'             "$PAGE" '~id="monks-central-admin"'
-check 'loads the screen script'             "$PAGE" '~monks-central/build/admin.js'
+check 'loads the screen script'             "$PAGE" '~wp-sites-hq/build/admin.js'
 check 'screen data: this plugin runs it'    "$PAGE" '~"runs_here":true'
 check 'screen data: switch on'              "$PAGE" '~"enabled":true'
 check 'no PHP notices on the page'          "$PAGE" '!~<b>Warning</b>'

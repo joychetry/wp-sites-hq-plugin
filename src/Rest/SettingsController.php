@@ -120,7 +120,7 @@ final class SettingsController extends WP_REST_Controller {
 		}
 		return new WP_Error(
 			'monks_central_forbidden',
-			__( 'Sorry, you are not allowed to manage these settings.', 'monks-central' ),
+			__( 'Sorry, you are not allowed to manage these settings.', 'wp-sites-hq' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}

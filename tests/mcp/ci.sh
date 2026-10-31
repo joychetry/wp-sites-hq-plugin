@@ -38,12 +38,12 @@ w core install --url="$CM_SITE" --title='Monks Central CI' --admin_user=admin --
 w rewrite structure '/%postname%/' --quiet
 # The plugin runs from vendor/ (autoload) and build/ (screens): composer install and npm run build first.
 [[ -f $PLUGIN_DIR/vendor/autoload.php && -f $PLUGIN_DIR/build/admin.js ]] || { echo "run composer install and npm run build first"; exit 1; }
-rsync -a --exclude=.git --exclude=node_modules --exclude=dist --exclude=tests "$PLUGIN_DIR/" "$ROOT/wp-content/plugins/monks-central/"
+rsync -a --exclude=.git --exclude=node_modules --exclude=dist --exclude=tests "$PLUGIN_DIR/" "$ROOT/wp-content/plugins/wp-sites-hq/"
 if [[ $(printf '%s\n' 7.1 "$WP_VERSION" | sort -V | head -1) == 7.1 ]]; then
-    w plugin activate monks-central --quiet
+    w plugin activate wp-sites-hq --quiet
 else
     # Requires at least 7.1 blocks activation; legacy.sh covers a site that was active before, on older WordPress.
-    w option update active_plugins '["monks-central/monks-central.php"]' --format=json --quiet
+    w option update active_plugins '["wp-sites-hq/wp-sites-hq.php"]' --format=json --quiet
 fi
 [[ -z ${CM_WOO:-} ]] || w plugin install woocommerce --activate --quiet
 if [[ -n ${CM_ELEMENTOR:-} ]]; then

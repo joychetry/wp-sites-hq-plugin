@@ -27,10 +27,10 @@ function cm_register_update_post_metadata_ability() {
 	wp_register_ability(
 		'classic-monks/update-post-metadata',
 		array(
-			'label'               => __( 'Update Post Metadata', 'monks-central' ),
+			'label'               => __( 'Update Post Metadata', 'wp-sites-hq' ),
 			'description'         => __(
 				"Updates custom field (meta) values for a post. Use this to update SEO fields, custom settings, or any post metadata. \n\n## Required Parameters\n- **post_id**: The ID of the post (required)\n- **key**: The meta key to update (required)\n- **value**: The new value to set (required)\n\n## Security\n- Protected keys (starting with underscore) require manage_options capability\n- User must have edit capability for the specific post\n\n## Returns\nUpdated key, value, and confirmation.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'content',
 			'input_schema'        => array(
@@ -97,7 +97,7 @@ function cm_execute_update_post_metadata( $input ) {
 	$post    = get_post( $post_id );
 
 	if ( ! $post ) {
-		return new WP_Error( 'post_not_found', __( 'Post not found.', 'monks-central' ) );
+		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 	}
 
 	// Meta keys are case-sensitive (e.g. Bricks' _bricks_page_content_2), so no sanitize_key().
@@ -108,11 +108,11 @@ function cm_execute_update_post_metadata( $input ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
 				'forbidden',
-				__( 'Cannot update protected meta keys without manage_options capability.', 'monks-central' )
+				__( 'Cannot update protected meta keys without manage_options capability.', 'wp-sites-hq' )
 			);
 		}
 	} elseif ( ! current_user_can( 'edit_post_meta', $post_id, $meta_key ) ) {
-		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this custom field.', 'monks-central' ) );
+		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this custom field.', 'wp-sites-hq' ) );
 	}
 
 	// Get previous value for reference
@@ -158,7 +158,7 @@ function cm_execute_update_post_metadata( $input ) {
  */
 function cm_undo_update_post_metadata( $undo ) {
 	if ( ! current_user_can( 'edit_post', $undo['post_id'] ) ) {
-		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this post.', 'monks-central' ) );
+		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this post.', 'wp-sites-hq' ) );
 	}
 	if ( empty( $undo['existed'] ) ) {
 		delete_post_meta( $undo['post_id'], $undo['key'] );

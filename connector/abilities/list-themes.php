@@ -19,10 +19,10 @@ function cm_register_list_themes_ability() {
 	wp_register_ability(
 		'classic-monks/list-themes',
 		array(
-			'label'               => __( 'List Themes', 'monks-central' ),
+			'label'               => __( 'List Themes', 'wp-sites-hq' ),
 			'description'         => __(
 				"Lists installed themes with their version, parent theme, whether they are active, and whether an update is available. Use the stylesheet value with the other theme abilities. \n\n## Returns\n- **themes**: stylesheet, name, version, parent (stylesheet of the parent theme, or empty), active, is_parent_of_active, update_version (empty when up to date), auto_update.\n- **active**: stylesheet of the active theme.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'output_schema'       => array(

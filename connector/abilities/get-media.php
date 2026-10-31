@@ -27,10 +27,10 @@ function cm_register_get_media_ability() {
 	wp_register_ability(
 		'classic-monks/get-media',
 		array(
-			'label'               => __( 'Get Media', 'monks-central' ),
+			'label'               => __( 'Get Media', 'wp-sites-hq' ),
 			'description'         => __(
 				"Lists media library items with filtering and pagination. Use this ability to retrieve images, videos, documents, and other attachments. \n\n## Optional Parameters\n- **mime_type**: Filter by MIME type (image, video, audio, application, or specific like image/jpeg)\n- **limit**: Number of items to return (1-100, default 20)\n- **offset**: Number of items to skip (for pagination)\n- **search**: Search term to filter by title\n- **orderby**: Order by date, title, or modified (default date)\n- **order**: ASC or DESC (default DESC)\n- **id**: One attachment by ID\n- **month**: Uploaded in this month, YYYY-MM\n- **usage**: Also count the posts that use each item (slower)\n\n## Returns\nArray of media items with: id, title, url, mime_type, alt_text, caption, description, file_name, thumbnail, dimensions, file_size, author, date and usage (null unless asked). Also the total count for pagination, the file types the site accepts (allowed_types, extension => MIME type) and the upload limit in bytes.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'media',
 			'input_schema'        => array(

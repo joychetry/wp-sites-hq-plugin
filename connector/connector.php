@@ -182,10 +182,10 @@ final class Monks_Central_Connector {
 	 */
 	public static function set_enabled( $on ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return new WP_Error( 'cm_forbidden', __( 'You are not allowed to change this setting.', 'monks-central' ), array( 'status' => 403 ) );
+			return new WP_Error( 'cm_forbidden', __( 'You are not allowed to change this setting.', 'wp-sites-hq' ), array( 'status' => 403 ) );
 		}
 		if ( $on && ! self::supported() ) {
-			return new WP_Error( 'cm_unsupported', __( 'WP Sites HQ needs WordPress 7.1 or newer.', 'monks-central' ), array( 'status' => 400 ) );
+			return new WP_Error( 'cm_unsupported', __( 'WP Sites HQ needs WordPress 7.1 or newer.', 'wp-sites-hq' ), array( 'status' => 400 ) );
 		}
 		update_option( self::OPTION, $on ? 1 : 0, false );
 		return true;
@@ -250,10 +250,10 @@ final class Monks_Central_Connector {
 	 */
 	private static function check_connection( $user_id, $id, $cap ) {
 		if ( ! self::running() || ! current_user_can( 'manage_options' ) || ! CM_MCP_Server::connection_exists( $user_id, $id ) ) {
-			return new WP_Error( 'cm_connection_not_found', __( 'That connection no longer exists, or you cannot change it.', 'monks-central' ), array( 'status' => 404 ) );
+			return new WP_Error( 'cm_connection_not_found', __( 'That connection no longer exists, or you cannot change it.', 'wp-sites-hq' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( $cap, $user_id, $id ) ) {
-			return new WP_Error( 'cm_forbidden', __( 'You are not allowed to change this connection.', 'monks-central' ), array( 'status' => 403 ) );
+			return new WP_Error( 'cm_forbidden', __( 'You are not allowed to change this connection.', 'wp-sites-hq' ), array( 'status' => 403 ) );
 		}
 		return true;
 	}
@@ -301,7 +301,7 @@ final class Monks_Central_Connector {
 			return $check;
 		}
 		if ( null === CM_MCP_Approvals::operator( $user_id, $id ) ) {
-			return new WP_Error( 'cm_not_operator', __( 'This connection is not an operator grant.', 'monks-central' ), array( 'status' => 400 ) );
+			return new WP_Error( 'cm_not_operator', __( 'This connection is not an operator grant.', 'wp-sites-hq' ), array( 'status' => 400 ) );
 		}
 		CM_MCP_Approvals::save_flag( CM_MCP_Approvals::OPERATOR_META, $user_id, $id, (bool) $skip );
 		return true;
@@ -322,7 +322,7 @@ final class Monks_Central_Connector {
 			return $check;
 		}
 		if ( isset( $changes['scope'] ) && ! isset( CM_MCP_Server::scopes()[ $changes['scope'] ] ) ) {
-			return new WP_Error( 'cm_invalid_scope', __( 'Pick one of the access levels.', 'monks-central' ), array( 'status' => 400 ) );
+			return new WP_Error( 'cm_invalid_scope', __( 'Pick one of the access levels.', 'wp-sites-hq' ), array( 'status' => 400 ) );
 		}
 		if ( isset( $changes['scope'] ) ) {
 			CM_MCP_Server::save_scope( $user_id, $id, $changes['scope'] );
@@ -388,7 +388,7 @@ final class Monks_Central_Connector {
 	 */
 	public static function undo( $id ) {
 		if ( ! class_exists( 'CM_AI_Activity_Log' ) || ! current_user_can( 'manage_options' ) ) {
-			return new WP_Error( 'cm_forbidden', __( 'You are not allowed to undo changes.', 'monks-central' ), array( 'status' => 403 ) );
+			return new WP_Error( 'cm_forbidden', __( 'You are not allowed to undo changes.', 'wp-sites-hq' ), array( 'status' => 403 ) );
 		}
 		return CM_AI_Activity_Log::undo( $id );
 	}

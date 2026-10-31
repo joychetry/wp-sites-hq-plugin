@@ -27,10 +27,10 @@ function cm_register_get_post_meta_ability() {
 	wp_register_ability(
 		'classic-monks/get-post-meta',
 		array(
-			'label'               => __( 'Get Post Meta', 'monks-central' ),
+			'label'               => __( 'Get Post Meta', 'wp-sites-hq' ),
 			'description'         => __(
 				"Retrieves custom field (meta) data for a post. Use this to get SEO meta, custom fields, or any stored metadata. \n\n## Required Parameters\n- **post_id**: The ID of the post (required)\n\n## Optional Parameters\n- **key**: Specific meta key to retrieve (returns all if not provided)\n- **exclude_private**: Whether to exclude keys starting with underscore (default: true)\n\n## Returns\nIf key specified: single key-value pair. If no key: all public meta fields with their values.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'content',
 			'input_schema'        => array(
@@ -96,7 +96,7 @@ function cm_execute_get_post_meta( $input ) {
 	$post    = get_post( $post_id );
 
 	if ( ! $post ) {
-		return new WP_Error( 'post_not_found', __( 'Post not found.', 'monks-central' ) );
+		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 	}
 
 	// Protected fields (a leading _) can hold a plugin's tokens. Core REST hides them, so here only
@@ -109,7 +109,7 @@ function cm_execute_get_post_meta( $input ) {
 		$meta_key = trim( (string) $input['key'] );
 		if ( ! $see_protected && is_protected_meta( $meta_key, 'post' ) ) {
 			/* translators: %s: meta key */
-			return new WP_Error( 'protected_meta', sprintf( __( 'The custom field "%s" is protected. Only administrators can read it.', 'monks-central' ), $meta_key ) );
+			return new WP_Error( 'protected_meta', sprintf( __( 'The custom field "%s" is protected. Only administrators can read it.', 'wp-sites-hq' ), $meta_key ) );
 		}
 		$value = get_post_meta( $post_id, $meta_key, true );
 

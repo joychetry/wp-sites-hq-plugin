@@ -19,10 +19,10 @@ function cm_register_update_user_ability() {
 	wp_register_ability(
 		'classic-monks/update-user',
 		array(
-			'label'               => __( 'Update User', 'monks-central' ),
+			'label'               => __( 'Update User', 'wp-sites-hq' ),
 			'description'         => __(
 				"Updates a user's profile fields or role. Use get-users to find the user id. \n\n## Parameters\n- **user_id**: The user to change (required).\n- Any of: **display_name**, **first_name**, **last_name**, **email**, **url**, **description**, **role**.\n\n## Notes\n- Passwords, capabilities and sessions cannot be changed here.\n- You cannot change your own role or demote the last administrator.\n- Changing the email sends WordPress's usual notice to the old address.\n\n## Returns\nThe user id and the list of fields that changed.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'users',
 			'input_schema'        => array(
@@ -117,7 +117,7 @@ function cm_execute_update_user( $input ) {
 	$user_id = absint( $input['user_id'] );
 	$user    = get_userdata( $user_id );
 	if ( ! $user ) {
-		return new WP_Error( 'cm_user_not_found', __( 'User not found.', 'monks-central' ) );
+		return new WP_Error( 'cm_user_not_found', __( 'User not found.', 'wp-sites-hq' ) );
 	}
 
 	// Input field => WP_User field.
@@ -143,7 +143,7 @@ function cm_execute_update_user( $input ) {
 			case 'email':
 				$value = sanitize_email( $input[ $field ] );
 				if ( ! is_email( $value ) ) {
-					return new WP_Error( 'cm_user_bad_email', __( 'The email address is not valid.', 'monks-central' ) );
+					return new WP_Error( 'cm_user_bad_email', __( 'The email address is not valid.', 'wp-sites-hq' ) );
 				}
 				break;
 			case 'url':
@@ -163,16 +163,16 @@ function cm_execute_update_user( $input ) {
 	if ( null !== $role ) {
 		require_once ABSPATH . 'wp-admin/includes/user.php';
 		if ( get_current_user_id() === $user_id ) {
-			return new WP_Error( 'cm_user_own_role', __( 'You cannot change your own role.', 'monks-central' ) );
+			return new WP_Error( 'cm_user_own_role', __( 'You cannot change your own role.', 'wp-sites-hq' ) );
 		}
 		if ( ! current_user_can( 'promote_user', $user_id ) || ! isset( get_editable_roles()[ $role ] ) ) {
-			return new WP_Error( 'cm_user_role_not_allowed', __( 'That role does not exist or you are not allowed to assign it.', 'monks-central' ) );
+			return new WP_Error( 'cm_user_role_not_allowed', __( 'That role does not exist or you are not allowed to assign it.', 'wp-sites-hq' ) );
 		}
 		if ( ! cm_ai_can_assign_role( $role ) ) {
-			return new WP_Error( 'cm_user_admin_role_forbidden', __( 'Only administrators can give a user this role.', 'monks-central' ) );
+			return new WP_Error( 'cm_user_admin_role_forbidden', __( 'Only administrators can give a user this role.', 'wp-sites-hq' ) );
 		}
 		if ( 'administrator' !== $role && cm_ai_is_last_admin( $user_id ) ) {
-			return new WP_Error( 'cm_user_last_admin', __( 'This is the last administrator. Make someone else an administrator first.', 'monks-central' ) );
+			return new WP_Error( 'cm_user_last_admin', __( 'This is the last administrator. Make someone else an administrator first.', 'wp-sites-hq' ) );
 		}
 		$undo['roles'] = array_values( $user->roles );
 	}
@@ -204,16 +204,16 @@ function cm_undo_update_user( $undo ) {
 	$user_id = absint( $undo['user_id'] ?? 0 );
 	$user    = get_userdata( $user_id );
 	if ( ! $user || ! current_user_can( 'edit_user', $user_id ) ) {
-		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this user.', 'monks-central' ) );
+		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this user.', 'wp-sites-hq' ) );
 	}
 	// Checked before any write so a refused role restore leaves the profile untouched too.
 	if ( isset( $undo['roles'] ) ) {
 		if ( ! current_user_can( 'promote_user', $user_id ) ) {
-			return new WP_Error( 'forbidden', __( 'You are not allowed to change this user\'s role.', 'monks-central' ) );
+			return new WP_Error( 'forbidden', __( 'You are not allowed to change this user\'s role.', 'wp-sites-hq' ) );
 		}
 		foreach ( (array) $undo['roles'] as $role ) {
 			if ( ! cm_ai_can_assign_role( $role ) ) {
-				return new WP_Error( 'cm_user_admin_role_forbidden', __( 'Only administrators can give a user this role.', 'monks-central' ) );
+				return new WP_Error( 'cm_user_admin_role_forbidden', __( 'Only administrators can give a user this role.', 'wp-sites-hq' ) );
 			}
 		}
 	}

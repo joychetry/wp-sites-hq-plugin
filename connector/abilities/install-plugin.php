@@ -19,10 +19,10 @@ function cm_register_install_plugin_ability() {
 	wp_register_ability(
 		'classic-monks/install-plugin',
 		array(
-			'label'               => __( 'Install Plugin', 'monks-central' ),
+			'label'               => __( 'Install Plugin', 'wp-sites-hq' ),
 			'description'         => __(
 				"Installs a WordPress plugin from WordPress.org by slug or name. If the plugin is already installed, this ability can activate it instead of reinstalling. \n\n## Required Parameters\n- Provide at least one of: **slug** or **name**\n\n## Optional Parameters\n- **activate**: Activate the plugin after install (default: true)\n- **plugin_file**: Explicit plugin file if it is already installed and should be activated without reinstalling\n\n## Returns\nThe resolved plugin slug, plugin file, installed version, activation state, and a status message.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -100,7 +100,7 @@ function cm_execute_install_plugin( $input ) {
 
 	if ( ! is_wp_error( $existing ) ) {
 		$state   = cm_ai_get_plugin_state( $existing['plugin_file'], $existing['plugin_data'] );
-		$message = __( 'Plugin is already installed.', 'monks-central' );
+		$message = __( 'Plugin is already installed.', 'wp-sites-hq' );
 
 		if ( $activate && ! $state['active'] ) {
 			$activation = activate_plugin( $existing['plugin_file'] );
@@ -109,9 +109,9 @@ function cm_execute_install_plugin( $input ) {
 			}
 
 			$state['active'] = true;
-			$message         = __( 'Plugin was already installed and has now been activated.', 'monks-central' );
+			$message         = __( 'Plugin was already installed and has now been activated.', 'wp-sites-hq' );
 		} elseif ( $activate && $state['active'] ) {
-			$message = __( 'Plugin is already installed and active.', 'monks-central' );
+			$message = __( 'Plugin is already installed and active.', 'wp-sites-hq' );
 		}
 
 		$state['installed'] = true;
@@ -137,7 +137,7 @@ function cm_execute_install_plugin( $input ) {
 	if ( ! $result ) {
 		return new WP_Error(
 			'cm_plugin_install_failed',
-			__( 'Plugin installation failed.', 'monks-central' ),
+			__( 'Plugin installation failed.', 'wp-sites-hq' ),
 			array( 'status' => 500 )
 		);
 	}
@@ -146,7 +146,7 @@ function cm_execute_install_plugin( $input ) {
 	if ( ! $plugin_file ) {
 		return new WP_Error(
 			'cm_plugin_install_unknown_file',
-			__( 'Plugin installed but its main plugin file could not be detected.', 'monks-central' ),
+			__( 'Plugin installed but its main plugin file could not be detected.', 'wp-sites-hq' ),
 			array( 'status' => 500 )
 		);
 	}
@@ -167,8 +167,8 @@ function cm_execute_install_plugin( $input ) {
 	$state['activated'] = (bool) $state['active'];
 	$state['source']    = $source['source'];
 	$state['message']   = $activate
-		? __( 'Plugin installed and activated successfully.', 'monks-central' )
-		: __( 'Plugin installed successfully.', 'monks-central' );
+		? __( 'Plugin installed and activated successfully.', 'wp-sites-hq' )
+		: __( 'Plugin installed successfully.', 'wp-sites-hq' );
 
 	if ( ! empty( $source['slug'] ) ) {
 		$state['slug'] = $source['slug'];

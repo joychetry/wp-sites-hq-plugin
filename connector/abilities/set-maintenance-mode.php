@@ -20,8 +20,8 @@ function cm_register_set_maintenance_mode_ability() {
 	wp_register_ability(
 		'classic-monks/set-maintenance-mode',
 		array(
-			'label'               => __( 'Set Maintenance Mode', 'monks-central' ),
-			'description'         => __( 'Turns WordPress maintenance mode on or off, as during updates: every request to the site gets "Briefly unavailable for scheduled maintenance" (503), this connection\'s too. To keep working while it is on (and to turn it off), add the returned bypass query string to the MCP URL. WordPress ends it by itself after 10 minutes.', 'monks-central' ),
+			'label'               => __( 'Set Maintenance Mode', 'wp-sites-hq' ),
+			'description'         => __( 'Turns WordPress maintenance mode on or off, as during updates: every request to the site gets "Briefly unavailable for scheduled maintenance" (503), this connection\'s too. To keep working while it is on (and to turn it off), add the returned bypass query string to the MCP URL. WordPress ends it by itself after 10 minutes.', 'wp-sites-hq' ),
 			'category'            => 'system',
 			'input_schema'        => array(
 				'type'                 => 'object',
@@ -60,14 +60,14 @@ function cm_register_set_maintenance_mode_ability() {
 function cm_execute_set_maintenance_mode( $input ) {
 	// WP Sites HQ's own connection only: it installs or takes down code for the whole site.
 	if ( ! cm_is_operator_request() ) {
-		return new WP_Error( 'cm_operator_only', __( 'Only the WP Sites HQ app can use this tool.', 'monks-central' ), array( 'status' => 403 ) );
+		return new WP_Error( 'cm_operator_only', __( 'Only the WP Sites HQ app can use this tool.', 'wp-sites-hq' ), array( 'status' => 403 ) );
 	}
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 	$on = ! empty( $input['on'] );
 	( new WP_Upgrader( new Automatic_Upgrader_Skin() ) )->maintenance_mode( $on );
 	if ( file_exists( ABSPATH . '.maintenance' ) !== $on ) {
-		return new WP_Error( 'cm_maintenance_failed', __( 'WordPress could not write to its own folder, so maintenance mode did not change.', 'monks-central' ) );
+		return new WP_Error( 'cm_maintenance_failed', __( 'WordPress could not write to its own folder, so maintenance mode did not change.', 'wp-sites-hq' ) );
 	}
 	if ( ! $on ) {
 		return array( 'on' => false );

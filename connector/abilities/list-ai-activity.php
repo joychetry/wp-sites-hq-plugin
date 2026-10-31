@@ -19,10 +19,10 @@ function cm_register_list_ai_activity_ability() {
 	wp_register_ability(
 		'classic-monks/list-ai-activity',
 		array(
-			'label'               => __( 'List AI Activity', 'monks-central' ),
+			'label'               => __( 'List AI Activity', 'wp-sites-hq' ),
 			'description'         => __(
 				"Lists the AI activity log, newest first: every change an AI connection made, refused calls and approval requests. Read-only tools are only logged when the site turns read logging on (reads_logged). \n\n## Parameters\n- **connection**: Only one connection (its id from this list).\n- **tool**: Only one tool, e.g. \"update-posts\".\n- **status**: ok, error, denied, pending, approved, declined, used, undone or expired.\n- **page** / **per_page**: Paging (per_page up to 100).\n\n## Returns\nRows with id, time, user, source, connection, tool, status, summary, the redacted input, can_undo (use undo-operation) and approve_url for pending requests.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'classic-monks',
 			'input_schema'        => array(
@@ -80,7 +80,7 @@ function cm_register_list_ai_activity_ability() {
 
 function cm_execute_list_ai_activity( $input = array() ) {
 	if ( ! class_exists( 'CM_AI_Activity_Log' ) ) {
-		return new WP_Error( 'cm_module_disabled', __( 'The AI activity log is not available on this site.', 'monks-central' ) );
+		return new WP_Error( 'cm_module_disabled', __( 'The AI activity log is not available on this site.', 'wp-sites-hq' ) );
 	}
 	$page     = max( 1, (int) ( $input['page'] ?? 1 ) );
 	$per_page = max( 1, min( 100, (int) ( $input['per_page'] ?? 20 ) ) );

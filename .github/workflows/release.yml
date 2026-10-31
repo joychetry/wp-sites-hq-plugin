@@ -1,6 +1,6 @@
 name: Release
 
-# A v* tag builds monks-central.zip and its SHA-256 and puts both on a DRAFT release.
+# A v* tag builds wp-sites-hq.zip and its SHA-256 and puts both on a DRAFT release.
 # Nothing is public until someone publishes the draft; the updater and the app ignore drafts.
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
       - name: Tag matches the plugin version
         run: |
           v=${GITHUB_REF_NAME#v}
-          grep -Eq "^ \* Version: +${v//./\\.}$" monks-central.php || { echo "::error::monks-central.php Version is not $v"; exit 1; }
+          grep -Eq "^ \* Version: +${v//./\\.}$" wp-sites-hq.php || { echo "::error::wp-sites-hq.php Version is not $v"; exit 1; }
           grep -Eq "^Stable tag: ${v//./\\.}$" readme.txt || { echo "::error::readme.txt Stable tag is not $v"; exit 1; }
       - name: Release notes from CHANGELOG.md
         run: |
@@ -40,12 +40,12 @@ jobs:
         run: bin/build-zip.sh --wporg
       - uses: wordpress/plugin-check-action@v1
         with:
-          build-dir: dist/monks-central
+          build-dir: dist/wp-sites-hq
       - name: Build the zip and its SHA-256
         run: npm run plugin-zip
       - name: Create the draft release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" dist/monks-central.zip dist/monks-central.zip.sha256 \
+          gh release create "$GITHUB_REF_NAME" dist/wp-sites-hq.zip dist/wp-sites-hq.zip.sha256 \
             --draft --verify-tag --title "Monks Central ${GITHUB_REF_NAME#v}" --notes-file "$RUNNER_TEMP/notes.md"

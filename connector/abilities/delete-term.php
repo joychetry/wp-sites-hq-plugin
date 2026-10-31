@@ -25,10 +25,10 @@ function cm_register_delete_term_ability() {
 	wp_register_ability(
 		'classic-monks/delete-term',
 		array(
-			'label'               => __( 'Delete Term', 'monks-central' ),
+			'label'               => __( 'Delete Term', 'wp-sites-hq' ),
 			'description'         => __(
 				"Deletes a taxonomy term (category, tag, or custom) and removes it from every item that uses it. Child terms move up to the deleted term's parent. The default category cannot be deleted, nor can terms used by more than 500 items. \n\n## Parameters\n- **term_id**: The term ID (required)\n\n## Returns\nThe deleted term (term_id, taxonomy, name, slug) and how many items it was removed from.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'taxonomy',
 			'input_schema'        => array(
@@ -84,7 +84,7 @@ function cm_register_delete_term_ability() {
 function cm_execute_delete_term( $input ) {
 	$term = get_term( absint( $input['term_id'] ) );
 	if ( ! $term instanceof WP_Term ) {
-		return new WP_Error( 'term_not_found', __( 'Term not found.', 'monks-central' ) );
+		return new WP_Error( 'term_not_found', __( 'Term not found.', 'wp-sites-hq' ) );
 	}
 
 	$objects = get_objects_in_term( $term->term_id, $term->taxonomy );
@@ -93,7 +93,7 @@ function cm_execute_delete_term( $input ) {
 	}
 	// Undo has to re-assign every item, so keep the set bounded.
 	if ( count( $objects ) > 500 ) {
-		return new WP_Error( 'too_many_objects', __( 'This term is used by more than 500 items. Delete it from the dashboard instead.', 'monks-central' ) );
+		return new WP_Error( 'too_many_objects', __( 'This term is used by more than 500 items. Delete it from the dashboard instead.', 'wp-sites-hq' ) );
 	}
 
 	$children = get_terms(
@@ -125,10 +125,10 @@ function cm_execute_delete_term( $input ) {
 		return $result;
 	}
 	if ( 0 === $result ) {
-		return new WP_Error( 'default_term', __( 'The default term of a taxonomy cannot be deleted.', 'monks-central' ) );
+		return new WP_Error( 'default_term', __( 'The default term of a taxonomy cannot be deleted.', 'wp-sites-hq' ) );
 	}
 	if ( ! $result ) {
-		return new WP_Error( 'delete_failed', __( 'Could not delete the term.', 'monks-central' ) );
+		return new WP_Error( 'delete_failed', __( 'Could not delete the term.', 'wp-sites-hq' ) );
 	}
 
 	return array(
@@ -164,7 +164,7 @@ function cm_preview_delete_term( $input ) {
 function cm_undo_delete_term( $undo ) {
 	$tax = get_taxonomy( $undo['taxonomy'] ?? '' );
 	if ( ! $tax || ! current_user_can( $tax->cap->manage_terms ) || ! current_user_can( $tax->cap->assign_terms ) ) {
-		return new WP_Error( 'forbidden', __( 'You are not allowed to restore this term.', 'monks-central' ) );
+		return new WP_Error( 'forbidden', __( 'You are not allowed to restore this term.', 'wp-sites-hq' ) );
 	}
 
 	$parent = (int) $undo['parent'];

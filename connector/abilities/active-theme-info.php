@@ -27,10 +27,10 @@ function cm_register_get_theme_ability() {
 	wp_register_ability(
 		'classic-monks/get-theme',
 		array(
-			'label'               => __( 'Get Theme', 'monks-central' ),
+			'label'               => __( 'Get Theme', 'wp-sites-hq' ),
 			'description'         => __(
 				"Gets current theme and available themes information. Use this ability to check theme compatibility or audit installed themes. \n\n## No Parameters Required\nThis ability takes no input parameters.\n\n## Returns\n- **current**: Active theme details (name, version, author, description, screenshot, parent)\n- **themes**: All installed themes with their status\n- **total**: Total number of installed themes",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'output_schema'       => array(

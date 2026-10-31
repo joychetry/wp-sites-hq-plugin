@@ -6,11 +6,11 @@ setscope() { wpe "\$s = get_user_meta(1, 'cm_mcp_scopes', true) ?: []; \$s['$MCP
 sc() { jq -c ".result.structuredContent$1" <<<"$S"; }
 
 S=$(call get-hq-status)
-check 'plugin name'                     "$(sc .plugin.name)" '"Monks Central"'
+check 'plugin name'                     "$(sc .plugin.name)" '"WP Sites HQ"'
 check 'plugin version'                  "$(sc .plugin.version)" "\"$(wpe 'echo MONKS_CENTRAL_VERSION;')\""
 check 'header version matches the constant' "$(wpe 'echo get_file_data(MONKS_CENTRAL_FILE, ["v" => "Version"])["v"] === MONKS_CENTRAL_VERSION ? "same" : "drift";')" same
 check 'connector version'               "$(sc .connector.version)" "\"$(wpe 'echo MONKS_CENTRAL_CONNECTOR_VERSION;')\""
-check 'connector hosts listed'          "$(sc '.connector.hosts[0].name')" '"Monks Central"'
+check 'connector hosts listed'          "$(sc '.connector.hosts[0].name')" '"WP Sites HQ"'
 # M15: WordPress 7.1 is the minimum.
 check 'header requires WordPress 7.1'   "$(wpe 'echo get_file_data(MONKS_CENTRAL_FILE, ["r" => "Requires at least"])["r"];')" 7.1
 check 'readme requires WordPress 7.1'   "$(wpe 'echo get_file_data(MONKS_CENTRAL_DIR . "readme.txt", ["r" => "Requires at least"])["r"];')" 7.1

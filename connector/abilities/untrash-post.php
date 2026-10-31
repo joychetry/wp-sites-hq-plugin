@@ -19,8 +19,8 @@ function cm_register_untrash_post_ability() {
 	wp_register_ability(
 		'classic-monks/untrash-post',
 		array(
-			'label'               => __( 'Restore Post from Trash', 'monks-central' ),
-			'description'         => __( 'Brings a trashed post, page or custom post type entry back. WordPress restores it as a draft unless the site says otherwise; the status it got is returned.', 'monks-central' ),
+			'label'               => __( 'Restore Post from Trash', 'wp-sites-hq' ),
+			'description'         => __( 'Brings a trashed post, page or custom post type entry back. WordPress restores it as a draft unless the site says otherwise; the status it got is returned.', 'wp-sites-hq' ),
 			'category'            => 'content',
 			'input_schema'        => array(
 				'type'                 => 'object',
@@ -65,19 +65,19 @@ function cm_register_untrash_post_ability() {
 function cm_execute_untrash_post( $input ) {
 	$post = get_post( absint( $input['post_id'] ) );
 	if ( ! $post ) {
-		return new WP_Error( 'post_not_found', __( 'Post not found.', 'monks-central' ) );
+		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 	}
 	if ( 'trash' !== $post->post_status ) {
-		return new WP_Error( 'not_in_trash', __( 'This post is not in the trash.', 'monks-central' ) );
+		return new WP_Error( 'not_in_trash', __( 'This post is not in the trash.', 'wp-sites-hq' ) );
 	}
 	if ( ! wp_untrash_post( $post->ID ) ) {
-		return new WP_Error( 'untrash_failed', __( 'The post could not be restored.', 'monks-central' ) );
+		return new WP_Error( 'untrash_failed', __( 'The post could not be restored.', 'wp-sites-hq' ) );
 	}
 	$status = get_post_status( $post->ID );
 	return array(
 		'post_id' => $post->ID,
 		'status'  => $status,
 		/* translators: %s: post status */
-		'message' => sprintf( __( 'Restored from the trash as %s.', 'monks-central' ), $status ),
+		'message' => sprintf( __( 'Restored from the trash as %s.', 'wp-sites-hq' ), $status ),
 	);
 }

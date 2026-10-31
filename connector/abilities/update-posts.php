@@ -29,10 +29,10 @@ function cm_register_update_post_ability() {
 	wp_register_ability(
 		'classic-monks/update-post',
 		array(
-			'label'               => __( 'Update Post', 'monks-central' ),
+			'label'               => __( 'Update Post', 'wp-sites-hq' ),
 			'description'         => __(
 				"Updates an existing WordPress post, page, or custom post type. Only the fields provided will be updated; others remain unchanged. \n\n## Required Parameters\n- **post_id**: The ID of the post to update (required)\n\n## Optional Parameters (provide at least one)\n- **title**: New post title\n- **content**: New post body content (HTML allowed)\n- **excerpt**: New post excerpt\n- **status**: New post status (draft, publish, pending, private)\n- **categories**: New category IDs (replaces existing, post type only)\n- **tags**: New tag names (replaces existing)\n- **terms**: Terms for any taxonomy, by ID or name (replaces each taxonomy given)\n- **meta**: Custom fields (protected keys refused)\n- **date**: Publish date, \"YYYY-MM-DD HH:MM:SS\" (a future date schedules it)\n- **slug**, **author**, **parent**, **menu_order**, **template**, **password**: Permalink, author ID, page attributes and password protection\n- **featured_image**: Attachment ID, or 0 to remove it\n\nPages built with Elementor or Bricks keep their body in the builder: content is refused there.\n\n## Returns\nUpdated post ID, title, permalink, and edit link.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'content',
 			'input_schema'        => array(
@@ -150,7 +150,7 @@ function cm_execute_update_post( $input ) {
 	$post    = get_post( $post_id );
 
 	if ( ! $post ) {
-		return new WP_Error( 'post_not_found', __( 'Post not found.', 'monks-central' ) );
+		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 	}
 
 	$checked = cm_content_write_check( $post->post_type, $post_id, $input );
@@ -162,11 +162,11 @@ function cm_execute_update_post( $input ) {
 		return new WP_Error(
 			'builder_page',
 			/* translators: %1$s: Elementor or Bricks */
-			sprintf( __( 'This page is built with %1$s, which keeps the body in its own data. Edit the body in %1$s; title, status and terms can still change here.', 'monks-central' ), ucfirst( $builder ) )
+			sprintf( __( 'This page is built with %1$s, which keeps the body in its own data. Edit the body in %1$s; title, status and terms can still change here.', 'wp-sites-hq' ), ucfirst( $builder ) )
 		);
 	}
 	if ( isset( $input['featured_image'] ) && $input['featured_image'] && ! wp_attachment_is_image( absint( $input['featured_image'] ) ) ) {
-		return new WP_Error( 'invalid_featured_image', __( 'The featured image must be an image in the media library.', 'monks-central' ) );
+		return new WP_Error( 'invalid_featured_image', __( 'The featured image must be an image in the media library.', 'wp-sites-hq' ) );
 	}
 
 	$post_data      = array( 'ID' => $post_id );
@@ -211,7 +211,7 @@ function cm_execute_update_post( $input ) {
 
 	// Only update if there are fields to update
 	if ( count( $updated_fields ) === 0 && empty( $input['categories'] ) && empty( $input['tags'] ) && empty( $input['terms'] ) && empty( $input['meta'] ) && ! isset( $input['featured_image'] ) ) {
-		return new WP_Error( 'no_fields', __( 'No fields provided to update.', 'monks-central' ) );
+		return new WP_Error( 'no_fields', __( 'No fields provided to update.', 'wp-sites-hq' ) );
 	}
 
 	// Update the post

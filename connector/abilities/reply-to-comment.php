@@ -25,10 +25,10 @@ function cm_register_reply_to_comment_ability() {
 	wp_register_ability(
 		'classic-monks/reply-to-comment',
 		array(
-			'label'               => __( 'Reply To Comment', 'monks-central' ),
+			'label'               => __( 'Reply To Comment', 'wp-sites-hq' ),
 			'description'         => __(
 				"Posts a reply to an existing comment as the current user. The reply is approved immediately when the user can moderate comments, otherwise it is held for moderation. \n\n## Parameters\n- **comment_id**: ID of the comment to reply to (required)\n- **content**: Reply text; basic HTML allowed (required)\n\n## Returns\nThe new reply: comment_id, parent_id, post_id, status, link.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'comments',
 			'input_schema'        => array(
@@ -88,7 +88,7 @@ function cm_register_reply_to_comment_ability() {
 function cm_execute_reply_to_comment( $input ) {
 	$parent = get_comment( absint( $input['comment_id'] ) );
 	if ( ! $parent ) {
-		return new WP_Error( 'comment_not_found', __( 'Comment not found.', 'monks-central' ) );
+		return new WP_Error( 'comment_not_found', __( 'Comment not found.', 'wp-sites-hq' ) );
 	}
 
 	$content = trim( (string) $input['content'] );
@@ -96,7 +96,7 @@ function cm_execute_reply_to_comment( $input ) {
 		$content = wp_kses_data( $content );
 	}
 	if ( '' === $content ) {
-		return new WP_Error( 'empty_content', __( 'Reply content is empty.', 'monks-central' ) );
+		return new WP_Error( 'empty_content', __( 'Reply content is empty.', 'wp-sites-hq' ) );
 	}
 
 	$user = wp_get_current_user();
@@ -119,7 +119,7 @@ function cm_execute_reply_to_comment( $input ) {
 	);
 
 	if ( ! $reply_id ) {
-		return new WP_Error( 'reply_failed', __( 'Could not save the reply.', 'monks-central' ) );
+		return new WP_Error( 'reply_failed', __( 'Could not save the reply.', 'wp-sites-hq' ) );
 	}
 
 	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
@@ -141,10 +141,10 @@ function cm_execute_reply_to_comment( $input ) {
 function cm_undo_reply_to_comment( $undo ) {
 	$id = (int) ( $undo['comment_id'] ?? 0 );
 	if ( ! current_user_can( 'edit_comment', $id ) ) {
-		return new WP_Error( 'forbidden', __( 'You are not allowed to remove this reply.', 'monks-central' ) );
+		return new WP_Error( 'forbidden', __( 'You are not allowed to remove this reply.', 'wp-sites-hq' ) );
 	}
 	if ( ! get_comment( $id ) ) {
 		return true;
 	}
-	return wp_trash_comment( $id ) ? true : new WP_Error( 'undo_failed', __( 'Could not remove the reply.', 'monks-central' ) );
+	return wp_trash_comment( $id ) ? true : new WP_Error( 'undo_failed', __( 'Could not remove the reply.', 'wp-sites-hq' ) );
 }

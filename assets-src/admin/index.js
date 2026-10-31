@@ -1,5 +1,5 @@
 /**
- * Admin app for Settings > Monks Central. Initial data comes from
+ * Admin app for Settings > WP Sites HQ. Initial data comes from
  * window.monksCentralAdmin (Admin/Page.php); the connection screen talks to
  * /monks-central/v1/connector, module toggles are saved to /monks-central/v1/settings.
  */
@@ -28,7 +28,7 @@ function App() {
 			setSettings( saved );
 			setNotice( {
 				status: 'success',
-				text: __( 'Saved.', 'monks-central' ),
+				text: __( 'Saved.', 'wp-sites-hq' ),
 			} );
 		} catch ( error ) {
 			setNotice( { status: 'error', text: error.message } );
@@ -52,7 +52,7 @@ function App() {
 				/>
 			) : (
 				<Notice status="error" isDismissible={ false }>
-					{ __( 'The connector is not loaded.', 'monks-central' ) }
+					{ __( 'The connector is not loaded.', 'wp-sites-hq' ) }
 				</Notice>
 			) }
 			{ window.monksCentralAdmin.modules.length > 0 && (

@@ -19,10 +19,10 @@ function cm_register_undo_operation_ability() {
 	wp_register_ability(
 		'classic-monks/undo-operation',
 		array(
-			'label'               => __( 'Undo Operation', 'monks-central' ),
+			'label'               => __( 'Undo Operation', 'wp-sites-hq' ),
 			'description'         => __(
 				"Undoes one change from the AI activity log, like the Undo button on the connection screen. Use list-ai-activity to find the row id; only rows with can_undo true can be undone. \n\n## Notes\n- Refused when the change has no undo, was already undone, or was edited again since (undoing would overwrite the newer edit).\n- Needs the same permissions as the original change.\n- An undo cannot itself be undone.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'classic-monks',
 			'input_schema'        => array(
@@ -84,7 +84,7 @@ function cm_undo_operation_precheck( $pre, $name, $input ) {
 
 function cm_execute_undo_operation( $input ) {
 	if ( ! class_exists( 'CM_AI_Activity_Log' ) ) {
-		return new WP_Error( 'cm_module_disabled', __( 'The AI activity log is not available on this site.', 'monks-central' ) );
+		return new WP_Error( 'cm_module_disabled', __( 'The AI activity log is not available on this site.', 'wp-sites-hq' ) );
 	}
 	$id     = (int) $input['id'];
 	$caller = CM_AI_Activity_Log::caller();

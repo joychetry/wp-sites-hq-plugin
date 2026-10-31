@@ -27,10 +27,10 @@ function cm_register_get_tags_ability() {
 	wp_register_ability(
 		'classic-monks/get-tags',
 		array(
-			'label'               => __( 'Get Tags', 'monks-central' ),
+			'label'               => __( 'Get Tags', 'wp-sites-hq' ),
 			'description'         => __(
 				"Gets all post tags with filtering and sorting options. Use this for tag management, tag clouds, or content categorization. \n\n## Optional Parameters\n- **limit**: Number of tags to return (1-100, default 20)\n- **orderby**: Order by name, count, or id (default count)\n- **order**: ASC or DESC (default DESC)\n- **search**: Search term to filter tags\n- **hide_empty**: Whether to hide tags with no posts (default false)\n\n## Returns\nArray of tags with: id, name, slug, description, count, link.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'taxonomy',
 			'input_schema'        => array(

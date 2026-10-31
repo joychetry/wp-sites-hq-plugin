@@ -27,10 +27,10 @@ function cm_register_get_comments_ability() {
 	wp_register_ability(
 		'classic-monks/get-comments',
 		array(
-			'label'               => __( 'Get Comments', 'monks-central' ),
+			'label'               => __( 'Get Comments', 'wp-sites-hq' ),
 			'description'         => __(
 				"Retrieves comments with filtering options. Use this for comment moderation, engagement analysis, or content review. \n\n## Optional Parameters\n- **post_id**: Get comments for a specific post\n- **status**: Comment status (approve, hold, spam, trash, all). Default: approve\n- **limit**: Number of comments (1-100, default 10)\n- **orderby**: Order by comment_date, comment_author (default comment_date)\n- **order**: ASC or DESC (default DESC)\n\n## Returns\nArray of comments with: id, post_id, post_title, author, content, date, status, parent.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'comments',
 			'input_schema'        => array(

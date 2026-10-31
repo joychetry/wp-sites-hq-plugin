@@ -30,10 +30,10 @@ function cm_register_get_posts_ability() {
 	wp_register_ability(
 		'classic-monks/get-posts',
 		array(
-			'label'               => __( 'Get Posts', 'monks-central' ),
+			'label'               => __( 'Get Posts', 'wp-sites-hq' ),
 			'description'         => __(
 				"Retrieves a list of posts with filtering and sorting options. Use this ability to fetch posts from the WordPress database with various filters. \n\n## Default Behavior\n- Returns both published AND draft posts (dashboard context)\n- Only returns posts the current user can read (others' drafts and private posts are left out)\n- Ordered by date descending (newest first)\n- Default post type is \"post\"\n- Maximum 100 posts per request (default 10)\n\n## Available Parameters\n- **post_type**: post, page, or any registered custom post type slug\n- **status**: publish, draft, pending, private, future, trash (comma-separated for multiple)\n- **category**: Category slug to filter by (only for \"post\" post type)\n- **orderby**: date, title, modified, rand\n- **order**: ASC (oldest/A-Z first) or DESC (newest/Z-A first)\n- **limit**: Number of posts (1-100)\n- **offset**: Skip this many posts (for pagination)\n- **search**: Search term to filter posts by title or content\n\n## Returns\nArray of post objects containing: id, title, slug, status, type, date, modified, author, excerpt, permalink. Also includes total found posts count for pagination.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'content',
 			'input_schema'        => array(
@@ -188,7 +188,7 @@ function cm_execute_get_posts( $input = array() ) {
 	);
 
 	if ( ! cm_ai_can_list_post_type( $args['post_type'] ) ) {
-		return new WP_Error( 'invalid_post_type', __( 'Unknown post type, or you are not allowed to list it.', 'monks-central' ) );
+		return new WP_Error( 'invalid_post_type', __( 'Unknown post type, or you are not allowed to list it.', 'wp-sites-hq' ) );
 	}
 	// Like core REST: private posts only if readable here, other non-public statuses filtered per post below.
 	$args['perm'] = 'readable';

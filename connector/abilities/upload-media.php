@@ -23,10 +23,10 @@ function cm_register_upload_media_ability() {
 	wp_register_ability(
 		'classic-monks/upload-media',
 		array(
-			'label'               => __( 'Upload Media', 'monks-central' ),
+			'label'               => __( 'Upload Media', 'wp-sites-hq' ),
 			'description'         => __(
 				'Uploads a file (an image, PDF or any type the site allows) to the Media Library in base64 chunks of up to 2 MB (decoded). First call: filename and data (no upload_id); the reply gives an upload_id. Next calls: upload_id, offset (the bytes received so far, from the last reply) and data. Set done: true on the last chunk to add the file. A chunk sent twice with the same offset is ignored, so a retry is safe. Images are typed by their content and SVG is sanitized; other files must match their extension. get-media lists the allowed types.',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'media',
 			'input_schema'        => array(
@@ -105,16 +105,16 @@ function cm_register_upload_media_ability() {
 function cm_ai_receive_chunk( $input, $prefix, $set = array() ) {
 	$chunk = base64_decode( (string) $input['data'], true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- chunks arrive base64 encoded over JSON
 	if ( false === $chunk ) {
-		return new WP_Error( 'invalid_data', __( 'data is not valid base64.', 'monks-central' ) );
+		return new WP_Error( 'invalid_data', __( 'data is not valid base64.', 'wp-sites-hq' ) );
 	}
 	if ( strlen( $chunk ) > CM_UPLOAD_CHUNK_MAX ) {
-		return new WP_Error( 'chunk_too_large', __( 'Each chunk may hold at most 2 MB.', 'monks-central' ) );
+		return new WP_Error( 'chunk_too_large', __( 'Each chunk may hold at most 2 MB.', 'wp-sites-hq' ) );
 	}
 
 	if ( empty( $input['upload_id'] ) ) {
 		$name = sanitize_file_name( (string) ( $input['filename'] ?? '' ) );
 		if ( '' === $name ) {
-			return new WP_Error( 'missing_filename', __( 'filename is required on the first call.', 'monks-central' ) );
+			return new WP_Error( 'missing_filename', __( 'filename is required on the first call.', 'wp-sites-hq' ) );
 		}
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		$id    = wp_generate_password( 20, false );
@@ -130,14 +130,14 @@ function cm_ai_receive_chunk( $input, $prefix, $set = array() ) {
 		$id    = preg_replace( '/[^A-Za-z0-9]/', '', (string) $input['upload_id'] );
 		$state = get_transient( $prefix . $id );
 		if ( ! is_array( $state ) || (int) $state['user'] !== get_current_user_id() || ! is_file( $state['path'] ) ) {
-			return new WP_Error( 'upload_not_found', __( 'This upload is unknown or expired. Start again without upload_id.', 'monks-central' ) );
+			return new WP_Error( 'upload_not_found', __( 'This upload is unknown or expired. Start again without upload_id.', 'wp-sites-hq' ) );
 		}
 	}
 
 	// One chunk at a time per upload: a retry racing its original must not append the bytes twice.
 	$lock = fopen( $state['path'], 'ab' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- a lock on our own temp file.
 	if ( ! $lock || ! flock( $lock, LOCK_EX ) ) {
-		return new WP_Error( 'upload_busy', __( 'This upload is busy. Send the chunk again.', 'monks-central' ) );
+		return new WP_Error( 'upload_busy', __( 'This upload is busy. Send the chunk again.', 'wp-sites-hq' ) );
 	}
 	try {
 		clearstatcache( true, $state['path'] );
@@ -147,12 +147,12 @@ function cm_ai_receive_chunk( $input, $prefix, $set = array() ) {
 			$chunk = ''; // This chunk arrived already: a retry.
 		} elseif ( $offset !== $size ) {
 			/* translators: %d: bytes received */
-			return new WP_Error( 'wrong_offset', sprintf( __( 'The site has %d bytes of this upload; send the chunk at that offset.', 'monks-central' ), $size ) );
+			return new WP_Error( 'wrong_offset', sprintf( __( 'The site has %d bytes of this upload; send the chunk at that offset.', 'wp-sites-hq' ), $size ) );
 		}
 		if ( $size + strlen( $chunk ) > wp_max_upload_size() ) {
 			wp_delete_file( $state['path'] );
 			delete_transient( $prefix . $id );
-			return new WP_Error( 'file_too_large', __( 'The file is larger than this site accepts.', 'monks-central' ) );
+			return new WP_Error( 'file_too_large', __( 'The file is larger than this site accepts.', 'wp-sites-hq' ) );
 		}
 		if ( '' !== $chunk ) {
 			file_put_contents( $state['path'], $chunk, FILE_APPEND ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- appends a chunk to a temp file; WP_Filesystem cannot append

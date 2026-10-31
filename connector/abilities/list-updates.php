@@ -20,10 +20,10 @@ function cm_register_list_updates_ability() {
 	wp_register_ability(
 		'classic-monks/list-updates',
 		array(
-			'label'               => __( 'List Updates', 'monks-central' ),
+			'label'               => __( 'List Updates', 'wp-sites-hq' ),
 			'description'         => __(
 				'Lists every pending update: WordPress core offers (version, locale), plugins and themes (installed and new version, required WordPress and PHP), and translations. Uses the results of WordPress\'s last update check (last_checked); pass refresh true to check WordPress.org now. Install with update-core, update-plugin, update-theme and update-translations.',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(

@@ -49,7 +49,7 @@ function cm_mcp_confine_credentials( $response, $handler, $request ) {
 	}
 	return new WP_Error(
 		'cm_mcp_scope',
-		__( 'This MCP connection only works on the MCP endpoint. The rest of the REST API is off limits to it.', 'monks-central' ),
+		__( 'This MCP connection only works on the MCP endpoint. The rest of the REST API is off limits to it.', 'wp-sites-hq' ),
 		array( 'status' => 403 )
 	);
 }
@@ -61,7 +61,7 @@ add_filter( 'rest_request_before_callbacks', 'cm_mcp_confine_credentials', 10, 3
  */
 function cm_mcp_block_xmlrpc( $error, $user, $item ) {
 	if ( ! ( defined( 'REST_REQUEST' ) && REST_REQUEST ) && CM_MCP_APP_ID === ( $item['app_id'] ?? '' ) ) {
-		$error->add( 'cm_mcp_scope', __( 'MCP connections only work on the MCP endpoint.', 'monks-central' ) );
+		$error->add( 'cm_mcp_scope', __( 'MCP connections only work on the MCP endpoint.', 'wp-sites-hq' ) );
 	}
 }
 add_action( 'wp_authenticate_application_password_errors', 'cm_mcp_block_xmlrpc', 10, 3 );
@@ -225,14 +225,14 @@ function cm_mcp_deactivation_notice() {
 			'Deactivating %1$s will disconnect %2$d AI agent (MCP) connection. It will need to be connected again afterwards.',
 			'Deactivating %1$s will disconnect %2$d AI agent (MCP) connections. They will need to be connected again afterwards.',
 			$count,
-			'monks-central'
+			'wp-sites-hq'
 		),
 		Monks_Central_Connector::host()['name'],
 		$count
 	);
 	if ( is_multisite() ) {
 		// cm_mcp_revoke_all_connections() is network-wide: app passwords are shared by every site.
-		$message .= ' ' . __( 'This includes every AI agent connection on the other sites in this network.', 'monks-central' );
+		$message .= ' ' . __( 'This includes every AI agent connection on the other sites in this network.', 'wp-sites-hq' );
 	}
 	printf( '<div class="notice notice-warning"><p>%s</p></div>', esc_html( $message ) );
 }

@@ -17,15 +17,15 @@ use WP_Error;
  * Offers the latest non-pre-release GitHub release as a plugin update and
  * installs its zip only when the zip's SHA-256 matches the published checksum.
  *
- * A release carries two assets: `monks-central.zip` and `monks-central.zip.sha256`
+ * A release carries two assets: `wp-sites-hq.zip` and `wp-sites-hq.zip.sha256`
  * (the hex digest, optionally followed by the file name, as `sha256sum` prints it).
  */
 final class Updater {
 
-	public const REPO  = 'joychetry/monks-central-wp';
-	public const ZIP   = 'monks-central.zip';
+	public const REPO  = 'joychetry/wp-sites-hq-plugin';
+	public const ZIP   = 'wp-sites-hq.zip';
 	public const CACHE = 'monks_central_release';
-	private const SLUG = 'monks-central';
+	private const SLUG = 'wp-sites-hq';
 	// 12 hours.
 	private const CHECKED = 43200;
 
@@ -90,7 +90,7 @@ final class Updater {
 			return $result;
 		}
 		return (object) array(
-			'name'          => 'Monks Central',
+			'name'          => 'WP Sites HQ',
 			'slug'          => self::SLUG,
 			'version'       => $release['version'],
 			'homepage'      => $release['url'],
@@ -116,7 +116,7 @@ final class Updater {
 		}
 		$expected = $this->checksum( $release['checksum'] );
 		if ( null === $expected ) {
-			return new WP_Error( 'monks_central_no_checksum', __( 'The update has no SHA-256 checksum, so it was not installed.', 'monks-central' ) );
+			return new WP_Error( 'monks_central_no_checksum', __( 'The update has no SHA-256 checksum, so it was not installed.', 'wp-sites-hq' ) );
 		}
 		if ( ! function_exists( 'download_url' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -127,7 +127,7 @@ final class Updater {
 		}
 		if ( ! self::matches( $file, $expected ) ) {
 			wp_delete_file( $file );
-			return new WP_Error( 'monks_central_checksum_mismatch', __( 'The downloaded update does not match its SHA-256 checksum, so it was not installed.', 'monks-central' ) );
+			return new WP_Error( 'monks_central_checksum_mismatch', __( 'The downloaded update does not match its SHA-256 checksum, so it was not installed.', 'wp-sites-hq' ) );
 		}
 		return $file;
 	}

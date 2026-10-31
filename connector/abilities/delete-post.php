@@ -27,10 +27,10 @@ function cm_register_delete_post_ability() {
 	wp_register_ability(
 		'classic-monks/delete-post',
 		array(
-			'label'               => __( 'Delete Post', 'monks-central' ),
+			'label'               => __( 'Delete Post', 'wp-sites-hq' ),
 			'description'         => __(
 				"Deletes a WordPress post, page, or custom post type content. By default, moves content to trash. Use force=true to permanently delete. \n\n## ⚠️ DESTRUCTIVE OPERATION\nThis ability modifies the database. Use with caution.\n\n## Required Parameters\n- **post_id**: The ID of the post to delete (required)\n\n## Optional Parameters\n- **force**: Set to true to skip trash and permanently delete (default: false)\n\n## Behavior\n- `force=false` (default): Moves to trash, can be restored\n- `force=true`: Permanently deletes, cannot be restored\n\n## Returns\nConfirmation of deletion with post ID and status message.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'content',
 			'input_schema'        => array(
@@ -113,7 +113,7 @@ function cm_execute_delete_post( $input ) {
 	if ( ! $post ) {
 		return new WP_Error(
 			'post_not_found',
-			__( 'Post not found.', 'monks-central' )
+			__( 'Post not found.', 'wp-sites-hq' )
 		);
 	}
 
@@ -126,14 +126,14 @@ function cm_execute_delete_post( $input ) {
 	if ( ! $result ) {
 		return new WP_Error(
 			'delete_failed',
-			__( 'Failed to delete post.', 'monks-central' )
+			__( 'Failed to delete post.', 'wp-sites-hq' )
 		);
 	}
 
 	// Determine message based on force flag
 	$message = $force
-		? __( 'Post permanently deleted.', 'monks-central' )
-		: __( 'Post moved to trash.', 'monks-central' );
+		? __( 'Post permanently deleted.', 'wp-sites-hq' )
+		: __( 'Post moved to trash.', 'wp-sites-hq' );
 
 	return array(
 		'post_id'    => $post_id,

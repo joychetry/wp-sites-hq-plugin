@@ -19,10 +19,10 @@ function cm_register_set_plugin_auto_update_ability() {
 	wp_register_ability(
 		'classic-monks/set-plugin-auto-update',
 		array(
-			'label'               => __( 'Set Plugin Auto-Update', 'monks-central' ),
+			'label'               => __( 'Set Plugin Auto-Update', 'wp-sites-hq' ),
 			'description'         => __(
 				"Turns automatic updates on or off for one installed plugin. \n\n## Parameters\n- One of **plugin_file**, **slug** or **name** to pick the plugin.\n- **enabled**: true to turn auto-updates on, false to turn them off (required).\n\n## Returns\nThe plugin file and its auto-update setting before and after.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -75,11 +75,11 @@ function cm_register_set_plugin_auto_update_ability() {
 function cm_execute_set_plugin_auto_update( $input ) {
 	// Re-checked here because this also runs as the undo callback.
 	if ( ! current_user_can( 'update_plugins' ) ) {
-		return new WP_Error( 'forbidden', __( 'You are not allowed to update plugins.', 'monks-central' ) );
+		return new WP_Error( 'forbidden', __( 'You are not allowed to update plugins.', 'wp-sites-hq' ) );
 	}
 	require_once ABSPATH . 'wp-admin/includes/update.php';
 	if ( ! wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
-		return new WP_Error( 'cm_auto_updates_disabled', __( 'Plugin auto-updates are turned off for this site.', 'monks-central' ) );
+		return new WP_Error( 'cm_auto_updates_disabled', __( 'Plugin auto-updates are turned off for this site.', 'wp-sites-hq' ) );
 	}
 
 	$resolved = cm_ai_resolve_installed_plugin( $input );

@@ -19,10 +19,10 @@ function cm_register_delete_theme_ability() {
 	wp_register_ability(
 		'classic-monks/delete-theme',
 		array(
-			'label'               => __( 'Delete Theme', 'monks-central' ),
+			'label'               => __( 'Delete Theme', 'wp-sites-hq' ),
 			'description'         => __(
 				"Deletes an installed theme and its files. \n\n## Parameters\n- **stylesheet**: The theme's stylesheet from list-themes (required).\n\n## Notes\n- This cannot be undone.\n- The active theme and the parent of the active theme are refused.\n\n## Returns\nThe theme stylesheet and whether it was deleted.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -68,12 +68,12 @@ function cm_execute_delete_theme( $input ) {
 
 	$theme = wp_get_theme( sanitize_text_field( $input['stylesheet'] ) );
 	if ( ! $theme->exists() ) {
-		return new WP_Error( 'cm_theme_not_found', __( 'Theme not found. Use list-themes for the exact stylesheet.', 'monks-central' ) );
+		return new WP_Error( 'cm_theme_not_found', __( 'Theme not found. Use list-themes for the exact stylesheet.', 'wp-sites-hq' ) );
 	}
 
 	$stylesheet = $theme->get_stylesheet();
 	if ( in_array( $stylesheet, array( get_stylesheet(), get_template() ), true ) ) {
-		return new WP_Error( 'cm_theme_in_use', __( 'This theme is active or is the parent of the active theme, so it cannot be deleted.', 'monks-central' ) );
+		return new WP_Error( 'cm_theme_in_use', __( 'This theme is active or is the parent of the active theme, so it cannot be deleted.', 'wp-sites-hq' ) );
 	}
 
 	$result = delete_theme( $stylesheet );
@@ -81,7 +81,7 @@ function cm_execute_delete_theme( $input ) {
 		return $result;
 	}
 	if ( true !== $result ) {
-		return new WP_Error( 'cm_theme_delete_failed', __( 'The theme files could not be deleted. WordPress may need FTP credentials.', 'monks-central' ) );
+		return new WP_Error( 'cm_theme_delete_failed', __( 'The theme files could not be deleted. WordPress may need FTP credentials.', 'wp-sites-hq' ) );
 	}
 
 	return array(

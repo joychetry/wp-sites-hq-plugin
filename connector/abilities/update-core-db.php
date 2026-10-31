@@ -19,10 +19,10 @@ function cm_register_update_core_db_ability() {
 	wp_register_ability(
 		'classic-monks/update-core-db',
 		array(
-			'label'               => __( 'Update Core Database', 'monks-central' ),
+			'label'               => __( 'Update Core Database', 'wp-sites-hq' ),
 			'description'         => __(
 				"Runs the WordPress database upgrade, the same as the \"Update WordPress Database\" button after a core update (wp-admin/upgrade.php). Does nothing when the database is already current. \n\n## Notes\n- Changes the database schema and data for this site only; it cannot be undone.\n\n## Returns\nprevious_db_version, db_version, required_db_version, updated.",
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'output_schema'       => array(

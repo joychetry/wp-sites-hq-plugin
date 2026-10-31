@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # R-11: deactivating the plugin revokes MCP credentials (app passwords + OAuth tokens), leaves other app passwords alone.
-# WARNING: briefly deactivates monks-central and drops every MCP connection on the site (other runs' too).
+# WARNING: briefly deactivates wp-sites-hq and drops every MCP connection on the site (other runs' too).
 cd "$(dirname "$0")/../.." && . tests/mcp/lib.sh
 
 ME="$SITE/wp-json/wp/v2/users/me"
-PLUGIN=monks-central
+PLUGIN=wp-sites-hq
 reactivate() { (cd "$SITE_ROOT" && $WP_CMD plugin activate "$PLUGIN" >/dev/null 2>&1); }
 trap 'reactivate; revoke "$MCP_UUID"; revoke "$PLAIN_UUID"' EXIT
 

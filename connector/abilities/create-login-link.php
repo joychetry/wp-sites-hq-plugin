@@ -25,10 +25,10 @@ function cm_register_create_login_link_ability() {
 	wp_register_ability(
 		'classic-monks/create-login-link',
 		array(
-			'label'               => __( 'Create Login Link', 'monks-central' ),
+			'label'               => __( 'Create Login Link', 'wp-sites-hq' ),
 			'description'         => __(
 				'WP Sites HQ only. Returns a link that signs the connected user into wp-admin. It works once, within 60 seconds, and only over HTTPS (or on a local site). Open it in the browser right away; never share or store it.',
-				'monks-central'
+				'wp-sites-hq'
 			),
 			'category'            => 'system',
 			'input_schema'        => array(
@@ -67,14 +67,14 @@ function cm_is_operator_request() {
 
 function cm_execute_create_login_link() {
 	if ( ! is_ssl() && 'local' !== wp_get_environment_type() ) {
-		return new WP_Error( 'cm_login_link_insecure', __( 'Login links need HTTPS on this site.', 'monks-central' ), array( 'status' => 400 ) );
+		return new WP_Error( 'cm_login_link_insecure', __( 'Login links need HTTPS on this site.', 'wp-sites-hq' ), array( 'status' => 400 ) );
 	}
 
 	$user_id = get_current_user_id();
 	$rate    = 'cm_login_link_rate_' . $user_id;
 	$count   = (int) get_transient( $rate );
 	if ( $count >= CM_LOGIN_LINK_RATE_LIMIT ) {
-		return new WP_Error( 'cm_login_link_rate_limited', __( 'Too many login links in a short time. Wait a few minutes and try again.', 'monks-central' ), array( 'status' => 429 ) );
+		return new WP_Error( 'cm_login_link_rate_limited', __( 'Too many login links in a short time. Wait a few minutes and try again.', 'wp-sites-hq' ), array( 'status' => 429 ) );
 	}
 	// shortcut: each new link restarts the 10-minute window, and parallel calls can share a count; fine for one app per user.
 	set_transient( $rate, $count + 1, 10 * MINUTE_IN_SECONDS );
@@ -118,12 +118,12 @@ function cm_handle_login_link() {
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="referrer" content="no-referrer">
 	<meta name="robots" content="noindex, nofollow">
-	<title><?php esc_html_e( 'Signing in', 'monks-central' ); ?></title>
+	<title><?php esc_html_e( 'Signing in', 'wp-sites-hq' ); ?></title>
 </head>
 <body>
 	<form method="post" id="cm-login-link">
 		<input type="hidden" name="token" value="<?php echo esc_attr( $token ); ?>">
-		<button type="submit"><?php esc_html_e( 'Continue to the dashboard', 'monks-central' ); ?></button>
+		<button type="submit"><?php esc_html_e( 'Continue to the dashboard', 'wp-sites-hq' ); ?></button>
 	</form>
 	<script>document.getElementById( 'cm-login-link' ).submit();</script>
 </body>
@@ -139,12 +139,12 @@ function cm_handle_login_link() {
 		&& class_exists( 'CM_MCP_Server' ) && CM_MCP_Server::connection_exists( $data['user_id'], $data['connection'] )
 		&& null !== CM_MCP_Approvals::operator( $data['user_id'], $data['connection'] );
 	if ( ! $valid ) {
-		wp_die( esc_html__( 'This login link is invalid, expired or already used. Open the site from WP Sites HQ again.', 'monks-central' ), esc_html__( 'Login link', 'monks-central' ), array( 'response' => 403 ) );
+		wp_die( esc_html__( 'This login link is invalid, expired or already used. Open the site from WP Sites HQ again.', 'wp-sites-hq' ), esc_html__( 'Login link', 'wp-sites-hq' ), array( 'response' => 403 ) );
 	}
 
 	$user = get_userdata( $data['user_id'] );
 	wp_set_auth_cookie( $user->ID, false, is_ssl() );
-	CM_AI_Activity_Log::record( $user->ID, $data['connection'], $data['label'] ?? '', 'classic-monks/use-login-link', __( 'Signed in to wp-admin with a one-time login link.', 'monks-central' ) );
+	CM_AI_Activity_Log::record( $user->ID, $data['connection'], $data['label'] ?? '', 'classic-monks/use-login-link', __( 'Signed in to wp-admin with a one-time login link.', 'wp-sites-hq' ) );
 	// Core fires this after every sign-in; last-login columns and similar tracking rely on it.
 	do_action( 'wp_login', $user->user_login, $user );
 	wp_safe_redirect( admin_url() );
