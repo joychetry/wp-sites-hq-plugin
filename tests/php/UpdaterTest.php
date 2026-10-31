@@ -15,7 +15,7 @@ use MonksCentral\Updater;
  */
 final class UpdaterTest extends TestCase {
 
-	private const ZIP = 'https://github.com/joychetry/monks-central-wp/releases/download/v9.0.0/monks-central.zip';
+	private const ZIP = 'https://github.com/joychetry/wp-sites-hq-plugin/releases/download/v9.0.0/wp-sites-hq.zip';
 
 	/**
 	 * A GitHub release as the API returns it.
@@ -28,15 +28,15 @@ final class UpdaterTest extends TestCase {
 			'tag_name'   => 'v9.0.0',
 			'draft'      => false,
 			'prerelease' => false,
-			'html_url'   => 'https://github.com/joychetry/monks-central-wp/releases/tag/v9.0.0',
+			'html_url'   => 'https://github.com/joychetry/wp-sites-hq-plugin/releases/tag/v9.0.0',
 			'body'       => 'Notes',
 			'assets'     => array(
 				array(
-					'name'                 => 'monks-central.zip',
+					'name'                 => 'wp-sites-hq.zip',
 					'browser_download_url' => self::ZIP,
 				),
 				array(
-					'name'                 => 'monks-central.zip.sha256',
+					'name'                 => 'wp-sites-hq.zip.sha256',
 					'browser_download_url' => self::ZIP . '.sha256',
 				),
 			),
@@ -59,7 +59,7 @@ final class UpdaterTest extends TestCase {
 
 	public function test_checksum_is_read_from_sha256sum_output(): void {
 		$hex = str_repeat( 'ab', 32 );
-		$this->assertSame( $hex, Updater::parse_checksum( strtoupper( $hex ) . "  monks-central.zip\n" ) );
+		$this->assertSame( $hex, Updater::parse_checksum( strtoupper( $hex ) . "  wp-sites-hq.zip\n" ) );
 		$this->assertNull( Updater::parse_checksum( 'not a digest' ) );
 	}
 
@@ -80,20 +80,20 @@ final class UpdaterTest extends TestCase {
 
 	public function test_a_newer_release_is_offered_as_an_update(): void {
 		$this->cached_release();
-		Functions\when( 'plugin_basename' )->justReturn( 'monks-central/monks-central.php' );
+		Functions\when( 'plugin_basename' )->justReturn( 'wp-sites-hq/wp-sites-hq.php' );
 		$transient = ( new Updater() )->offer( new \stdClass() );
-		$this->assertSame( '9.0.0', $transient->response['monks-central/monks-central.php']->new_version );
-		$this->assertSame( self::ZIP, $transient->response['monks-central/monks-central.php']->package );
+		$this->assertSame( '9.0.0', $transient->response['wp-sites-hq/wp-sites-hq.php']->new_version );
+		$this->assertSame( self::ZIP, $transient->response['wp-sites-hq/wp-sites-hq.php']->package );
 	}
 
 	public function test_the_installed_version_on_disk_decides_over_the_loaded_constant(): void {
 		$this->cached_release();
-		Functions\when( 'plugin_basename' )->justReturn( 'monks-central/monks-central.php' );
+		Functions\when( 'plugin_basename' )->justReturn( 'wp-sites-hq/wp-sites-hq.php' );
 		$transient          = new \stdClass();
-		$transient->checked = array( 'monks-central/monks-central.php' => '9.0.0' );
+		$transient->checked = array( 'wp-sites-hq/wp-sites-hq.php' => '9.0.0' );
 		$transient          = ( new Updater() )->offer( $transient );
-		$this->assertArrayNotHasKey( 'monks-central/monks-central.php', $transient->response ?? array() );
-		$this->assertSame( '9.0.0', $transient->no_update['monks-central/monks-central.php']->new_version );
+		$this->assertArrayNotHasKey( 'wp-sites-hq/wp-sites-hq.php', $transient->response ?? array() );
+		$this->assertSame( '9.0.0', $transient->no_update['wp-sites-hq/wp-sites-hq.php']->new_version );
 	}
 
 	public function test_check_again_on_dashboard_updates_skips_the_cache(): void {
@@ -114,7 +114,7 @@ final class UpdaterTest extends TestCase {
 		Functions\when( 'get_site_transient' )->justReturn( array( 'release' => Updater::parse_release( $this->release_json( array( 'body' => "- One item that\n  wraps.\n- Two" ) ) ) ) );
 		Functions\when( 'wpautop' )->returnArg();
 		Functions\when( 'esc_html' )->returnArg();
-		$info = ( new Updater() )->details( false, 'plugin_information', (object) array( 'slug' => 'monks-central' ) );
+		$info = ( new Updater() )->details( false, 'plugin_information', (object) array( 'slug' => 'wp-sites-hq' ) );
 		$this->assertSame( "- One item that wraps.\n- Two", $info->sections['changelog'] );
 	}
 
@@ -125,7 +125,7 @@ final class UpdaterTest extends TestCase {
 		Functions\when( 'wp_remote_get' )->justReturn( array() );
 		Functions\when( 'is_wp_error' )->alias( fn( $thing ) => $thing instanceof \WP_Error );
 		Functions\when( 'wp_remote_retrieve_response_code' )->justReturn( 200 );
-		Functions\when( 'wp_remote_retrieve_body' )->justReturn( hash( 'sha256', 'original' ) . '  monks-central.zip' );
+		Functions\when( 'wp_remote_retrieve_body' )->justReturn( hash( 'sha256', 'original' ) . '  wp-sites-hq.zip' );
 		Functions\when( 'download_url' )->justReturn( $file );
 		Functions\when( 'wp_delete_file' )->alias( 'unlink' );
 
