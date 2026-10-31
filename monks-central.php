@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name:       Monks Central
+ * Plugin Name:       Monks Central (old)
  * Plugin URI:        https://github.com/joychetry/monks-central-wp
- * Description:       Connects this site to the Monks Central app, so you can manage it with your other WordPress sites from one place.
- * Version:           0.1.3
+ * Description:       Monks Central is now WP Sites HQ. This version only moves the site to the WP Sites HQ plugin: use Move this site on the Dashboard or the Plugins screen.
+ * Version:           0.1.4
  * Requires at least: 7.1
  * Requires PHP:      8.1
  * Author:            Good Monks
@@ -20,6 +20,18 @@ defined( 'ABSPATH' ) || exit;
 if ( defined( 'MONKS_CENTRAL_VERSION' ) ) {
 	$monks_central_other = dirname( (string) MONKS_CENTRAL_FILE );
 	if ( realpath( $monks_central_other ) !== realpath( __DIR__ ) ) {
+		// Register this copy's connector as well: with one host left, deactivating the running copy revokes every connection.
+		if ( function_exists( 'monks_central_connector_register' ) ) {
+			monks_central_connector_register(
+				array(
+					'dir'     => __DIR__ . '/connector',
+					'file'    => __FILE__,
+					'name'    => 'Monks Central (old)',
+					'version' => get_file_data( __FILE__, array( 'Version' => 'Version' ) )['Version'],
+					'ui'      => MonksCentral\Connector\Ui::class,
+				)
+			);
+		}
 		add_action(
 			'admin_notices',
 			static function () use ( $monks_central_other ) {
@@ -30,11 +42,11 @@ if ( defined( 'MONKS_CENTRAL_VERSION' ) ) {
 				}
 			}
 		);
-	}
+	}//end if
 	return;
-}
+}//end if
 
-define( 'MONKS_CENTRAL_VERSION', '0.1.3' );
+define( 'MONKS_CENTRAL_VERSION', '0.1.4' );
 define( 'MONKS_CENTRAL_FILE', __FILE__ );
 define( 'MONKS_CENTRAL_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MONKS_CENTRAL_URL', plugin_dir_url( __FILE__ ) );
@@ -50,7 +62,7 @@ if ( is_readable( MONKS_CENTRAL_DIR . 'vendor/autoload.php' ) ) {
 		array(
 			'dir'     => MONKS_CENTRAL_DIR . 'connector',
 			'file'    => __FILE__,
-			'name'    => 'Monks Central',
+			'name'    => 'Monks Central (old)',
 			'version' => MONKS_CENTRAL_VERSION,
 			'ui'      => MonksCentral\Connector\Ui::class,
 		)
