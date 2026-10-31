@@ -1,7 +1,26 @@
 # Changelog
 
-All notable changes to the Monks Central plugin. Versions follow semver. The
+All notable changes to the WP Sites HQ plugin (Monks Central before 0.2.0). Versions follow semver. The
 connector library in `connector/` has its own version, named in each entry.
+
+## 0.2.0 - 2026-10-31
+
+Renamed WP Sites HQ; one click moves the plugin folder.
+
+- The plugin is WP Sites HQ, in folder `wp-sites-hq` with main file
+  `wp-sites-hq.php` and text domain `wp-sites-hq`. Settings, connections and
+  every stored name stay as they were.
+- Sites on Monks Central 0.1.x: the update installs the 0.1.4 bridge (it reads
+  0.1.4, although the Updates screen says 0.2.0). Its "Move this site" button
+  installs WP Sites HQ, activates it and deactivates Monks Central (old). Then
+  delete Monks Central (old). To move by hand, activate WP Sites HQ before
+  deleting Monks Central (old), or the site's connections are removed.
+- Connector 1.2.0: every visible string says WP Sites HQ. Grants named
+  "Monks Central" and "Monks Central (AI agents)" are renamed once to
+  "WP Sites HQ" and "WP Sites HQ (AI agents)". Activity rows keep their names.
+- With both folders active, deactivating either one keeps connections.
+- Updates come from `joychetry/wp-sites-hq-plugin`, asset `wp-sites-hq.zip`.
+  Each release also carries the bridge as `monks-central.zip`.
 
 ## 0.1.3 - 2026-10-29
 
