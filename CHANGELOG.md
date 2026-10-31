@@ -3,6 +3,25 @@
 All notable changes to the Monks Central plugin. Versions follow semver. The
 connector library in `connector/` has its own version, named in each entry.
 
+## 0.1.4 - 2026-10-31
+
+The bridge to WP Sites HQ. Monks Central is now WP Sites HQ, in a new plugin
+folder (`wp-sites-hq`) that a normal update cannot move to. This version ships
+as `monks-central.zip` in every WP Sites HQ release, so the Updates screen may
+call it 0.2.0.
+
+- A notice on the Dashboard, the Plugins screen and Settings > Monks Central:
+  Move this site downloads `wp-sites-hq.zip` from the latest release, checks its
+  SHA-256, installs it, activates WP Sites HQ and then deactivates this plugin.
+  Connections and settings stay.
+- When WordPress cannot install plugins (`DISALLOW_FILE_MODS`, read-only files,
+  no network) the notice shows the steps to move by hand.
+- Deleting this plugin keeps `monks_central_settings` while WP Sites HQ is
+  installed.
+- With both folders active, deactivating either one keeps connections.
+- Updates are off: later releases would offer this bridge again.
+- Shown as Monks Central (old) on the Plugins screen.
+
 ## 0.1.3 - 2026-10-29
 
 - No PHP warnings when WordPress loads the plugin twice, for example right
