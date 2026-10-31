@@ -2,7 +2,7 @@
 /**
  * Get Site Snapshot Ability - WordPress Abilities API
  *
- * Everything Monks Central refreshes for a site, in one call (M4): core, PHP, database,
+ * Everything WP Sites HQ refreshes for a site, in one call (M4): core, PHP, database,
  * plugins, themes, pending updates with translations, Site Health, environment, and
  * whether installs need file-system credentials.
  *

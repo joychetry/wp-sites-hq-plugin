@@ -3,7 +3,7 @@
  * Upload Media Ability - WordPress Abilities API
  *
  * Adds a file from the caller's computer to the Media Library, sent in base64
- * chunks so large files fit in MCP requests (Monks Central M6).
+ * chunks so large files fit in MCP requests (WP Sites HQ M6).
  *
  * @package ClassicMonks
  * @subpackage AI/Abilities
@@ -83,7 +83,7 @@ function cm_register_upload_media_ability() {
 				return current_user_can( 'upload_files' );
 			},
 			'meta'                => array(
-				// Monks Central only: keeps AI clients under their tool caps.
+				// WP Sites HQ only: keeps AI clients under their tool caps.
 				'cm_operator_only' => true,
 				'annotations'      => array(
 					'readonly'     => false,

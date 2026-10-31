@@ -1,8 +1,8 @@
 <?php
 /**
- * Monks Central connector: the running copy.
+ * WP Sites HQ connector: the running copy.
  *
- * Lets the Monks Central app, or another MCP client that signs in with OAuth,
+ * Lets the WP Sites HQ app, or another MCP client that signs in with OAuth,
  * manage this site. Loaded by load.php for the winning copy only. Its tables,
  * options and user meta are the ones Classic Monks has always used, so grants
  * survive when plugins that bundle the connector are added, removed or switched.
@@ -185,7 +185,7 @@ final class Monks_Central_Connector {
 			return new WP_Error( 'cm_forbidden', __( 'You are not allowed to change this setting.', 'monks-central' ), array( 'status' => 403 ) );
 		}
 		if ( $on && ! self::supported() ) {
-			return new WP_Error( 'cm_unsupported', __( 'Monks Central needs WordPress 7.1 or newer.', 'monks-central' ), array( 'status' => 400 ) );
+			return new WP_Error( 'cm_unsupported', __( 'WP Sites HQ needs WordPress 7.1 or newer.', 'monks-central' ), array( 'status' => 400 ) );
 		}
 		update_option( self::OPTION, $on ? 1 : 0, false );
 		return true;

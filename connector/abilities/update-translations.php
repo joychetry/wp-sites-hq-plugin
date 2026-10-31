@@ -3,7 +3,7 @@
  * Update Translations Ability - WordPress Abilities API
  *
  * Installs every pending translation update (core, plugins, themes), as the
- * "Update Translations" button in Dashboard > Updates does (Monks Central M5).
+ * "Update Translations" button in Dashboard > Updates does (WP Sites HQ M5).
  *
  * @package ClassicMonks
  * @subpackage AI/Abilities

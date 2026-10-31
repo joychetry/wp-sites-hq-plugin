@@ -3,7 +3,7 @@
  * Update Media Ability - WordPress Abilities API
  *
  * Edits an attachment's details, as wp-admin's "Attachment details" does: alt text, title,
- * caption and description (Monks Central).
+ * caption and description (WP Sites HQ).
  *
  * @package ClassicMonks
  * @subpackage AI/Abilities
@@ -58,7 +58,7 @@ function cm_register_update_media_ability() {
 			'execute_callback'    => 'cm_execute_update_media',
 			'permission_callback' => 'cm_can_edit_media',
 			'meta'                => array(
-				// Monks Central only: the operator edits from the app window.
+				// WP Sites HQ only: the operator edits from the app window.
 				'cm_operator_only'    => true,
 				'annotations'         => array(
 					'readonly'     => false,

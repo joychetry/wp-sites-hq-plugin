@@ -2,7 +2,7 @@
 /**
  * Untrash Post Ability - WordPress Abilities API
  *
- * Brings a post back from the trash (Monks Central M6).
+ * Brings a post back from the trash (WP Sites HQ M6).
  *
  * @package ClassicMonks
  * @subpackage AI/Abilities
@@ -47,7 +47,7 @@ function cm_register_untrash_post_ability() {
 				return ! empty( $input['post_id'] ) && current_user_can( 'delete_post', $input['post_id'] );
 			},
 			'meta'                => array(
-				// Monks Central only: keeps AI clients under their tool caps.
+				// WP Sites HQ only: keeps AI clients under their tool caps.
 				'cm_operator_only'    => true,
 				'cm_preview_callback' => 'cm_preview_post_state',
 				'annotations'         => array(

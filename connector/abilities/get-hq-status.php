@@ -2,7 +2,7 @@
 /**
  * Get HQ Status Ability - WordPress Abilities API
  *
- * One cheap call for a Monks Central site card: versions, modules, the
+ * One cheap call for a WP Sites HQ site card: versions, modules, the
  * caller's role and connection, and pending approvals.
  *
  * @package ClassicMonks
@@ -119,7 +119,7 @@ function cm_execute_get_hq_status( $input = array() ) {
 				'scope'                     => $connection['scope'],
 				'toolsets'                  => array_values( $connection['toolsets'] ),
 				'trusted'                   => $connection['trusted'],
-				// Monks Central operator grant (M2), and whether it also skips the always-ask tools.
+				// WP Sites HQ operator grant (M2), and whether it also skips the always-ask tools.
 				'operator'                  => null !== $connection['operator'],
 				'operator_skips_always_ask' => true === $connection['operator'],
 			) : null,

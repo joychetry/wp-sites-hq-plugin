@@ -1,8 +1,8 @@
 <?php
 /**
- * Connect to Monks Central: abilities loader
+ * Connect to WP Sites HQ: abilities loader
  *
- * Loads the management abilities Monks Central uses. Each file hooks
+ * Loads the management abilities WP Sites HQ uses. Each file hooks
  * wp_abilities_api_init and registers one classic-monks/* ability, with the
  * same name, schema and annotations as in Classic Monks Pro.
  *
@@ -29,7 +29,7 @@ function cm_load_ability_files() {
 		'get-environment-info.php',
 		'list-updates.php',              // Every pending update in one call
 		'update-translations.php',
-		'get-site-snapshot.php',         // Monks Central refresh in one call; uses list-updates.php
+		'get-site-snapshot.php',         // WP Sites HQ refresh in one call; uses list-updates.php
 		'create-login-link.php',         // Operator grants only
 		'list-ai-activity.php',          // The activity log, with can_undo
 		'undo-operation.php',            // Undo one logged change through its ability's cm_undo_callback
@@ -39,13 +39,13 @@ function cm_load_ability_files() {
 		'installed-plugin-list-and-infos.php',
 		'search-plugins.php',
 		'install-plugin.php',
-		'install-zip.php',               // Monks Central M8: chunked plugin or theme zip; uses upload-media.php's chunk helper
+		'install-zip.php',               // WP Sites HQ M8: chunked plugin or theme zip; uses upload-media.php's chunk helper
 		'activate-plugin.php',
 		'deactivate-plugin.php',
 		'update-plugin.php',             // Its safe mode uses the M10 helpers below
-		'get-http-status.php',           // Monks Central M10: loopback check with the fatal error scrape
-		'get-error-log-since.php',       // Monks Central M10
-		'set-maintenance-mode.php',      // Monks Central M10
+		'get-http-status.php',           // WP Sites HQ M10: loopback check with the fatal error scrape
+		'get-error-log-since.php',       // WP Sites HQ M10
+		'set-maintenance-mode.php',      // WP Sites HQ M10
 		'uninstall-plugin.php',
 		'set-plugin-auto-update.php',
 		// Themes (update-theme.php holds the theme helpers)
@@ -91,7 +91,7 @@ function cm_load_ability_files() {
 		'create-user.php',
 		'update-user.php',
 		'delete-user.php',
-		'send-password-reset.php',       // Monks Central M7
+		'send-password-reset.php',       // WP Sites HQ M7
 		// Comments (reply-to-comment.php defines cm_undo_reply_to_comment(), also used by create-comment.php)
 		'get-comments.php',
 		'moderate-comment.php',
@@ -132,7 +132,7 @@ function cm_ability_error_status( $result, $ability_name ) {
 add_filter( 'wp_ability_execute_result', 'cm_ability_error_status', 1000, 2 );
 
 /**
- * Operator-only writes run for the Monks Central app's operator grant only. Over MCP other connections never
+ * Operator-only writes run for the WP Sites HQ app's operator grant only. Over MCP other connections never
  * see them; this also closes core's ability REST routes (plain app passwords). Reads stay open there.
  */
 function cm_block_operator_only_writes( $pre, $ability_name, $input, $ability ) {
@@ -143,7 +143,7 @@ function cm_block_operator_only_writes( $pre, $ability_name, $input, $ability ) 
 	if ( ! empty( $annotations['readonly'] ) || ( function_exists( 'cm_is_operator_request' ) && cm_is_operator_request() ) ) {
 		return $pre;
 	}
-	$message = __( 'Only the Monks Central app can use this tool.', 'monks-central' );
+	$message = __( 'Only the WP Sites HQ app can use this tool.', 'monks-central' );
 	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
 		CM_AI_Activity_Log::mark( $ability_name, 'denied', $message );
 	}

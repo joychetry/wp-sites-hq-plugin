@@ -3,7 +3,7 @@
  * Set Maintenance Mode Ability - WordPress Abilities API
  *
  * Turns WordPress' own maintenance mode (the .maintenance file updates use) on or off
- * (Monks Central M10).
+ * (WP Sites HQ M10).
  *
  * @package ClassicMonks
  * @subpackage AI/Abilities
@@ -43,7 +43,7 @@ function cm_register_set_maintenance_mode_ability() {
 				return current_user_can( 'update_plugins' );
 			},
 			'meta'                => array(
-				// Monks Central only: keeps AI clients under their tool caps.
+				// WP Sites HQ only: keeps AI clients under their tool caps.
 				'cm_operator_only' => true,
 				'annotations'      => array(
 					'readonly'     => false,
@@ -58,9 +58,9 @@ function cm_register_set_maintenance_mode_ability() {
 }
 
 function cm_execute_set_maintenance_mode( $input ) {
-	// Monks Central's own connection only: it installs or takes down code for the whole site.
+	// WP Sites HQ's own connection only: it installs or takes down code for the whole site.
 	if ( ! cm_is_operator_request() ) {
-		return new WP_Error( 'cm_operator_only', __( 'Only the Monks Central app can use this tool.', 'monks-central' ), array( 'status' => 403 ) );
+		return new WP_Error( 'cm_operator_only', __( 'Only the WP Sites HQ app can use this tool.', 'monks-central' ), array( 'status' => 403 ) );
 	}
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';

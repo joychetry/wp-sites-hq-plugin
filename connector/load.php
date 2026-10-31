@@ -1,6 +1,6 @@
 <?php
 /**
- * Monks Central connector: version-wins loader.
+ * WP Sites HQ connector: version-wins loader.
  *
  * Every plugin that bundles the connector requires this file at load time and
  * registers its copy with monks_central_connector_register(). On plugins_loaded

@@ -3,7 +3,7 @@
  * ACF Fields Abilities - WordPress Abilities API
  *
  * get-acf-fields lists the Advanced Custom Fields groups that apply to an entry, with their fields and
- * values; update-acf-fields saves through update_field() after ACF's own validation (Monks Central).
+ * values; update-acf-fields saves through update_field() after ACF's own validation (WP Sites HQ).
  * Registered only when ACF (free or PRO) or Secure Custom Fields is active.
  *
  * @package ClassicMonks
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Field types Monks Central can edit; others (flexible content, clone, maps, add-ons) are read-only there.
+// Field types WP Sites HQ can edit; others (flexible content, clone, maps, add-ons) are read-only there.
 const CM_ACF_EDITABLE = array( 'text', 'textarea', 'number', 'range', 'email', 'url', 'password', 'select', 'checkbox', 'radio', 'button_group', 'true_false', 'wysiwyg', 'image', 'file', 'gallery', 'date_picker', 'date_time_picker', 'time_picker', 'color_picker', 'link', 'post_object', 'page_link', 'relationship', 'taxonomy', 'user', 'group', 'repeater' );
 // Layout-only types: they hold no value.
 const CM_ACF_LAYOUT = array( 'tab', 'accordion', 'message', 'separator' );
@@ -125,7 +125,7 @@ function cm_register_acf_fields_abilities() {
 			'execute_callback'    => 'cm_execute_update_acf_fields',
 			'permission_callback' => 'cm_can_edit_acf_entry',
 			'meta'                => array(
-				// Monks Central only: the operator edits from the app window.
+				// WP Sites HQ only: the operator edits from the app window.
 				'cm_operator_only'    => true,
 				'annotations'         => array(
 					'readonly'     => false,
