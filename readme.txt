@@ -4,7 +4,7 @@ Tags: site management, remote management, updates, mcp, oauth
 Requires at least: 7.1
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.1.3
+Stable tag: 0.2.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,6 +70,10 @@ This plugin checks GitHub for updates. It sends nothing else anywhere on its own
 Other requests happen only when a connected app or you ask for them, and only to the address that task needs: verifying a plugin's files fetches its checksums from downloads.wordpress.org, importing an image fetches the image link the app gives, an app signing in has its client details read from its own address, and health checks load this site's own pages. Plugin, theme and core installs and updates go through WordPress itself.
 
 == Changelog ==
+
+= 0.2.0 - 2026-10-31 =
+* Renamed WP Sites HQ, in folder wp-sites-hq. Sites on Monks Central 0.1.x get the 0.1.4 bridge, whose Move this site button moves them in one click. Settings and connections stay.
+* Connector 1.2.0: WP Sites HQ in every visible string; the app's old grants show the new name.
 
 = 0.1.3 - 2026-10-29 =
 * No PHP warnings when WordPress loads the plugin twice, for example right after an update.

@@ -1,6 +1,6 @@
 {
-	"name": "joychetry/monks-central",
-	"description": "Site connector for the Monks Central app.",
+	"name": "joychetry/wp-sites-hq-plugin",
+	"description": "Site connector for the WP Sites HQ app.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
