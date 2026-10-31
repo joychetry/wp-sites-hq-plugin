@@ -20,6 +20,18 @@ defined( 'ABSPATH' ) || exit;
 if ( defined( 'MONKS_CENTRAL_VERSION' ) ) {
 	$monks_central_other = dirname( (string) MONKS_CENTRAL_FILE );
 	if ( realpath( $monks_central_other ) !== realpath( __DIR__ ) ) {
+		// Register this copy's connector as well: with one host left, deactivating the running copy revokes every connection.
+		if ( function_exists( 'monks_central_connector_register' ) ) {
+			monks_central_connector_register(
+				array(
+					'dir'     => __DIR__ . '/connector',
+					'file'    => __FILE__,
+					'name'    => 'WP Sites HQ',
+					'version' => get_file_data( __FILE__, array( 'Version' => 'Version' ) )['Version'],
+					'ui'      => MonksCentral\Connector\Ui::class,
+				)
+			);
+		}
 		add_action(
 			'admin_notices',
 			static function () use ( $monks_central_other ) {
@@ -34,9 +46,9 @@ if ( defined( 'MONKS_CENTRAL_VERSION' ) ) {
 				}
 			}
 		);
-	}
+	}//end if
 	return;
-}
+}//end if
 
 define( 'MONKS_CENTRAL_VERSION', '0.1.3' );
 define( 'MONKS_CENTRAL_FILE', __FILE__ );

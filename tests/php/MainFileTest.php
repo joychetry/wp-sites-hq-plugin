@@ -8,6 +8,7 @@
 namespace MonksCentral\Tests;
 
 use Brain\Monkey\Actions;
+use Brain\Monkey\Functions;
 
 /**
  * The bootstrap already defines the constants, as the first include of wp-sites-hq.php does.
@@ -45,5 +46,24 @@ final class MainFileTest extends TestCase {
 		unlink( $dir . '/wp-sites-hq.php' );
 		rmdir( $dir );
 		$this->assertSame( MONKS_CENTRAL_DIR . 'wp-sites-hq.php', MONKS_CENTRAL_FILE );
+	}
+
+	public function test_a_second_copy_registers_its_connector(): void {
+		// Otherwise deactivating the copy that runs looks like the last host leaving, which revokes every connection.
+		require_once MONKS_CENTRAL_DIR . 'connector/load.php';
+		$dir = sys_get_temp_dir() . '/wp-sites-hq-copy-' . uniqid();
+		mkdir( $dir . '/connector', 0777, true );
+		copy( MONKS_CENTRAL_FILE, $dir . '/wp-sites-hq.php' );
+		copy( MONKS_CENTRAL_DIR . 'connector/version.php', $dir . '/connector/version.php' );
+		Functions\when( 'get_file_data' )->justReturn( array( 'Version' => '9.0.0' ) );
+
+		include $dir . '/wp-sites-hq.php';
+
+		$copy = array_column( monks_central_connector_copies(), null, 'dir' )[ $dir . '/connector' ] ?? null;
+		unlink( $dir . '/connector/version.php' );
+		rmdir( $dir . '/connector' );
+		unlink( $dir . '/wp-sites-hq.php' );
+		rmdir( $dir );
+		$this->assertSame( array( 'WP Sites HQ', '9.0.0', $dir . '/wp-sites-hq.php' ), array( $copy['name'] ?? null, $copy['version'] ?? null, $copy['file'] ?? null ) );
 	}
 }
