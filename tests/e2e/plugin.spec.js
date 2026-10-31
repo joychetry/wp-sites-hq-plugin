@@ -26,9 +26,9 @@ async function visit( page, path ) {
 
 test( 'plugin is active', async ( { page } ) => {
 	await visit( page, '/wp-admin/plugins.php' );
-	await expect( page.locator( 'tr[data-slug="monks-central"]' ) ).toHaveClass(
-		/\bactive\b/
-	);
+	await expect(
+		page.locator( 'tr[data-plugin="monks-central/monks-central.php"]' )
+	).toHaveClass( /\bactive\b/ );
 } );
 
 test( 'admin screen renders', async ( { page } ) => {
