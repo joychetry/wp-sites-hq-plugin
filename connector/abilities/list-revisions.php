@@ -2,7 +2,7 @@
 /**
  * List Revisions and Restore Revision Abilities - WordPress Abilities API
  *
- * A post's saved revisions, and putting one back (Monks Central M6).
+ * A post's saved revisions, and putting one back (WP Sites HQ M6).
  *
  * @package ClassicMonks
  * @subpackage AI/Abilities
@@ -55,7 +55,7 @@ function cm_register_revision_abilities() {
 				return ! empty( $input['post_id'] ) && current_user_can( 'edit_post', $input['post_id'] );
 			},
 			'meta'                => array(
-				// Monks Central only: keeps AI clients under their tool caps.
+				// WP Sites HQ only: keeps AI clients under their tool caps.
 				'cm_operator_only' => true,
 				'annotations'      => array(
 					'readonly'     => true,
@@ -100,7 +100,7 @@ function cm_register_revision_abilities() {
 				return $revision && current_user_can( 'edit_post', $revision->post_parent );
 			},
 			'meta'                => array(
-				// Monks Central only: keeps AI clients under their tool caps.
+				// WP Sites HQ only: keeps AI clients under their tool caps.
 				'cm_operator_only'    => true,
 				'cm_preview_callback' => 'cm_preview_revision_parent',
 				'annotations'         => array(

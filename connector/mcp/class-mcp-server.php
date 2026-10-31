@@ -1,9 +1,9 @@
 <?php
 /**
- * Classic Monks MCP Server (Connect to Monks Central)
+ * Classic Monks MCP Server (Connect to WP Sites HQ)
  *
  * Stateless MCP endpoint (Streamable HTTP, JSON responses only, no SSE) that
- * exposes the classic-monks/* abilities as tools. Monks Central (or another MCP
+ * exposes the classic-monks/* abilities as tools. WP Sites HQ (or another MCP
  * client) signs in over OAuth (class-mcp-oauth.php), so every connection acts as
  * a real WordPress user and every ability keeps its own permission check.
  * Ported from Classic Monks Pro; same names and data, so Pro takes over on upgrade.
@@ -126,7 +126,7 @@ class CM_MCP_Server {
 			array(
 				'content' => __( 'Content', 'monks-central' ),
 				'media'   => __( 'Media', 'monks-central' ),
-				'modules' => __( 'Monks Central status', 'monks-central' ),
+				'modules' => __( 'WP Sites HQ status', 'monks-central' ),
 				'site'    => __( 'Site admin', 'monks-central' ),
 			)
 		);
@@ -415,7 +415,7 @@ class CM_MCP_Server {
 
 		$uuid = rest_get_authenticated_app_password();
 		if ( ! self::current_connection() ) {
-			$message = __( 'Connect over OAuth: add this site in Monks Central, or in an MCP client that supports OAuth.', 'monks-central' );
+			$message = __( 'Connect over OAuth: add this site in WP Sites HQ, or in an MCP client that supports OAuth.', 'monks-central' );
 			if ( CM_MCP_OAuth::bearer_failed() ) {
 				$message = __( 'The access token is invalid or expired. Refresh it, or connect again.', 'monks-central' );
 			} elseif ( $uuid ) {

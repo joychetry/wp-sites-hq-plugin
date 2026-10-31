@@ -2,7 +2,7 @@
 /**
  * List Updates Ability - WordPress Abilities API
  *
- * Every pending update in one call (Monks Central M5): WordPress core offers,
+ * Every pending update in one call (WP Sites HQ M5): WordPress core offers,
  * plugins, themes and translations, from WordPress's own update checks.
  *
  * @package ClassicMonks

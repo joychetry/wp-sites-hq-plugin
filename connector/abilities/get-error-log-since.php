@@ -3,7 +3,7 @@
  * Get Error Log Since Ability - WordPress Abilities API
  *
  * Reads what the PHP error log gained after a marker, so a change can be checked for new
- * fatal errors and warnings (Monks Central M10).
+ * fatal errors and warnings (WP Sites HQ M10).
  *
  * @package ClassicMonks
  * @subpackage AI/Abilities
@@ -53,7 +53,7 @@ function cm_register_get_error_log_since_ability() {
 				return current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' );
 			},
 			'meta'                => array(
-				// Monks Central only: keeps AI clients under their tool caps.
+				// WP Sites HQ only: keeps AI clients under their tool caps.
 				'cm_operator_only' => true,
 				'annotations'      => array(
 					'readonly'    => true,

@@ -4,7 +4,7 @@
  *
  * replace-media puts a new file in place of an attachment's file, sent in chunks like upload-media:
  * same ID, same URL by default, thumbnails regenerated, the old file kept as one backup.
- * restore-replaced-media swaps the backup back in (Monks Central).
+ * restore-replaced-media swaps the backup back in (WP Sites HQ).
  *
  * @package ClassicMonks
  * @subpackage AI/Abilities
@@ -37,7 +37,7 @@ function cm_register_replace_media_abilities() {
 		),
 	);
 	$meta   = array(
-		// Monks Central only, and never an agent tool: the operator picks the file in the app window.
+		// WP Sites HQ only, and never an agent tool: the operator picks the file in the app window.
 		'cm_operator_only' => true,
 		'annotations'      => array(
 			'readonly'    => false,

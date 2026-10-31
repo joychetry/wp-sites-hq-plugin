@@ -2,7 +2,7 @@
 /**
  * Create Login Link Ability - WordPress Abilities API
  *
- * One-click wp-admin login for Monks Central (M3). Only an operator grant may call it
+ * One-click wp-admin login for WP Sites HQ (M3). Only an operator grant may call it
  * (MCP hides it from every other caller), and the link signs in the grant's own user:
  * single use, 60 seconds, HTTPS or a local site, spent on POST so plain link fetchers (previews,
  * mail scanners without JavaScript) can't use it. The app opens it in the browser at once; it is never mailed.
@@ -27,7 +27,7 @@ function cm_register_create_login_link_ability() {
 		array(
 			'label'               => __( 'Create Login Link', 'monks-central' ),
 			'description'         => __(
-				'Monks Central only. Returns a link that signs the connected user into wp-admin. It works once, within 60 seconds, and only over HTTPS (or on a local site). Open it in the browser right away; never share or store it.',
+				'WP Sites HQ only. Returns a link that signs the connected user into wp-admin. It works once, within 60 seconds, and only over HTTPS (or on a local site). Open it in the browser right away; never share or store it.',
 				'monks-central'
 			),
 			'category'            => 'system',
@@ -58,7 +58,7 @@ function cm_register_create_login_link_ability() {
 }
 
 /**
- * The current request comes from a Monks Central operator grant.
+ * The current request comes from a WP Sites HQ operator grant.
  */
 function cm_is_operator_request() {
 	$connection = function_exists( 'cm_mcp_is_mcp_credential' ) && cm_mcp_is_mcp_credential() ? CM_MCP_Server::current_connection() : null;
@@ -139,7 +139,7 @@ function cm_handle_login_link() {
 		&& class_exists( 'CM_MCP_Server' ) && CM_MCP_Server::connection_exists( $data['user_id'], $data['connection'] )
 		&& null !== CM_MCP_Approvals::operator( $data['user_id'], $data['connection'] );
 	if ( ! $valid ) {
-		wp_die( esc_html__( 'This login link is invalid, expired or already used. Open the site from Monks Central again.', 'monks-central' ), esc_html__( 'Login link', 'monks-central' ), array( 'response' => 403 ) );
+		wp_die( esc_html__( 'This login link is invalid, expired or already used. Open the site from WP Sites HQ again.', 'monks-central' ), esc_html__( 'Login link', 'monks-central' ), array( 'response' => 403 ) );
 	}
 
 	$user = get_userdata( $data['user_id'] );

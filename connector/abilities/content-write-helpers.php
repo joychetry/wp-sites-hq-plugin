@@ -1,6 +1,6 @@
 <?php
 /**
- * Shared checks for create-post and update-post (Monks Central M6): terms for any
+ * Shared checks for create-post and update-post (WP Sites HQ M6): terms for any
  * taxonomy, custom fields and the publish date, plus page-builder detection.
  *
  * @package ClassicMonks

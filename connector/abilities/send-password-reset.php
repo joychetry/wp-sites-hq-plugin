@@ -2,7 +2,7 @@
 /**
  * Send Password Reset Ability - WordPress Abilities API
  *
- * Emails a user WordPress' own "set a new password" link (Monks Central M7). The
+ * Emails a user WordPress' own "set a new password" link (WP Sites HQ M7). The
  * password is never seen or set by the caller; the person picks it from the email.
  *
  * @package ClassicMonks
@@ -47,7 +47,7 @@ function cm_register_send_password_reset_ability() {
 				return ! empty( $input['user_id'] ) && current_user_can( 'edit_user', (int) $input['user_id'] );
 			},
 			'meta'                => array(
-				// Monks Central only: keeps AI clients under their tool caps.
+				// WP Sites HQ only: keeps AI clients under their tool caps.
 				'cm_operator_only' => true,
 				'annotations'      => array(
 					'readonly'     => false,

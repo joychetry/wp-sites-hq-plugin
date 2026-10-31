@@ -4,7 +4,7 @@
  *
  * A destructive tool called over MCP stops at an approval request instead of
  * running. A person approves it in wp-admin, and the agent's next call with the
- * same arguments runs once. Operator grants (Monks Central) and trusted connections skip it.
+ * same arguments runs once. Operator grants (WP Sites HQ) and trusted connections skip it.
  *
  * Approval requests are rows in the AI activity log (status pending → approved |
  * declined → used), keyed by a hash of connection + tool + arguments.
@@ -27,7 +27,7 @@ class CM_MCP_Approvals {
 	const BLIND_RUN_TTL = 5 * MINUTE_IN_SECONDS;
 	const SIMILAR_MAX   = 25;
 	const TRUSTED_META  = 'cm_mcp_trusted';
-	// Operator grants (Monks Central): connection id => whether cm_always_approve abilities skip approval too.
+	// Operator grants (WP Sites HQ): connection id => whether cm_always_approve abilities skip approval too.
 	const OPERATOR_META = 'cm_mcp_operator';
 
 	public static function init() {
@@ -84,7 +84,7 @@ class CM_MCP_Approvals {
 	}
 
 	/**
-	 * The human ticked "This is my Monks Central app" on the consent page: trusted, and the
+	 * The human ticked "This is my WP Sites HQ app" on the consent page: trusted, and the
 	 * cm_always_approve abilities skip approval too until the owner turns that off.
 	 */
 	public static function make_operator( $user_id, $id ) {
@@ -355,7 +355,7 @@ class CM_MCP_Approvals {
 			'declined' => __( 'Declined.', 'monks-central' ),
 			'used'     => __( 'Approved and already run.', 'monks-central' ),
 			'ok'       => __( 'Approved and already run.', 'monks-central' ),
-			'error'    => __( 'Approved and run, but it failed. The activity log on the Monks Central connection screen has the reason.', 'monks-central' ),
+			'error'    => __( 'Approved and run, but it failed. The activity log on the WP Sites HQ connection screen has the reason.', 'monks-central' ),
 			'undone'   => __( 'Approved and run, then undone.', 'monks-central' ),
 			'expired'  => __( 'This request expired. The agent can ask again.', 'monks-central' ),
 		);

@@ -436,8 +436,8 @@ class CM_MCP_OAuth {
 	}
 
 	/**
-	 * Operator grants (M2) go only to an app on this computer's loopback, as Monks Central is.
-	 * A web client that names itself "Monks Central" can't be ticked as operator.
+	 * Operator grants (M2) go only to an app on this computer's loopback, as WP Sites HQ is.
+	 * A web client that names itself "WP Sites HQ" can't be ticked as operator.
 	 */
 	public static function operator_possible( $redirect_uri ) {
 		$u = wp_parse_url( (string) $redirect_uri );
@@ -650,7 +650,7 @@ class CM_MCP_OAuth {
 			$scope = 'content';
 		}
 		$toolsets = CM_MCP_Server::sanitize_toolsets( $q['toolsets'] ?? array() );
-		// Operator (Monks Central, M2): the human's own word on this page, never the client's self-chosen name.
+		// Operator (WP Sites HQ, M2): the human's own word on this page, never the client's self-chosen name.
 		$operator = ! empty( $q['operator'] ) && current_user_can( 'manage_options' ) && self::operator_possible( $ctx['redirect_uri'] );
 		if ( $operator ) {
 			// The app manages the whole site, Site admin and HQ tools included.

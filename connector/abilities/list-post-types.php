@@ -2,7 +2,7 @@
 /**
  * List Post Types Ability - WordPress Abilities API
  *
- * Every post type the current user can edit, with the taxonomies it uses (Monks Central M6).
+ * Every post type the current user can edit, with the taxonomies it uses (WP Sites HQ M6).
  *
  * @package ClassicMonks
  * @subpackage AI/Abilities
@@ -70,7 +70,7 @@ function cm_register_list_post_types_ability() {
 				return current_user_can( 'edit_posts' ) || current_user_can( 'edit_pages' );
 			},
 			'meta'                => array(
-				// Monks Central only: keeps AI clients under their tool caps.
+				// WP Sites HQ only: keeps AI clients under their tool caps.
 				'cm_operator_only' => true,
 				'annotations'      => array(
 					'readonly'     => true,

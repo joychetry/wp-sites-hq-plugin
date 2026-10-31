@@ -154,9 +154,9 @@ function cm_register_ability_categories() {
 		wp_register_ability_category(
 			'classic-monks',
 			array(
-				'label'       => __( 'Monks Central', 'monks-central' ),
+				'label'       => __( 'WP Sites HQ', 'monks-central' ),
 				'description' => __(
-					'Site status for Monks Central and the approval requests waiting for you.',
+					'Site status for WP Sites HQ and the approval requests waiting for you.',
 					'monks-central'
 				),
 			)

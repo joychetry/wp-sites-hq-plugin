@@ -3,7 +3,7 @@
  * Install Zip Ability - WordPress Abilities API
  *
  * Installs a plugin or theme from a zip on the caller's computer, sent in base64 chunks
- * with the upload-media protocol (Monks Central M8).
+ * with the upload-media protocol (WP Sites HQ M8).
  *
  * @package ClassicMonks
  * @subpackage AI/Abilities
@@ -99,7 +99,7 @@ function cm_register_install_zip_ability() {
 			'execute_callback'    => 'cm_execute_install_zip',
 			'permission_callback' => 'cm_install_zip_permission',
 			'meta'                => array(
-				// Monks Central only: keeps AI clients under their tool caps.
+				// WP Sites HQ only: keeps AI clients under their tool caps.
 				'cm_operator_only' => true,
 				'annotations'      => array(
 					'readonly'     => false,
@@ -147,9 +147,9 @@ function cm_install_zip_permission( $input ) {
 }
 
 function cm_execute_install_zip( $input ) {
-	// Monks Central's own connection only: it installs or takes down code for the whole site.
+	// WP Sites HQ's own connection only: it installs or takes down code for the whole site.
 	if ( ! cm_is_operator_request() ) {
-		return new WP_Error( 'cm_operator_only', __( 'Only the Monks Central app can use this tool.', 'monks-central' ), array( 'status' => 403 ) );
+		return new WP_Error( 'cm_operator_only', __( 'Only the WP Sites HQ app can use this tool.', 'monks-central' ), array( 'status' => 403 ) );
 	}
 	if ( ! wp_is_file_mod_allowed( 'cm_install_zip' ) ) {
 		return new WP_Error( 'cm_file_mods_disabled', __( 'This site does not allow installing plugins or themes: file changes are turned off (DISALLOW_FILE_MODS in wp-config.php).', 'monks-central' ) );

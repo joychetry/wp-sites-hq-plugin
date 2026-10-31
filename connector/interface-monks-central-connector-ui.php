@@ -1,6 +1,6 @@
 <?php
 /**
- * Monks Central connector: what a host plugin renders.
+ * WP Sites HQ connector: what a host plugin renders.
  *
  * The connector has no admin UI of its own. The plugin whose copy is running
  * passes a class implementing this interface to monks_central_connector_register()

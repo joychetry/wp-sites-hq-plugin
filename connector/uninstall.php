@@ -1,6 +1,6 @@
 <?php
 /**
- * Monks Central connector: cleanup when a plugin that bundles it is deleted.
+ * WP Sites HQ connector: cleanup when a plugin that bundles it is deleted.
  *
  * Call monks_central_connector_uninstall() from the host's uninstall.php. The
  * connector's data is shared by every plugin that bundles it, so:

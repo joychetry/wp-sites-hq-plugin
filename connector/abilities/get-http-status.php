@@ -3,7 +3,7 @@
  * Get HTTP Status Ability - WordPress Abilities API
  *
  * Loads a page of the site from the site itself and reports its status and any fatal
- * error, the way WordPress checks a plugin update for fatal errors (Monks Central M10).
+ * error, the way WordPress checks a plugin update for fatal errors (WP Sites HQ M10).
  *
  * @package ClassicMonks
  * @subpackage AI/Abilities
@@ -51,7 +51,7 @@ function cm_register_get_http_status_ability() {
 				return current_user_can( 'manage_options' );
 			},
 			'meta'                => array(
-				// Monks Central only: keeps AI clients under their tool caps.
+				// WP Sites HQ only: keeps AI clients under their tool caps.
 				'cm_operator_only' => true,
 				'annotations'      => array(
 					'readonly'    => true,

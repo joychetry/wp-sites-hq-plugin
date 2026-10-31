@@ -1,6 +1,6 @@
 <?php
 /**
- * Monks Central connector: MCP credential guard
+ * WP Sites HQ connector: MCP credential guard
  *
  * Always loaded by the running copy, even when the connector is off: an MCP Application
  * Password minted earlier (by Classic Monks Pro) still exists and core would
