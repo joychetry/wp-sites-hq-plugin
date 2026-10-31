@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class CM_MCP_OAuth {
 
-	const DB_VERSION        = '1.0.0';
+	const DB_VERSION        = '1.1.0';
 	const DB_VERSION_OPTION = 'cm_mcp_oauth_db_version';
 	const PAGE              = 'cm-mcp-authorize';
 	const ID_PREFIX         = 'oauth:';
@@ -89,8 +89,24 @@ class CM_MCP_OAuth {
             KEY expires_at (expires_at)
         ) " . $wpdb->get_charset_collate() . ';'
 		);
+		self::rename_app_grants();
 
 		update_option( self::DB_VERSION_OPTION, self::DB_VERSION );
+	}
+
+	/**
+	 * DB 1.1.0: grants the app made as Monks Central show its new name on the Connections list.
+	 * Refreshes copy the stored name forward, so without this they would keep the old one.
+	 */
+	public static function rename_app_grants() {
+		global $wpdb;
+		$names = array(
+			'Monks Central'             => 'WP Sites HQ',
+			'Monks Central (AI agents)' => 'WP Sites HQ (AI agents)',
+		);
+		foreach ( $names as $old => $new ) {
+			$wpdb->update( self::table(), array( 'client_name' => $new ), array( 'client_name' => $old ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one-time rename in our own table
+		}
 	}
 
 	/*
