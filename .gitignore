@@ -8,3 +8,8 @@
 .phpunit.cache/
 *.zip
 .DS_Store
+# Agent and design-tool working folders, local screenshots
+.claude/
+.impeccable/
+.playwright-mcp/
+/screenshots/

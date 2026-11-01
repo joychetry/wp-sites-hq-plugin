@@ -1,2 +1,0 @@
-PASS
-Repo created private, renamed, WP 7.1/PHP 8.1, example removed; PHPCS, PHPStan, PHPUnit, e2e and Plugin Check pass locally (Actions blocked by billing).

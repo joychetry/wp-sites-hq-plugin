@@ -1,2 +1,0 @@
-PASS
-Connector library in connector/ (v1.0.0, version-wins loader, UI interface, same tables/options); plugin screen, consent page and SHA-256 updater; 29 suites (906 checks) green with Woo, Elementor, Bricks; PHPCS, PHPStan, PHPUnit, e2e, Plugin Check 0 errors on the wp.org zip.

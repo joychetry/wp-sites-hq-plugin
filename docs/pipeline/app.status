@@ -1,2 +1,0 @@
-PASS
-The app names the plugin running each site's connector and its version, says any of the three plugins works, saves the checksum-checked release zip for a guided install (WordPress core REST cannot install a zip) and connects through it; old Classic Monks still works; all checks green; every phase passed live again.

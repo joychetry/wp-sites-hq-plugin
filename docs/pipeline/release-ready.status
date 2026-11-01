@@ -1,2 +1,0 @@
-PASS
-Zip without dev files, readme.txt/README/CHANGELOG 1.0.0, draft-release workflow on v* tags; fresh WP 7.1 site: zip installed, app connected, bad checksum refused, update kept the connection; 906+57+19 checks green; nothing tagged or public.
