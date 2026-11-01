@@ -1,6 +1,6 @@
 # Release checklist
 
-Releases are Joy's call. Nothing below happens until Joy says so.
+Releases are made by the maintainer. Nothing below happens without their go-ahead.
 
 ## Every release (0.2.0 and later, until 1.0)
 
