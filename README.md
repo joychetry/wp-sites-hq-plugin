@@ -8,6 +8,10 @@ comments, and show what changed.
 
 Requires WordPress 7.1+ and PHP 8.1+. Zero runtime dependencies.
 
+- Download: [latest release](https://github.com/joychetry/wp-sites-hq-plugin/releases/latest) (`wp-sites-hq.zip`)
+- The app: [WP Sites HQ for macOS, Windows and Linux](https://github.com/joychetry/wp-sites-hq/releases/latest)
+- Website: [wpsiteshq.com](https://wpsiteshq.com)
+
 Classic Monks and Classic Monks Pro bundle the same connector library
 (`connector/`). Whichever copy has the highest version runs, so any mix of the
 three plugins gives one connector and keeps existing connections.
@@ -109,4 +113,9 @@ section. Nothing is public until someone publishes the draft. See
 ## Docs
 
 `docs/STACK.md`, `docs/REUSE.md` and `docs/MODULES.md` come from the starter
-and describe its stack and conventions. `CHANGELOG.md` lists each release.
+and describe its stack and conventions. `CONTRIBUTING.md` has the checks and
+rules for a pull request. `CHANGELOG.md` lists each release.
+
+## Licence
+
+GPL-2.0-or-later. See `LICENSE`. Copyright (C) 2026 Good Monks.
