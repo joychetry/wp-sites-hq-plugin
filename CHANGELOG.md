@@ -3,6 +3,12 @@
 All notable changes to the WP Sites HQ plugin (Monks Central before 0.2.0). Versions follow semver. The
 connector library in `connector/` has its own version, named in each entry.
 
+## 0.2.1 - 2026-11-02
+
+- Connector 1.2.1: dates from the read tools (posts, pages, users, comments,
+  media) now use the standard RFC 3339 format, so strict AI clients no longer
+  reject them.
+
 ## 0.2.0 - 2026-10-31
 
 Renamed WP Sites HQ; one click moves the plugin folder.
