@@ -160,7 +160,7 @@ function cm_execute_get_users( $input = array() ) {
 			'email'           => $user->user_email,
 			'display_name'    => $user->display_name,
 			'role'            => isset( $user->roles[0] ) ? $user->roles[0] : 'none',
-			'registered_date' => $user->user_registered,
+			'registered_date' => cm_ability_date( $user->user_registered, true ),
 		);
 	}
 

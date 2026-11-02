@@ -108,6 +108,16 @@ function cm_load_ability_files() {
 cm_load_ability_files();
 
 /**
+ * A MySQL datetime as RFC 3339, the form a `date-time` output schema promises: strict MCP clients
+ * reject "2026-10-30 12:00:00". $gmt: the value is UTC (user_registered, *_gmt), else site time.
+ */
+function cm_ability_date( $mysql, $gmt = false ) {
+	// PHP reads the zero date as -0001-11-30, which is not RFC 3339.
+	$date = '0000-00-00 00:00:00' === $mysql ? false : date_create_immutable_from_format( 'Y-m-d H:i:s', (string) $mysql, $gmt ? new DateTimeZone( 'UTC' ) : wp_timezone() );
+	return $date ? $date->format( DATE_RFC3339 ) : '';
+}
+
+/**
  * Ability errors without an HTTP status reach core REST as 500s, which read as
  * server crashes to REST clients. Give classic-monks errors a 4xx.
  */

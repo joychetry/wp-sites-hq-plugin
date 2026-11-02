@@ -117,12 +117,12 @@ function cm_register_get_posts_ability() {
 								'date'      => array(
 									'type'        => 'string',
 									'format'      => 'date-time',
-									'description' => 'Publication date (YYYY-MM-DD HH:MM:SS).',
+									'description' => 'Publication date (RFC 3339, site time zone).',
 								),
 								'modified'  => array(
 									'type'        => 'string',
 									'format'      => 'date-time',
-									'description' => 'Last modified date (YYYY-MM-DD HH:MM:SS).',
+									'description' => 'Last modified date (RFC 3339, site time zone).',
 								),
 								'author'    => array(
 									'type'        => 'string',
@@ -220,8 +220,8 @@ function cm_execute_get_posts( $input = array() ) {
 			'slug'      => $post->post_name,
 			'status'    => $post->post_status,
 			'type'      => $post->post_type,
-			'date'      => get_the_date( 'Y-m-d H:i:s', $post ),
-			'modified'  => get_the_modified_date( 'Y-m-d H:i:s', $post ),
+			'date'      => get_the_date( DATE_RFC3339, $post ),
+			'modified'  => get_the_modified_date( DATE_RFC3339, $post ),
 			'author'    => $author ? $author->display_name : '',
 			'excerpt'   => cm_ai_post_text_visible( $post ) ? wp_trim_words( $post->post_content, 30, '...' ) : '',
 			'permalink' => get_permalink( $post ),
