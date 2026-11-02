@@ -207,7 +207,7 @@ function cm_execute_get_media( $input = array() ) {
 			'url'       => wp_get_attachment_url( $post->ID ),
 			'mime_type' => $post->post_mime_type,
 			'alt_text'  => get_post_meta( $post->ID, '_wp_attachment_image_alt', true ) ?: '',
-			'date'      => $post->post_date,
+			'date'      => cm_ability_date( $post->post_date ),
 		);
 
 		// Thumbnail (for images)

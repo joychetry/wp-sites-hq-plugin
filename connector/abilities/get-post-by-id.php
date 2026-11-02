@@ -184,6 +184,11 @@ function cm_execute_get_post_by_id( $input ) {
 		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 	}
 
+	// Drafts store zero GMT dates; derive them from the local ones, as core REST does.
+	$gmt = function ( $gmt_date, $local_date ) {
+		return cm_ability_date( '0000-00-00 00:00:00' === $gmt_date ? get_gmt_from_date( $local_date ) : $gmt_date, true );
+	};
+
 	$result = array(
 		'id'                => $post->ID,
 		'title'             => $post->post_title,
@@ -192,10 +197,10 @@ function cm_execute_get_post_by_id( $input ) {
 		'excerpt'           => $post->post_excerpt,
 		'status'            => $post->post_status,
 		'type'              => $post->post_type,
-		'date'              => $post->post_date,
-		'date_gmt'          => $post->post_date_gmt,
-		'modified'          => $post->post_modified,
-		'modified_gmt'      => $post->post_modified_gmt,
+		'date'              => cm_ability_date( $post->post_date ),
+		'date_gmt'          => $gmt( $post->post_date_gmt, $post->post_date ),
+		'modified'          => cm_ability_date( $post->post_modified ),
+		'modified_gmt'      => $gmt( $post->post_modified_gmt, $post->post_modified ),
 		'author'            => get_the_author_meta( 'display_name', (int) $post->post_author ),
 		'author_id'         => (int) $post->post_author,
 		'permalink'         => get_permalink( $post->ID ),
