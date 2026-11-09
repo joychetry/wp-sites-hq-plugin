@@ -124,7 +124,7 @@ function wpshq_handle_login_link() {
 		<input type="hidden" name="token" value="<?php echo esc_attr( $token ); ?>">
 		<button type="submit"><?php esc_html_e( 'Continue to the dashboard', 'wp-sites-hq' ); ?></button>
 	</form>
-	<script>document.getElementById( 'cm-login-link' ).submit();</script>
+		<?php wp_print_inline_script_tag( "document.getElementById( 'cm-login-link' ).submit();" ); ?>
 </body>
 </html>
 		<?php
