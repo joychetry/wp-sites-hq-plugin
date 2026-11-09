@@ -113,7 +113,9 @@ section. Nothing is public until someone publishes the draft. See
 ## Docs
 
 `docs/STACK.md`, `docs/REUSE.md` and `docs/MODULES.md` come from the starter
-and describe its stack and conventions. `CONTRIBUTING.md` has the checks and
+and describe its stack and conventions. `docs/CONNECTOR.md` is the contract
+between the connector and the plugins that bundle it: names, hooks and the calls
+into the host. `CONTRIBUTING.md` has the checks and
 rules for a pull request. `CHANGELOG.md` lists each release.
 
 ## Licence
