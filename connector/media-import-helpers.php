@@ -191,8 +191,15 @@ function wpshq_ai_prepare_image_file( $path, $stem ) {
 		}
 	}
 
-	// SVG can carry scripts: import it only when a full sanitizer is loaded (Classic Monks Pro's cm_sanitize_svg()).
-	if ( 'image/svg+xml' === $mime && ! function_exists( 'cm_sanitize_svg' ) ) {
+	/**
+	 * The host's SVG cleaner: a callable that takes the SVG markup and returns clean markup or a WP_Error. SVG can
+	 * carry scripts, so without one SVG files are refused. The default is Classic Monks Pro's cm_sanitize_svg(), for
+	 * Pro builds from before this filter.
+	 *
+	 * @param callable|null $sanitizer The cleaner, or null.
+	 */
+	$sanitizer = apply_filters( 'wpshq_svg_sanitizer', function_exists( 'cm_sanitize_svg' ) ? 'cm_sanitize_svg' : null );
+	if ( 'image/svg+xml' === $mime && ! is_callable( $sanitizer ) ) {
 		return new WP_Error( 'cm_ai_not_an_image', __( 'SVG files cannot be imported or uploaded here: this site has no SVG cleaner. Upload them in the Media Library instead.', 'wp-sites-hq' ) );
 	}
 
@@ -204,7 +211,7 @@ function wpshq_ai_prepare_image_file( $path, $stem ) {
 	}
 
 	if ( 'image/svg+xml' === $mime ) {
-		$clean = cm_sanitize_svg( (string) file_get_contents( $path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- a local temp file
+		$clean = call_user_func( $sanitizer, (string) file_get_contents( $path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- a local temp file
 		if ( is_wp_error( $clean ) ) {
 			return $clean;
 		}
