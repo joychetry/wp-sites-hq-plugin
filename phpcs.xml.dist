@@ -8,6 +8,8 @@
 	<exclude-pattern>/node_modules/*</exclude-pattern>
 	<exclude-pattern>/vendor/*</exclude-pattern>
 	<exclude-pattern>/tests/*</exclude-pattern>
+	<!-- Developer tools, left out of the release zip. -->
+	<exclude-pattern>/bin/*</exclude-pattern>
 
 	<arg name="extensions" value="php"/>
 	<arg name="cache" value=".phpcs-cache"/>
