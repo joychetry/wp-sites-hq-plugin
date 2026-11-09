@@ -122,7 +122,7 @@ check 'trusted OAuth connection deletes'    "$(bearer "$AT" tools/call "{\"name\
 wpe "wp_delete_post($PID, true);" >/dev/null
 
 # Connections list shows the grant.
-LIST=$(wpe 'wp_set_current_user(1); $r = new ReflectionMethod("CM_MCP_Server", "connections"); $r->setAccessible(true); echo wp_json_encode($r->invoke(null));')
+LIST=$(wpe 'wp_set_current_user(1); $r = new ReflectionMethod("WPSHQ_MCP_Server", "connections"); $r->setAccessible(true); echo wp_json_encode($r->invoke(null));')
 check 'Connections list has the OAuth row'   "$LIST" "~\"kind\":\"oauth\",\"user_id\":$ADMIN_ID,\"uuid\":\"oauth:$FAM\""
 
 # --- Refresh rotation + reuse detection
@@ -158,7 +158,7 @@ check 'revoked grant settings forgotten'     "$(wpe "echo isset(get_user_meta(1,
 TU=$(wpe 'echo wp_insert_user(["user_login" => "cm-oauth-t-" . wp_generate_password(6, false, false), "user_pass" => "Cm-oauth-test-1", "role" => "editor"]);')
 trap 'rm -f "$JAR"; revoke "$MCP_UUID"; revoke "$PLAIN_UUID"; wpe "require_once ABSPATH . \"wp-admin/includes/user.php\"; wp_delete_user($TU);" >/dev/null' EXIT
 mintfor() { # user_id -> access token bound to the MCP URL (CLI may see another host)
-    wpe "\$m = new ReflectionMethod('CM_MCP_OAuth', 'issue'); \$m->setAccessible(true); \$f = bin2hex(random_bytes(16)); CM_MCP_Server::save_connection_settings($1, 'oauth:' . \$f, 'content', ['content']); \$t = \$m->invoke(null, \$f, $1, hash('sha256', 't'), 'probe', 'content')->get_data()['access_token']; global \$wpdb; \$wpdb->update(\$wpdb->prefix . 'cm_mcp_oauth_tokens', ['resource' => '$MCP'], ['family' => \$f]); echo \$t;"
+    wpe "\$m = new ReflectionMethod('WPSHQ_MCP_OAuth', 'issue'); \$m->setAccessible(true); \$f = bin2hex(random_bytes(16)); WPSHQ_MCP_Server::save_connection_settings($1, 'oauth:' . \$f, 'content', ['content']); \$t = \$m->invoke(null, \$f, $1, hash('sha256', 't'), 'probe', 'content')->get_data()['access_token']; global \$wpdb; \$wpdb->update(\$wpdb->prefix . 'cm_mcp_oauth_tokens', ['resource' => '$MCP'], ['family' => \$f]); echo \$t;"
 }
 tcount() { wpe "global \$wpdb; echo (int) \$wpdb->get_var(\"SELECT COUNT(*) FROM {\$wpdb->prefix}cm_mcp_oauth_tokens WHERE user_id = $TU\");"; }
 AT4=$(mintfor "$TU")
@@ -169,12 +169,12 @@ wpe "global \$wpdb; \$wpdb->query(\"UPDATE {\$wpdb->prefix}cm_mcp_oauth_tokens S
 check 'other-audience token is 401'          "$(curl -sk -D - -o /dev/null -H "Authorization: Bearer $AT5" -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"ping"}' "$MCP")" '~error="invalid_token"'
 check 'other-audience token signs nobody in' "$(curl -sk -H "Authorization: Bearer $AT5" --data-urlencode rest_route=/wp/v2/users/me "$MCP")" '!~"slug"'
 check 'rejected token cannot read settings' "$(curl -sk -H "Authorization: Bearer $AT5" -H 'Content-Type: application/x-www-form-urlencoded' --data rest_route=/wp/v2/settings "$MCP")" '!~"timezone"'
-wpe "global \$wpdb; CM_MCP_OAuth::revoke_family(\$wpdb->get_var(\"SELECT family FROM {\$wpdb->prefix}cm_mcp_oauth_tokens WHERE token_hash = '$H5'\"));" >/dev/null
+wpe "global \$wpdb; WPSHQ_MCP_OAuth::revoke_family(\$wpdb->get_var(\"SELECT family FROM {\$wpdb->prefix}cm_mcp_oauth_tokens WHERE token_hash = '$H5'\"));" >/dev/null
 wpe "(new WP_User($TU))->set_role('subscriber');" >/dev/null
 check 'demoted user token is 401'            "$(curl -sk -D - -o /dev/null -H "Authorization: Bearer $AT4" -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' "$MCP")" '~error="invalid_token"'
 # A subscriber's consent page must not fetch the client's metadata URL (SSRF surface).
 CIMD="https://example.com/cm-oauth-probe-$RANDOM"
-check 'subscriber cannot consent'            "$(wpe "wp_set_current_user($TU); \$_GET = ['response_type' => 'code', 'client_id' => '$CIMD', 'redirect_uri' => '$REDIRECT', 'code_challenge' => '$CHALLENGE', 'code_challenge_method' => 'S256']; CM_MCP_OAuth::render_consent();")" '~cannot connect AI apps'
+check 'subscriber cannot consent'            "$(wpe "wp_set_current_user($TU); \$_GET = ['response_type' => 'code', 'client_id' => '$CIMD', 'redirect_uri' => '$REDIRECT', 'code_challenge' => '$CHALLENGE', 'code_challenge_method' => 'S256']; WPSHQ_MCP_OAuth::render_consent();")" '~cannot connect AI apps'
 check 'subscriber triggers no CIMD fetch'    "$(wpe "echo false === get_transient('cm_mcp_oauth_cimd_' . hash('sha256', '$CIMD')) ? 'none' : 'fetched';")" none
 wpe "(new WP_User($TU))->set_role('editor');" >/dev/null
 mintfor "$TU" >/dev/null

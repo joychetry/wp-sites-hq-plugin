@@ -8,14 +8,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_activate_theme_ability' );
-function cm_register_activate_theme_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_activate_theme_ability' );
+function wpshq_register_activate_theme_ability() {
 	wp_register_ability(
 		'classic-monks/activate-theme',
 		array(
@@ -44,7 +43,7 @@ function cm_register_activate_theme_ability() {
 					'check'    => array( 'type' => 'string' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_activate_theme',
+			'execute_callback'    => 'wpshq_execute_activate_theme',
 			'permission_callback' => function () {
 				return current_user_can( 'switch_themes' );
 			},
@@ -55,20 +54,20 @@ function cm_register_activate_theme_ability() {
 					'idempotent'   => true,
 					'instructions' => 'Changes the look of the whole site. Confirm with the user first.',
 				),
-				'cm_preview_callback' => 'cm_preview_active_theme',
+				'cm_preview_callback' => 'wpshq_preview_active_theme',
 				// The undo data is this ability's own input with the previous theme.
-				'cm_undo_callback'    => 'cm_execute_activate_theme',
+				'cm_undo_callback'    => 'wpshq_execute_activate_theme',
 				'show_in_rest'        => true,
 			),
 		)
 	);
 }
 
-function cm_preview_active_theme( $input ) {
+function wpshq_preview_active_theme( $input ) {
 	return array( 'active' => get_stylesheet() );
 }
 
-function cm_execute_activate_theme( $input ) {
+function wpshq_execute_activate_theme( $input ) {
 	// Re-checked here because this also runs as the undo callback.
 	if ( ! current_user_can( 'switch_themes' ) ) {
 		return new WP_Error( 'forbidden', __( 'You are not allowed to switch themes.', 'wp-sites-hq' ) );
@@ -86,7 +85,7 @@ function cm_execute_activate_theme( $input ) {
 	$check    = 'unchanged';
 	if ( $previous !== $theme->get_stylesheet() ) {
 		switch_theme( $theme->get_stylesheet() );
-		$check = cm_activate_theme_fatal_check();
+		$check = wpshq_activate_theme_fatal_check();
 		if ( is_wp_error( $check ) ) {
 			switch_theme( $previous );
 			return new WP_Error(
@@ -100,8 +99,8 @@ function cm_execute_activate_theme( $input ) {
 			);
 		}
 		$check = true === $check ? 'passed' : 'skipped';
-		if ( class_exists( 'CM_AI_Activity_Log' ) ) {
-			CM_AI_Activity_Log::set_undo( 'classic-monks/activate-theme', array( 'stylesheet' => $previous ) );
+		if ( class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+			WPSHQ_AI_Activity_Log::set_undo( 'classic-monks/activate-theme', array( 'stylesheet' => $previous ) );
 		}
 	}
 
@@ -122,7 +121,7 @@ function cm_execute_activate_theme( $input ) {
  * @param bool   $local Whether this is a local site.
  * @return string
  */
-function cm_activate_theme_url_for_host( $url, $host, $local ) {
+function wpshq_activate_theme_url_for_host( $url, $host, $local ) {
 	$same = strtolower( (string) preg_replace( '/:\d+$/', '', $host ) ) === strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
 	if ( preg_match( '/^[A-Za-z0-9.-]+(:\d+)?$/', $host ) && ( $same || $local ) ) {
 		$url = preg_replace( '#^(https?://)[^/]+#', '${1}' . $host, $url );
@@ -135,22 +134,22 @@ function cm_activate_theme_url_for_host( $url, $host, $local ) {
  *
  * @return true|null|WP_Error True when it rendered, null when the request failed, WP_Error on a fatal error.
  */
-function cm_activate_theme_fatal_check() {
+function wpshq_activate_theme_fatal_check() {
 	$host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
-	$url  = cm_activate_theme_url_for_host( home_url( '/' ), $host, 'local' === wp_get_environment_type() );
+	$url  = wpshq_activate_theme_url_for_host( home_url( '/' ), $host, 'local' === wp_get_environment_type() );
 	/**
 	 * Filters the URL fetched after a theme switch to detect a fatal error.
 	 *
 	 * @param string $url Home page URL.
 	 */
-	$url = (string) apply_filters( 'cm_theme_sandbox_check_url', $url );
+	$url = (string) apply_filters( 'wpshq_theme_sandbox_check_url', $url );
 
 	$response = wp_remote_get(
 		add_query_arg( 'cm_theme_check', wp_rand( 1000, 999999 ), $url ),
 		array(
 			'timeout'     => 20,
 			'redirection' => 3,
-			'sslverify'   => apply_filters( 'https_local_ssl_verify', false ),
+			'sslverify'   => apply_filters( 'https_local_ssl_verify', false ), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook
 			'headers'     => array( 'Cache-Control' => 'no-cache' ),
 		)
 	);

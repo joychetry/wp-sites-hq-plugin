@@ -9,7 +9,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,8 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_delete_post_ability' );
-function cm_register_delete_post_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_delete_post_ability' );
+function wpshq_register_delete_post_ability() {
 	wp_register_ability(
 		'classic-monks/delete-post',
 		array(
@@ -75,7 +74,7 @@ function cm_register_delete_post_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_delete_post',
+			'execute_callback'    => 'wpshq_execute_delete_post',
 			'permission_callback' => function ( $input ) {
 				if ( empty( $input['post_id'] ) ) {
 					return false;
@@ -83,8 +82,8 @@ function cm_register_delete_post_ability() {
 				return current_user_can( 'delete_post', $input['post_id'] );
 			},
 			'meta'                => array(
-				'cm_preview_callback' => 'cm_preview_post_state',
-				'cm_always_approve'   => 'cm_delete_post_always_approve',
+				'cm_preview_callback' => 'wpshq_preview_post_state',
+				'cm_always_approve'   => 'wpshq_delete_post_always_approve',
 				'annotations'         => array(
 					'readonly'     => false,
 					'destructive'  => true, // This is a destructive operation
@@ -104,7 +103,7 @@ function cm_register_delete_post_ability() {
  * @param array $input Input parameters.
  * @return array|WP_Error Deletion result or error.
  */
-function cm_execute_delete_post( $input ) {
+function wpshq_execute_delete_post( $input ) {
 	$post_id = absint( $input['post_id'] );
 	$force   = isset( $input['force'] ) && $input['force'] === true;
 
@@ -147,7 +146,7 @@ function cm_execute_delete_post( $input ) {
 /**
  * What an approver sees for a post change, and the drift check before it runs.
  */
-function cm_preview_post_state( $input ) {
+function wpshq_preview_post_state( $input ) {
 	$post = get_post( absint( $input['post_id'] ?? $input['id'] ?? 0 ) );
 	if ( ! $post ) {
 		return null;
@@ -165,6 +164,6 @@ function cm_preview_post_state( $input ) {
 /**
  * A permanent delete can't be undone, so trusted connections still ask; trashing doesn't.
  */
-function cm_delete_post_always_approve( $input ) {
+function wpshq_delete_post_always_approve( $input ) {
 	return ! empty( $input['force'] );
 }

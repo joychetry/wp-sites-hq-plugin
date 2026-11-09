@@ -5,19 +5,18 @@
  * Records every classic-monks/* ability call, whichever path it took (MCP, direct
  * core REST, WP-CLI), plus other plugins' abilities run over MCP, from core's ability
  * execution hooks. Approval requests are rows here too. Shown on the host plugin's connection screen.
- * Read-only abilities are skipped unless the cm_ai_log_reads filter says otherwise.
+ * Read-only abilities are skipped unless the wpshq_ai_log_reads filter says otherwise.
  *
  * @package ClassicMonks
  * @subpackage MonksCentral
  * @requires WordPress 7.1+ (wp_ability_invoked)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class CM_AI_Activity_Log {
+class WPSHQ_AI_Activity_Log {
 
 	const DB_VERSION        = '1.1.0';
 	const DB_VERSION_OPTION = 'cm_ai_log_db_version';
@@ -86,7 +85,7 @@ class CM_AI_Activity_Log {
 			);
 		}
 
-		$oauth = class_exists( 'CM_MCP_OAuth' ) ? CM_MCP_OAuth::current() : null;
+		$oauth = class_exists( 'WPSHQ_MCP_OAuth' ) ? WPSHQ_MCP_OAuth::current() : null;
 		if ( $oauth ) {
 			return array(
 				'source' => 'mcp',
@@ -98,7 +97,7 @@ class CM_AI_Activity_Log {
 		$uuid = rest_get_authenticated_app_password();
 		if ( $uuid ) {
 			$item = WP_Application_Passwords::get_user_application_password( get_current_user_id(), $uuid );
-			$mcp  = $item && defined( 'CM_MCP_APP_ID' ) && CM_MCP_APP_ID === ( $item['app_id'] ?? '' );
+			$mcp  = $item && defined( 'WPSHQ_MCP_APP_ID' ) && WPSHQ_MCP_APP_ID === ( $item['app_id'] ?? '' );
 			return array(
 				'source' => $mcp ? 'mcp' : 'rest',
 				'uuid'   => (string) $uuid,
@@ -134,14 +133,14 @@ class CM_AI_Activity_Log {
 
 	private static function should_log( $name, $ability ) {
 		// Other plugins' abilities are recorded only when an MCP connection runs them; their own UIs are not ours to log.
-		if ( 0 !== strpos( $name, 'classic-monks/' ) && ! ( function_exists( 'cm_mcp_is_mcp_credential' ) && cm_mcp_is_mcp_credential() ) ) {
+		if ( 0 !== strpos( $name, 'classic-monks/' ) && ! ( function_exists( 'wpshq_mcp_is_mcp_credential' ) && wpshq_mcp_is_mcp_credential() ) ) {
 			return false;
 		}
-		$annotations = class_exists( 'CM_MCP_Server' ) ? CM_MCP_Server::annotations( $ability ) : (array) $ability->get_meta_item( 'annotations', array() );
+		$annotations = class_exists( 'WPSHQ_MCP_Server' ) ? WPSHQ_MCP_Server::annotations( $ability ) : (array) $ability->get_meta_item( 'annotations', array() );
 		/**
 		 * Whether read-only abilities are logged too. Off by default to keep the log about changes.
 		 */
-		return empty( $annotations['readonly'] ) || apply_filters( 'cm_ai_log_reads', false );
+		return empty( $annotations['readonly'] ) || apply_filters( 'wpshq_ai_log_reads', false );
 	}
 
 	public static function on_invoked( $name, $input, $ability ) {
@@ -512,7 +511,7 @@ class CM_AI_Activity_Log {
 			 * @param string $name   Ability name.
 			 * @param string $status ok|error|denied|pending.
 			 */
-			do_action( 'cm_ai_operation_logged', $id, $name, $status );
+			do_action( 'wpshq_ai_operation_logged', $id, $name, $status );
 			return;
 		}
 	}
@@ -630,8 +629,8 @@ class CM_AI_Activity_Log {
 			if ( in_array( $row['status'], array( 'pending', 'approved' ), true ) && is_array( $approval ) && $approval['expires'] < time() ) {
 				$row['status'] = 'expired';
 			}
-			if ( 'pending' === $row['status'] && class_exists( 'CM_MCP_Approvals' ) ) {
-				$row['approve_url'] = CM_MCP_Approvals::approve_url( $row['id'] );
+			if ( 'pending' === $row['status'] && class_exists( 'WPSHQ_MCP_Approvals' ) ) {
+				$row['approve_url'] = WPSHQ_MCP_Approvals::approve_url( $row['id'] );
 			}
 			$row['can_undo'] = ! empty( $row['undo_json'] ) && 'ok' === $row['status'];
 			unset( $row['undo_json'], $row['approval_json'] );
@@ -645,4 +644,4 @@ class CM_AI_Activity_Log {
 	}
 }
 
-CM_AI_Activity_Log::init();
+WPSHQ_AI_Activity_Log::init();

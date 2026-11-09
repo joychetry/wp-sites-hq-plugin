@@ -8,14 +8,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_uninstall_plugin_ability' );
-function cm_register_uninstall_plugin_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_uninstall_plugin_ability' );
+function wpshq_register_uninstall_plugin_ability() {
 	wp_register_ability(
 		'classic-monks/uninstall-plugin',
 		array(
@@ -51,7 +50,7 @@ function cm_register_uninstall_plugin_ability() {
 					'uninstalled' => array( 'type' => 'boolean' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_uninstall_plugin',
+			'execute_callback'    => 'wpshq_execute_uninstall_plugin',
 			// delete_plugins is denied by core when DISALLOW_FILE_MODS is set.
 			'permission_callback' => function () {
 				return current_user_can( 'delete_plugins' );
@@ -63,7 +62,7 @@ function cm_register_uninstall_plugin_ability() {
 					'idempotent'   => true,
 					'instructions' => 'Cannot be undone and may delete the plugin\'s data. Confirm with the user first.',
 				),
-				'cm_preview_callback' => 'cm_preview_installed_plugin_state',
+				'cm_preview_callback' => 'wpshq_preview_installed_plugin_state',
 				'cm_always_approve'   => true,
 				'show_in_rest'        => true,
 			),
@@ -74,21 +73,21 @@ function cm_register_uninstall_plugin_ability() {
 /**
  * The plugin about to be removed, for approvals and drift checks.
  */
-function cm_preview_installed_plugin_state( $input ) {
-	$resolved = cm_ai_resolve_installed_plugin( $input );
-	return is_wp_error( $resolved ) ? null : cm_ai_get_plugin_state( $resolved['plugin_file'], $resolved['plugin_data'] );
+function wpshq_preview_installed_plugin_state( $input ) {
+	$resolved = wpshq_ai_resolve_installed_plugin( $input );
+	return is_wp_error( $resolved ) ? null : wpshq_ai_get_plugin_state( $resolved['plugin_file'], $resolved['plugin_data'] );
 }
 
-function cm_execute_uninstall_plugin( $input ) {
-	$resolved = cm_ai_resolve_installed_plugin( $input );
+function wpshq_execute_uninstall_plugin( $input ) {
+	$resolved = wpshq_ai_resolve_installed_plugin( $input );
 	if ( is_wp_error( $resolved ) ) {
 		return $resolved;
 	}
 
 	$file  = $resolved['plugin_file'];
-	$state = cm_ai_get_plugin_state( $file, $resolved['plugin_data'] );
+	$state = wpshq_ai_get_plugin_state( $file, $resolved['plugin_data'] );
 
-	if ( cm_ai_is_current_plugin( $file ) ) {
+	if ( wpshq_ai_is_current_plugin( $file ) ) {
 		return new WP_Error( 'cm_plugin_self_uninstall', __( 'This plugin runs the connection, so it cannot be uninstalled over it.', 'wp-sites-hq' ) );
 	}
 	if ( $state['active'] ) {

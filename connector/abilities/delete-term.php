@@ -9,7 +9,6 @@
  * @since 2.0.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,8 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 2.0.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_delete_term_ability' );
-function cm_register_delete_term_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_delete_term_ability' );
+function wpshq_register_delete_term_ability() {
 	wp_register_ability(
 		'classic-monks/delete-term',
 		array(
@@ -54,20 +53,20 @@ function cm_register_delete_term_ability() {
 					'deleted'  => array( 'type' => 'boolean' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_delete_term',
+			'execute_callback'    => 'wpshq_execute_delete_term',
 			'permission_callback' => function ( $input ) {
 				// delete_term maps to the taxonomy's own delete_terms capability.
 				return ! empty( $input['term_id'] ) && current_user_can( 'delete_term', absint( $input['term_id'] ) );
 			},
 			'meta'                => array(
-				'cm_preview_callback' => 'cm_preview_delete_term',
+				'cm_preview_callback' => 'wpshq_preview_delete_term',
 				'annotations'         => array(
 					'readonly'     => false,
 					'destructive'  => true,
 					'idempotent'   => true,
 					'instructions' => 'Deletes a term permanently. Confirm with the user first. Use get-terms to check the term and its post count.',
 				),
-				'cm_undo_callback'    => 'cm_undo_delete_term',
+				'cm_undo_callback'    => 'wpshq_undo_delete_term',
 				'show_in_rest'        => true,
 			),
 		)
@@ -81,7 +80,7 @@ function cm_register_delete_term_ability() {
  * @param array $input Input parameters.
  * @return array|WP_Error Deleted term info or error.
  */
-function cm_execute_delete_term( $input ) {
+function wpshq_execute_delete_term( $input ) {
 	$term = get_term( absint( $input['term_id'] ) );
 	if ( ! $term instanceof WP_Term ) {
 		return new WP_Error( 'term_not_found', __( 'Term not found.', 'wp-sites-hq' ) );
@@ -105,8 +104,8 @@ function cm_execute_delete_term( $input ) {
 		)
 	);
 
-	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
-		CM_AI_Activity_Log::set_undo(
+	if ( class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+		WPSHQ_AI_Activity_Log::set_undo(
 			'classic-monks/delete-term',
 			array(
 				'taxonomy'    => $term->taxonomy,
@@ -144,7 +143,7 @@ function cm_execute_delete_term( $input ) {
 /**
  * Current state of the term, for the approval screen.
  */
-function cm_preview_delete_term( $input ) {
+function wpshq_preview_delete_term( $input ) {
 	$term = get_term( absint( $input['term_id'] ?? 0 ) );
 	if ( ! $term instanceof WP_Term ) {
 		return null;
@@ -161,7 +160,7 @@ function cm_preview_delete_term( $input ) {
 /**
  * Recreate the term (new ID) and re-assign it to the items and child terms it had.
  */
-function cm_undo_delete_term( $undo ) {
+function wpshq_undo_delete_term( $undo ) {
 	$tax = get_taxonomy( $undo['taxonomy'] ?? '' );
 	if ( ! $tax || ! current_user_can( $tax->cap->manage_terms ) || ! current_user_can( $tax->cap->assign_terms ) ) {
 		return new WP_Error( 'forbidden', __( 'You are not allowed to restore this term.', 'wp-sites-hq' ) );

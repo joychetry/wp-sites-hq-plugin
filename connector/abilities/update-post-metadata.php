@@ -9,7 +9,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,8 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_update_post_metadata_ability' );
-function cm_register_update_post_metadata_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_update_post_metadata_ability' );
+function wpshq_register_update_post_metadata_ability() {
 	wp_register_ability(
 		'classic-monks/update-post-metadata',
 		array(
@@ -64,7 +63,7 @@ function cm_register_update_post_metadata_ability() {
 					'success'        => array( 'type' => 'boolean' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_update_post_metadata',
+			'execute_callback'    => 'wpshq_execute_update_post_metadata',
 			'permission_callback' => function ( $input ) {
 				if ( empty( $input['post_id'] ) ) {
 					return false;
@@ -78,7 +77,7 @@ function cm_register_update_post_metadata_ability() {
 					'idempotent'   => true, // Same update yields same result
 					'instructions' => 'Updates post meta/custom fields. Use get-post-meta to read values first.',
 				),
-				'cm_undo_callback' => 'cm_undo_update_post_metadata',
+				'cm_undo_callback' => 'wpshq_undo_update_post_metadata',
 				'show_in_rest'     => true,
 			),
 		)
@@ -92,7 +91,7 @@ function cm_register_update_post_metadata_ability() {
  * @param array $input Input parameters.
  * @return array|WP_Error Update result or error.
  */
-function cm_execute_update_post_metadata( $input ) {
+function wpshq_execute_update_post_metadata( $input ) {
 	$post_id = absint( $input['post_id'] );
 	$post    = get_post( $post_id );
 
@@ -129,8 +128,8 @@ function cm_execute_update_post_metadata( $input ) {
 		);
 	}
 
-	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
-		CM_AI_Activity_Log::set_undo(
+	if ( class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+		WPSHQ_AI_Activity_Log::set_undo(
 			'classic-monks/update-post-metadata',
 			array(
 				'post_id' => $post_id,
@@ -156,7 +155,7 @@ function cm_execute_update_post_metadata( $input ) {
 /**
  * Restore a meta value from the AI Activity log.
  */
-function cm_undo_update_post_metadata( $undo ) {
+function wpshq_undo_update_post_metadata( $undo ) {
 	if ( ! current_user_can( 'edit_post', $undo['post_id'] ) ) {
 		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this post.', 'wp-sites-hq' ) );
 	}

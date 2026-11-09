@@ -10,14 +10,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 7.1+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_replace_media_abilities' );
-function cm_register_replace_media_abilities() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_replace_media_abilities' );
+function wpshq_register_replace_media_abilities() {
 	$result = array(
 		'type'       => 'object',
 		'properties' => array(
@@ -44,7 +43,7 @@ function cm_register_replace_media_abilities() {
 			'destructive' => true,
 			'idempotent'  => false,
 		),
-		'cm_undo_callback' => 'cm_undo_replace_media',
+		'cm_undo_callback' => 'wpshq_undo_replace_media',
 		'show_in_rest'     => true,
 	);
 
@@ -97,8 +96,8 @@ function cm_register_replace_media_abilities() {
 				'additionalProperties' => false,
 			),
 			'output_schema'       => $result,
-			'execute_callback'    => 'cm_execute_replace_media',
-			'permission_callback' => 'cm_can_edit_media',
+			'execute_callback'    => 'wpshq_execute_replace_media',
+			'permission_callback' => 'wpshq_can_edit_media',
 			'meta'                => $meta,
 		)
 	);
@@ -125,17 +124,17 @@ function cm_register_replace_media_abilities() {
 				'additionalProperties' => false,
 			),
 			'output_schema'       => $result,
-			'execute_callback'    => 'cm_execute_restore_replaced_media',
-			'permission_callback' => 'cm_can_edit_media',
+			'execute_callback'    => 'wpshq_execute_restore_replaced_media',
+			'permission_callback' => 'wpshq_can_edit_media',
 			'meta'                => $meta,
 		)
 	);
 }
 
-function cm_execute_replace_media( $input ) {
+function wpshq_execute_replace_media( $input ) {
 	$id = absint( $input['id'] );
 	// The attachment is part of the key, so an upload started for one item cannot finish on another.
-	$upload = cm_ai_receive_chunk( $input, 'cm_replace_' . $id . '_' );
+	$upload = wpshq_ai_receive_chunk( $input, 'cm_replace_' . $id . '_' );
 	if ( is_wp_error( $upload ) ) {
 		return $upload;
 	}
@@ -151,8 +150,8 @@ function cm_execute_replace_media( $input ) {
 	require_once ABSPATH . 'wp-admin/includes/image.php';
 	require_once dirname( __DIR__ ) . '/media-import-helpers.php';
 
-	$file = cm_ai_prepare_media_file( $state['path'], $state['name'] );
-	if ( ! is_wp_error( $file ) && ! cm_media_same_family( get_post_mime_type( $id ), $file['type'] ) ) {
+	$file = wpshq_ai_prepare_media_file( $state['path'], $state['name'] );
+	if ( ! is_wp_error( $file ) && ! wpshq_media_same_family( get_post_mime_type( $id ), $file['type'] ) ) {
 		$file = new WP_Error(
 			'cm_media_type_mismatch',
 			0 === strpos( (string) get_post_mime_type( $id ), 'image/' ) && 'image/svg+xml' !== get_post_mime_type( $id )
@@ -168,17 +167,17 @@ function cm_execute_replace_media( $input ) {
 	}
 
 	$name = $file['name'];
-	$old  = cm_media_original_path( $id );
+	$old  = wpshq_media_original_path( $id );
 	if ( empty( $input['keep_name'] ) && $old ) {
 		$name = pathinfo( $old, PATHINFO_FILENAME ) . '.' . pathinfo( $name, PATHINFO_EXTENSION );
 	}
-	$token = cm_media_swap( $id, $state['path'], $name, $file['type'] );
+	$token = wpshq_media_swap( $id, $state['path'], $name, $file['type'] );
 	if ( is_wp_error( $token ) ) {
 		wp_delete_file( $state['path'] );
 		return $token;
 	}
-	if ( $token && class_exists( 'CM_AI_Activity_Log' ) ) {
-		CM_AI_Activity_Log::set_undo(
+	if ( $token && class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+		WPSHQ_AI_Activity_Log::set_undo(
 			'classic-monks/replace-media',
 			array(
 				'id'    => $id,
@@ -191,18 +190,18 @@ function cm_execute_replace_media( $input ) {
 			'upload_id' => $upload['id'],
 			'received'  => $upload['size'],
 		),
-		cm_replaced_media_result( $id )
+		wpshq_replaced_media_result( $id )
 	);
 }
 
-function cm_execute_restore_replaced_media( $input ) {
+function wpshq_execute_restore_replaced_media( $input ) {
 	$id    = absint( $input['id'] );
-	$token = cm_restore_replaced_media( $id );
+	$token = wpshq_restore_replaced_media( $id );
 	if ( is_wp_error( $token ) ) {
 		return $token;
 	}
-	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
-		CM_AI_Activity_Log::set_undo(
+	if ( class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+		WPSHQ_AI_Activity_Log::set_undo(
 			'classic-monks/restore-replaced-media',
 			array(
 				'id'    => $id,
@@ -210,29 +209,29 @@ function cm_execute_restore_replaced_media( $input ) {
 			)
 		);
 	}
-	return cm_replaced_media_result( $id );
+	return wpshq_replaced_media_result( $id );
 }
 
 /**
  * Undo of a replace or a restore: swap the backup back, unless the file was swapped again since.
  */
-function cm_undo_replace_media( $undo ) {
+function wpshq_undo_replace_media( $undo ) {
 	$id = absint( $undo['id'] ?? 0 );
-	if ( ! cm_can_edit_media( array( 'id' => $id ) ) ) {
+	if ( ! wpshq_can_edit_media( array( 'id' => $id ) ) ) {
 		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this media item.', 'wp-sites-hq' ) );
 	}
 	$backup = get_post_meta( $id, '_cm_replaced_backup', true );
 	if ( empty( $undo['token'] ) || ! is_array( $backup ) || $backup['token'] !== $undo['token'] ) {
 		return new WP_Error( 'cm_undo_drift', __( 'This file was replaced or restored again since, so this change can no longer be undone.', 'wp-sites-hq' ) );
 	}
-	$token = cm_restore_replaced_media( $id );
+	$token = wpshq_restore_replaced_media( $id );
 	return is_wp_error( $token ) ? $token : true;
 }
 
 /**
  * Images (not SVG) can replace each other; anything else only the same type.
  */
-function cm_media_same_family( $old, $new ) {
+function wpshq_media_same_family( $old, $new ) {
 	$raster = function ( $mime ) {
 		return 0 === strpos( (string) $mime, 'image/' ) && 'image/svg+xml' !== $mime;
 	};
@@ -242,7 +241,7 @@ function cm_media_same_family( $old, $new ) {
 /**
  * The attachment's file before WordPress scaled it down, or its file.
  */
-function cm_media_original_path( $id ) {
+function wpshq_media_original_path( $id ) {
 	$path = wp_attachment_is_image( $id ) ? wp_get_original_image_path( $id ) : get_attached_file( $id );
 	return $path ? $path : '';
 }
@@ -250,19 +249,19 @@ function cm_media_original_path( $id ) {
 /**
  * Swaps the backup back in; the current file becomes the backup. Returns the new backup's token.
  */
-function cm_restore_replaced_media( $id ) {
+function wpshq_restore_replaced_media( $id ) {
 	$backup = get_post_meta( $id, '_cm_replaced_backup', true );
-	$src    = cm_replaced_backup_path( $id, $backup );
+	$src    = wpshq_replaced_backup_path( $id, $backup );
 	if ( ! $src || ! is_file( $src ) ) {
 		return new WP_Error( 'cm_no_backup', __( 'This media item has no earlier file to restore.', 'wp-sites-hq' ) );
 	}
-	return cm_media_swap( $id, $src, $backup['name'], $backup['mime'] );
+	return wpshq_media_swap( $id, $src, $backup['name'], $backup['mime'] );
 }
 
 /**
  * The backup's full path, only inside uploads/cm-replaced/<id>/ ('' for anything else).
  */
-function cm_replaced_backup_path( $id, $backup ) {
+function wpshq_replaced_backup_path( $id, $backup ) {
 	$file = is_array( $backup ) ? (string) ( $backup['file'] ?? '' ) : '';
 	if ( 0 !== strpos( $file, 'cm-replaced/' . absint( $id ) . '/' ) || false !== strpos( $file, '..' ) ) {
 		return '';
@@ -273,9 +272,9 @@ function cm_replaced_backup_path( $id, $backup ) {
 /**
  * One swap per attachment at a time, so two replaces can't delete each other's files.
  *
- * @return string|WP_Error As cm_media_swap_unlocked().
+ * @return string|WP_Error As wpshq_media_swap_unlocked().
  */
-function cm_media_swap( $id, $src, $name, $mime ) {
+function wpshq_media_swap( $id, $src, $name, $mime ) {
 	$lock = 'cm_media_swap_' . absint( $id );
 	if ( ! add_option( $lock, time(), '', false ) ) {
 		if ( (int) get_option( $lock ) > time() - 5 * MINUTE_IN_SECONDS ) {
@@ -284,7 +283,7 @@ function cm_media_swap( $id, $src, $name, $mime ) {
 		update_option( $lock, time(), false ); // A run that died left it behind.
 	}
 	try {
-		return cm_media_swap_unlocked( $id, $src, $name, $mime );
+		return wpshq_media_swap_unlocked( $id, $src, $name, $mime );
 	} finally {
 		delete_option( $lock );
 	}
@@ -297,10 +296,10 @@ function cm_media_swap( $id, $src, $name, $mime ) {
  *
  * @return string|WP_Error The backup's token, '' when there was no file to keep.
  */
-function cm_media_swap_unlocked( $id, $src, $name, $mime ) {
+function wpshq_media_swap_unlocked( $id, $src, $name, $mime ) {
 	require_once ABSPATH . 'wp-admin/includes/image.php';
 	$uploads = wp_upload_dir();
-	$old     = cm_media_original_path( $id );
+	$old     = wpshq_media_original_path( $id );
 	$dir     = $old ? dirname( $old ) : $uploads['path'];
 	$before  = get_post_meta( $id, '_cm_replaced_backup', true );
 	$token   = wp_generate_password( 12, false );
@@ -330,7 +329,7 @@ function cm_media_swap_unlocked( $id, $src, $name, $mime ) {
 	// The backup is recorded before anything is deleted, so a run cut short (a time limit while making
 	// sizes) still points at the file it kept, and restore brings back the right one.
 	$old_mime    = get_post_mime_type( $id );
-	$before_path = cm_replaced_backup_path( $id, $before );
+	$before_path = wpshq_replaced_backup_path( $id, $before );
 	if ( $before_path && $before_path !== $keep ) {
 		wp_delete_file( $before_path );
 	}
@@ -383,7 +382,7 @@ function cm_media_swap_unlocked( $id, $src, $name, $mime ) {
 	return $keep ? $token : '';
 }
 
-function cm_replaced_media_result( $id ) {
+function wpshq_replaced_media_result( $id ) {
 	clean_post_cache( $id );
 	$meta = wp_get_attachment_metadata( $id );
 	$path = get_attached_file( $id );
@@ -400,8 +399,8 @@ function cm_replaced_media_result( $id ) {
 }
 
 // A deleted attachment takes its backup with it.
-add_action( 'delete_attachment', 'cm_delete_replaced_media_backup' );
-function cm_delete_replaced_media_backup( $id ) {
+add_action( 'delete_attachment', 'wpshq_delete_replaced_media_backup' );
+function wpshq_delete_replaced_media_backup( $id ) {
 	$dir = wp_upload_dir()['basedir'] . '/cm-replaced/' . absint( $id );
 	foreach ( (array) glob( $dir . '/*' ) as $file ) {
 		wp_delete_file( $file );

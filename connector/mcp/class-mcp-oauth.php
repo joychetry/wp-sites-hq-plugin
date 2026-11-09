@@ -18,13 +18,12 @@
  * @package ClassicMonks
  * @subpackage MonksCentral
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class CM_MCP_OAuth {
+class WPSHQ_MCP_OAuth {
 
 	const DB_VERSION        = '1.1.0';
 	const DB_VERSION_OPTION = 'cm_mcp_oauth_db_version';
@@ -120,7 +119,7 @@ class CM_MCP_OAuth {
 
 	/** The MCP endpoint URL is the protected resource (RFC 8707 audience). */
 	public static function resource() {
-		return CM_MCP_Server::endpoint_url();
+		return WPSHQ_MCP_Server::endpoint_url();
 	}
 
 	public static function resource_metadata_url() {
@@ -134,7 +133,7 @@ class CM_MCP_OAuth {
 	}
 
 	private static function endpoint( $name ) {
-		return rest_url( CM_MCP_Server::REST_NAMESPACE . '/oauth/' . $name );
+		return rest_url( WPSHQ_MCP_Server::REST_NAMESPACE . '/oauth/' . $name );
 	}
 
 	/** Lowercase scheme and host, no trailing slash, before comparing resource indicators. */
@@ -214,7 +213,7 @@ class CM_MCP_OAuth {
 	 * ------------------------------------------------------------------ */
 
 	public static function register_routes() {
-		$ns = CM_MCP_Server::REST_NAMESPACE;
+		$ns = WPSHQ_MCP_Server::REST_NAMESPACE;
 		register_rest_route(
 			$ns,
 			'/oauth/authorize',
@@ -613,10 +612,10 @@ class CM_MCP_OAuth {
 		}
 		$fields['_wpnonce'] = wp_create_nonce( self::nonce_action( $q ) );
 		$scopes             = array();
-		foreach ( CM_MCP_Server::scopes() as $key => $label ) {
+		foreach ( WPSHQ_MCP_Server::scopes() as $key => $label ) {
 			$scopes[ $key ] = array(
 				'label'       => $label,
-				'description' => CM_MCP_Server::scope_descriptions()[ $key ] ?? '',
+				'description' => WPSHQ_MCP_Server::scope_descriptions()[ $key ] ?? '',
 			);
 		}
 		$warning = '';
@@ -634,8 +633,8 @@ class CM_MCP_OAuth {
 			'fields'           => $fields,
 			'scopes'           => $scopes,
 			'default_scope'    => 'content',
-			'toolsets'         => CM_MCP_Server::toolsets(),
-			'default_toolsets' => CM_MCP_Server::default_toolsets(),
+			'toolsets'         => WPSHQ_MCP_Server::toolsets(),
+			'default_toolsets' => WPSHQ_MCP_Server::default_toolsets(),
 			'operator'         => current_user_can( 'manage_options' ) && self::operator_possible( $ctx['redirect_uri'] ),
 		);
 	}
@@ -662,16 +661,16 @@ class CM_MCP_OAuth {
 		}
 
 		$scope = sanitize_key( (string) ( $q['scope'] ?? '' ) );
-		if ( ! isset( CM_MCP_Server::scopes()[ $scope ] ) ) {
+		if ( ! isset( WPSHQ_MCP_Server::scopes()[ $scope ] ) ) {
 			$scope = 'content';
 		}
-		$toolsets = CM_MCP_Server::sanitize_toolsets( $q['toolsets'] ?? array() );
+		$toolsets = WPSHQ_MCP_Server::sanitize_toolsets( $q['toolsets'] ?? array() );
 		// Operator (WP Sites HQ, M2): the human's own word on this page, never the client's self-chosen name.
 		$operator = ! empty( $q['operator'] ) && current_user_can( 'manage_options' ) && self::operator_possible( $ctx['redirect_uri'] );
 		if ( $operator ) {
 			// The app manages the whole site, Site admin and HQ tools included.
 			$scope    = 'full';
-			$toolsets = array_keys( CM_MCP_Server::toolsets() );
+			$toolsets = array_keys( WPSHQ_MCP_Server::toolsets() );
 		}
 		$code = bin2hex( random_bytes( 32 ) );
 		set_transient(
@@ -769,9 +768,9 @@ class CM_MCP_OAuth {
 
 		$family = bin2hex( random_bytes( 16 ) );
 		$id     = self::ID_PREFIX . $family;
-		CM_MCP_Server::save_connection_settings( $data['user_id'], $id, $data['scope'], $data['toolsets'] );
+		WPSHQ_MCP_Server::save_connection_settings( $data['user_id'], $id, $data['scope'], $data['toolsets'] );
 		if ( ! empty( $data['operator'] ) ) {
-			CM_MCP_Approvals::make_operator( $data['user_id'], $id );
+			WPSHQ_MCP_Approvals::make_operator( $data['user_id'], $id );
 		}
 		return self::issue( $family, $data['user_id'], $data['client_key'], $data['client_name'], $data['scope'] );
 	}
@@ -806,7 +805,7 @@ class CM_MCP_OAuth {
 		if ( ! user_can( (int) $row->user_id, self::CAPABILITY ) ) {
 			return self::oauth_error( 'invalid_grant', 'The user can no longer connect AI apps.' );
 		}
-		$scope = CM_MCP_Server::connection_scope( (int) $row->user_id, self::ID_PREFIX . $row->family );
+		$scope = WPSHQ_MCP_Server::connection_scope( (int) $row->user_id, self::ID_PREFIX . $row->family );
 		return self::issue( $row->family, (int) $row->user_id, $row->client_key, $row->client_name, $scope );
 	}
 
@@ -906,7 +905,7 @@ class CM_MCP_OAuth {
 		$uri   = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
 		$path  = untrailingslashit( (string) wp_parse_url( $uri, PHP_URL_PATH ) );
 		$home  = untrailingslashit( (string) wp_parse_url( home_url(), PHP_URL_PATH ) );
-		$route = CM_MCP_Server::REST_NAMESPACE . CM_MCP_Server::REST_ROUTE;
+		$route = WPSHQ_MCP_Server::REST_NAMESPACE . WPSHQ_MCP_Server::REST_ROUTE;
 		$rest  = rest_get_url_prefix();
 
 		// WP::parse_request lets a POST body rest_route override the path, so the path alone proves nothing.
@@ -945,7 +944,7 @@ class CM_MCP_OAuth {
 	}
 
 	/**
-	 * The OAuth grant behind the current request. cm_mcp_confine_credentials() calls this
+	 * The OAuth grant behind the current request. wpshq_mcp_confine_credentials() calls this
 	 * before every REST handler, so a token refused here signs its user back out.
 	 *
 	 * @return array{id:string, user_id:int, label:string}|null
@@ -972,7 +971,7 @@ class CM_MCP_OAuth {
 	 * 401s from the MCP route tell OAuth clients where to start (RFC 9728 5.1).
 	 */
 	public static function challenge( $response, $server, $request ) {
-		if ( CM_MCP_ROUTE === $request->get_route() && $response instanceof WP_HTTP_Response && 401 === $response->get_status() ) {
+		if ( WPSHQ_MCP_ROUTE === $request->get_route() && $response instanceof WP_HTTP_Response && 401 === $response->get_status() ) {
 			$value = sprintf( 'Bearer resource_metadata="%s"', self::resource_metadata_url() );
 			if ( self::$bearer_failed ) {
 				$value .= ', error="invalid_token", error_description="The access token is invalid or expired"';
@@ -1031,7 +1030,7 @@ class CM_MCP_OAuth {
 		$user_id = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT user_id FROM %i WHERE family = %s LIMIT 1', self::table(), $family ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; tokens must never be read from a cache
 		$wpdb->delete( self::table(), array( 'family' => $family ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; tokens must never be read from a cache
 		if ( $user_id ) {
-			CM_MCP_Server::forget_connection( $user_id, self::ID_PREFIX . $family );
+			WPSHQ_MCP_Server::forget_connection( $user_id, self::ID_PREFIX . $family );
 		}
 	}
 
@@ -1051,4 +1050,4 @@ class CM_MCP_OAuth {
 	}
 }
 
-CM_MCP_OAuth::init();
+WPSHQ_MCP_OAuth::init();

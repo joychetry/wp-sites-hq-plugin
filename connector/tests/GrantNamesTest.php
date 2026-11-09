@@ -11,7 +11,7 @@ use Brain\Monkey;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Drives CM_MCP_OAuth::rename_app_grants() against an in-memory client_name column.
+ * Drives WPSHQ_MCP_OAuth::rename_app_grants() against an in-memory client_name column.
  */
 final class GrantNamesTest extends TestCase {
 
@@ -61,8 +61,8 @@ final class GrantNamesTest extends TestCase {
 		};
 		$GLOBALS['wpdb'] = $wpdb;
 
-		\CM_MCP_OAuth::rename_app_grants();
-		\CM_MCP_OAuth::rename_app_grants();
+		\WPSHQ_MCP_OAuth::rename_app_grants();
+		\WPSHQ_MCP_OAuth::rename_app_grants();
 
 		$this->assertSame( array( 'WP Sites HQ', 'WP Sites HQ (AI agents)', 'Claude', 'Monks Central fan club', 'WP Sites HQ' ), $wpdb->rows );
 		unset( $GLOBALS['wpdb'] );

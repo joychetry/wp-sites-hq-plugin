@@ -12,19 +12,18 @@
  * @subpackage MonksCentral
  * @requires WordPress 7.1+ (Abilities API, wp_pre_execute_ability)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class CM_MCP_Server {
+class WPSHQ_MCP_Server {
 
 	const REST_NAMESPACE = 'classic-monks/v1';
 	const REST_ROUTE     = '/mcp';
 
 	// Tags the Application Passwords minted here; only these may call the endpoint.
-	const APP_ID = CM_MCP_APP_ID;
+	const APP_ID = WPSHQ_MCP_APP_ID;
 
 	const ABILITY_PREFIX = 'classic-monks/';
 
@@ -276,7 +275,7 @@ class CM_MCP_Server {
 	 */
 	public static function current_connection() {
 		$user_id = get_current_user_id();
-		$oauth   = class_exists( 'CM_MCP_OAuth' ) ? CM_MCP_OAuth::current() : null;
+		$oauth   = class_exists( 'WPSHQ_MCP_OAuth' ) ? WPSHQ_MCP_OAuth::current() : null;
 		if ( $oauth ) {
 			$kind  = 'oauth';
 			$id    = $oauth['id'];
@@ -298,9 +297,9 @@ class CM_MCP_Server {
 			'scope'      => self::connection_scope( $user_id, $id ),
 			'toolsets'   => self::connection_toolsets( $user_id, $id ),
 			'namespaces' => self::connection_namespaces( $user_id, $id ),
-			'trusted'    => CM_MCP_Approvals::is_trusted( $user_id, $id ),
+			'trusted'    => WPSHQ_MCP_Approvals::is_trusted( $user_id, $id ),
 			// Null unless an operator grant; then whether it also skips cm_always_approve.
-			'operator'   => CM_MCP_Approvals::operator( $user_id, $id ),
+			'operator'   => WPSHQ_MCP_Approvals::operator( $user_id, $id ),
 		);
 	}
 
@@ -308,11 +307,11 @@ class CM_MCP_Server {
 	 * How many tools a connection lists, so the dashboard can flag ones past client caps (R-9).
 	 */
 	private static function tool_count( $user_id, $id ) {
-		return count( self::exposed_abilities( self::connection_scope( $user_id, $id ), self::connection_toolsets( $user_id, $id ), self::connection_namespaces( $user_id, $id ), null !== CM_MCP_Approvals::operator( $user_id, $id ) ) );
+		return count( self::exposed_abilities( self::connection_scope( $user_id, $id ), self::connection_toolsets( $user_id, $id ), self::connection_namespaces( $user_id, $id ), null !== WPSHQ_MCP_Approvals::operator( $user_id, $id ) ) );
 	}
 
 	public static function connection_exists( $user_id, $id ) {
-		return CM_MCP_OAuth::is_oauth_id( $id ) ? CM_MCP_OAuth::family_exists( $user_id, $id ) : self::is_mcp_password( $user_id, $id ); // phpcs:ignore PHPCompatibility.Extensions.RemovedExtensions.famRemoved -- family_exists() is a method here, not the fam extension
+		return WPSHQ_MCP_OAuth::is_oauth_id( $id ) ? WPSHQ_MCP_OAuth::family_exists( $user_id, $id ) : self::is_mcp_password( $user_id, $id ); // phpcs:ignore PHPCompatibility.Extensions.RemovedExtensions.famRemoved -- family_exists() is a method here, not the fam extension
 	}
 
 	public static function save_connection_settings( $user_id, $id, $scope, array $toolsets ) {
@@ -327,9 +326,9 @@ class CM_MCP_Server {
 		self::save_scope( $user_id, $id, null );
 		self::save_toolsets( $user_id, $id, null );
 		self::save_namespaces( $user_id, $id, null );
-		CM_MCP_Approvals::forget_similar( $id );
-		CM_MCP_Approvals::save_flag( CM_MCP_Approvals::TRUSTED_META, $user_id, $id, null );
-		CM_MCP_Approvals::save_flag( CM_MCP_Approvals::OPERATOR_META, $user_id, $id, null );
+		WPSHQ_MCP_Approvals::forget_similar( $id );
+		WPSHQ_MCP_Approvals::save_flag( WPSHQ_MCP_Approvals::TRUSTED_META, $user_id, $id, null );
+		WPSHQ_MCP_Approvals::save_flag( WPSHQ_MCP_Approvals::OPERATOR_META, $user_id, $id, null );
 	}
 
 	public static function scope_allows( $scope, WP_Ability $ability ) {
@@ -356,7 +355,7 @@ class CM_MCP_Server {
 	 * Runs for every caller; only MCP connections carry a scope.
 	 */
 	public static function enforce_scope( $pre, $name, $input, $ability ) {
-		if ( is_wp_error( $pre ) || ! cm_mcp_is_mcp_credential() ) {
+		if ( is_wp_error( $pre ) || ! wpshq_mcp_is_mcp_credential() ) {
 			return $pre;
 		}
 		$scope = self::current_scope();
@@ -369,8 +368,8 @@ class CM_MCP_Server {
 			$name,
 			self::scopes()[ $scope ]
 		);
-		if ( class_exists( 'CM_AI_Activity_Log' ) ) {
-			CM_AI_Activity_Log::mark( $name, 'denied', $message );
+		if ( class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+			WPSHQ_AI_Activity_Log::mark( $name, 'denied', $message );
 		}
 		return new WP_Error( 'cm_mcp_scope_denied', $message, array( 'status' => 403 ) );
 	}
@@ -416,7 +415,7 @@ class CM_MCP_Server {
 		$uuid = rest_get_authenticated_app_password();
 		if ( ! self::current_connection() ) {
 			$message = __( 'Connect over OAuth: add this site in WP Sites HQ, or in an MCP client that supports OAuth.', 'wp-sites-hq' );
-			if ( CM_MCP_OAuth::bearer_failed() ) {
+			if ( WPSHQ_MCP_OAuth::bearer_failed() ) {
 				$message = __( 'The access token is invalid or expired. Refresh it, or connect again.', 'wp-sites-hq' );
 			} elseif ( $uuid ) {
 				$message = __( 'This Application Password was not created for MCP. Connect over OAuth, or use a connection made for MCP.', 'wp-sites-hq' );
@@ -662,7 +661,7 @@ class CM_MCP_Server {
 		/**
 		 * Filter the MCP skills (prompts/resources). Add entries keyed by slug.
 		 */
-		return apply_filters( 'cm_mcp_skills', $skills );
+		return apply_filters( 'wpshq_mcp_skills', $skills );
 	}
 
 	/**
@@ -833,7 +832,7 @@ class CM_MCP_Server {
 		$input = $ability->get_input_schema() ? $arguments : ( $arguments ? $arguments : null );
 
 		// WP < 7.1 never fires wp_pre_execute_ability, where enforce_scope normally runs (and gets logged).
-		$output = CM_MCP_Approvals::supported() ? null : self::enforce_scope( null, $name, $input, $ability );
+		$output = WPSHQ_MCP_Approvals::supported() ? null : self::enforce_scope( null, $name, $input, $ability );
 		if ( ! is_wp_error( $output ) ) {
 			try {
 				$output = $ability->execute( $input );
@@ -852,7 +851,7 @@ class CM_MCP_Server {
 			// Only an explicit decline closes the request; "cancel" (e.g. a headless client that can't show the
 			// URL) falls through to the plain approve_url result so the agent can hand the link to the user.
 			if ( 'decline' === $answer ) {
-				CM_MCP_Approvals::decline( (int) ( $output->get_error_data()['op_id'] ?? 0 ) );
+				WPSHQ_MCP_Approvals::decline( (int) ( $output->get_error_data()['op_id'] ?? 0 ) );
 				$output = new WP_Error( 'cm_approval_declined', __( 'The user declined this change.', 'wp-sites-hq' ) );
 			}
 		}
@@ -924,7 +923,7 @@ class CM_MCP_Server {
 	}
 
 	private static function lacks_approval_gate( WP_Ability $ability ) {
-		return ! CM_MCP_Approvals::supported() && CM_MCP_Approvals::needs_approval( $ability );
+		return ! WPSHQ_MCP_Approvals::supported() && WPSHQ_MCP_Approvals::needs_approval( $ability );
 	}
 
 	/**
@@ -1012,7 +1011,7 @@ class CM_MCP_Server {
 		if ( count( $mine ) > $remaining ) {
 			return false;
 		}
-		foreach ( CM_MCP_OAuth::grants() as $grant ) {
+		foreach ( WPSHQ_MCP_OAuth::grants() as $grant ) {
 			if ( (int) $grant->user_id === (int) $user_id ) {
 				return false;
 			}
@@ -1092,14 +1091,14 @@ class CM_MCP_Server {
 			}
 		}
 
-		foreach ( CM_MCP_OAuth::grants() as $grant ) {
+		foreach ( WPSHQ_MCP_OAuth::grants() as $grant ) {
 			$user = get_userdata( $grant->user_id );
 			if ( ! $user ) {
 				continue;
 			}
 			/* translators: %s: app name */
 			$name   = sprintf( __( '%s (OAuth)', 'wp-sites-hq' ), $grant->client_name );
-			$rows[] = self::connection_row( 'oauth', $user, CM_MCP_OAuth::ID_PREFIX . $grant->family, $name, (int) $grant->created, (int) $grant->last_used );
+			$rows[] = self::connection_row( 'oauth', $user, WPSHQ_MCP_OAuth::ID_PREFIX . $grant->family, $name, (int) $grant->created, (int) $grant->last_used );
 		}
 
 		return $rows;
@@ -1127,13 +1126,13 @@ class CM_MCP_Server {
 				? sprintf( __( '%s ago', 'wp-sites-hq' ), human_time_diff( $last_used ) )
 				: __( 'Never', 'wp-sites-hq' ),
 			'scope'       => self::connection_scope( $user->ID, $id ),
-			'trusted'     => CM_MCP_Approvals::is_trusted( $user->ID, $id ),
-			'operator'    => CM_MCP_Approvals::operator( $user->ID, $id ),
+			'trusted'     => WPSHQ_MCP_Approvals::is_trusted( $user->ID, $id ),
+			'operator'    => WPSHQ_MCP_Approvals::operator( $user->ID, $id ),
 			'toolsets'    => self::connection_toolsets( $user->ID, $id ),
 			'namespaces'  => self::connection_namespaces( $user->ID, $id ),
 			'tool_count'  => self::tool_count( $user->ID, $id ),
 			'agent_user'  => 'app_password' === $kind && self::is_lone_agent( $user->ID, 1 ),
-			'last_action' => class_exists( 'CM_AI_Activity_Log' ) ? CM_AI_Activity_Log::last_for_connection( $id ) : null,
+			'last_action' => class_exists( 'WPSHQ_AI_Activity_Log' ) ? WPSHQ_AI_Activity_Log::last_for_connection( $id ) : null,
 		);
 	}
 }
@@ -1141,4 +1140,4 @@ class CM_MCP_Server {
 require_once __DIR__ . '/class-mcp-approvals.php';
 require_once __DIR__ . '/class-mcp-oauth.php';
 
-CM_MCP_Server::init();
+WPSHQ_MCP_Server::init();

@@ -9,7 +9,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,8 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_get_users_ability' );
-function cm_register_get_users_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_get_users_ability' );
+function wpshq_register_get_users_ability() {
 	wp_register_ability(
 		'classic-monks/get-users',
 		array(
@@ -106,7 +105,7 @@ function cm_register_get_users_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_get_users',
+			'execute_callback'    => 'wpshq_execute_get_users',
 			'permission_callback' => function () {
 				return current_user_can( 'list_users' );
 			},
@@ -130,7 +129,7 @@ function cm_register_get_users_ability() {
  * @param array $input Input parameters.
  * @return array|WP_Error Users and total count.
  */
-function cm_execute_get_users( $input = array() ) {
+function wpshq_execute_get_users( $input = array() ) {
 	$args = array(
 		'number'  => min( absint( isset( $input['limit'] ) ? $input['limit'] : 10 ), 100 ),
 		'offset'  => absint( isset( $input['offset'] ) ? $input['offset'] : 0 ),
@@ -160,21 +159,21 @@ function cm_execute_get_users( $input = array() ) {
 			'email'           => $user->user_email,
 			'display_name'    => $user->display_name,
 			'role'            => isset( $user->roles[0] ) ? $user->roles[0] : 'none',
-			'registered_date' => cm_ability_date( $user->user_registered, true ),
+			'registered_date' => wpshq_ability_date( $user->user_registered, true ),
 		);
 	}
 
 	return array(
 		'users' => $users,
 		'total' => (int) $user_query->get_total(),
-		'roles' => cm_ai_assignable_roles(),
+		'roles' => wpshq_ai_assignable_roles(),
 	);
 }
 
 /**
  * The roles the current user may give someone, as create-user and update-user check them.
  */
-function cm_ai_assignable_roles() {
+function wpshq_ai_assignable_roles() {
 	if ( ! current_user_can( 'promote_users' ) ) {
 		return array();
 	}

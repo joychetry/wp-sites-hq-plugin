@@ -9,14 +9,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 7.1+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_update_media_ability' );
-function cm_register_update_media_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_update_media_ability' );
+function wpshq_register_update_media_ability() {
 	wp_register_ability(
 		'classic-monks/update-media',
 		array(
@@ -55,8 +54,8 @@ function cm_register_update_media_ability() {
 					'description' => array( 'type' => 'string' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_update_media',
-			'permission_callback' => 'cm_can_edit_media',
+			'execute_callback'    => 'wpshq_execute_update_media',
+			'permission_callback' => 'wpshq_can_edit_media',
 			'meta'                => array(
 				// WP Sites HQ only: the operator edits from the app window.
 				'cm_operator_only'    => true,
@@ -66,9 +65,9 @@ function cm_register_update_media_ability() {
 					'idempotent'   => true,
 					'instructions' => 'Send only the fields to change.',
 				),
-				'cm_undo_callback'    => 'cm_undo_update_media',
+				'cm_undo_callback'    => 'wpshq_undo_update_media',
 				// Undo is refused when the details were changed again since.
-				'cm_preview_callback' => 'cm_preview_update_media',
+				'cm_preview_callback' => 'wpshq_preview_update_media',
 				'show_in_rest'        => true,
 			),
 		)
@@ -78,7 +77,7 @@ function cm_register_update_media_ability() {
 /**
  * upload_files plus edit_post on the attachment named by id.
  */
-function cm_can_edit_media( $input ) {
+function wpshq_can_edit_media( $input ) {
 	$id = absint( $input['id'] ?? 0 );
 	return $id && 'attachment' === get_post_type( $id ) && current_user_can( 'upload_files' ) && current_user_can( 'edit_post', $id );
 }
@@ -86,7 +85,7 @@ function cm_can_edit_media( $input ) {
 /**
  * The details update-media edits, as it returns them.
  */
-function cm_media_details( $id ) {
+function wpshq_media_details( $id ) {
 	$post = get_post( $id );
 	return array(
 		'id'          => (int) $id,
@@ -97,27 +96,27 @@ function cm_media_details( $id ) {
 	);
 }
 
-function cm_execute_update_media( $input ) {
+function wpshq_execute_update_media( $input ) {
 	$id     = absint( $input['id'] );
-	$before = cm_media_details( $id );
+	$before = wpshq_media_details( $id );
 	$fields = array_intersect_key( $input, array_flip( array( 'alt', 'title', 'caption', 'description' ) ) );
 	if ( ! $fields ) {
 		return new WP_Error( 'missing_fields', __( 'Send at least one of alt, title, caption or description.', 'wp-sites-hq' ) );
 	}
-	$error = cm_apply_media_details( $id, $fields );
+	$error = wpshq_apply_media_details( $id, $fields );
 	if ( is_wp_error( $error ) ) {
 		return $error;
 	}
-	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
-		CM_AI_Activity_Log::set_undo( 'classic-monks/update-media', array_intersect_key( $before, $fields + array( 'id' => 0 ) ) );
+	if ( class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+		WPSHQ_AI_Activity_Log::set_undo( 'classic-monks/update-media', array_intersect_key( $before, $fields + array( 'id' => 0 ) ) );
 	}
-	return cm_media_details( $id );
+	return wpshq_media_details( $id );
 }
 
 /**
  * Writes alt, title, caption and description; the post fields go through wp_update_post(), so kses applies.
  */
-function cm_apply_media_details( $id, array $fields ) {
+function wpshq_apply_media_details( $id, array $fields ) {
 	$post = array( 'ID' => $id );
 	foreach ( array(
 		'title'       => 'post_title',
@@ -143,22 +142,22 @@ function cm_apply_media_details( $id, array $fields ) {
 /**
  * The current values of the details a call names, for the undo drift check.
  */
-function cm_preview_update_media( $input ) {
+function wpshq_preview_update_media( $input ) {
 	$id = absint( $input['id'] ?? 0 );
 	if ( 'attachment' !== get_post_type( $id ) ) {
 		return array();
 	}
-	return array_intersect_key( cm_media_details( $id ), array_flip( array_intersect( array_keys( $input ), array( 'alt', 'title', 'caption', 'description' ) ) ) );
+	return array_intersect_key( wpshq_media_details( $id ), array_flip( array_intersect( array_keys( $input ), array( 'alt', 'title', 'caption', 'description' ) ) ) );
 }
 
 /**
  * Puts the details back as they were before the logged change.
  */
-function cm_undo_update_media( $undo ) {
+function wpshq_undo_update_media( $undo ) {
 	$id = absint( $undo['id'] ?? 0 );
-	if ( ! cm_can_edit_media( array( 'id' => $id ) ) ) {
+	if ( ! wpshq_can_edit_media( array( 'id' => $id ) ) ) {
 		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this media item.', 'wp-sites-hq' ) );
 	}
 	unset( $undo['id'] );
-	return cm_apply_media_details( $id, $undo );
+	return wpshq_apply_media_details( $id, $undo );
 }

@@ -10,7 +10,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,8 +24,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_get_posts_ability' );
-function cm_register_get_posts_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_get_posts_ability' );
+function wpshq_register_get_posts_ability() {
 	wp_register_ability(
 		'classic-monks/get-posts',
 		array(
@@ -146,7 +145,7 @@ function cm_register_get_posts_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_get_posts',
+			'execute_callback'    => 'wpshq_execute_get_posts',
 			'permission_callback' => function ( $input = null ) {
 				return current_user_can( 'edit_posts' );
 			},
@@ -170,7 +169,7 @@ function cm_register_get_posts_ability() {
  * @param array $input Input parameters from the ability call.
  * @return array|WP_Error Array of posts and total count, or WP_Error on failure.
  */
-function cm_execute_get_posts( $input = array() ) {
+function wpshq_execute_get_posts( $input = array() ) {
 	// Parse status - handle comma-separated values
 	$status = isset( $input['status'] ) ? $input['status'] : 'publish,draft';
 	if ( is_string( $status ) && strpos( $status, ',' ) !== false ) {
@@ -187,7 +186,7 @@ function cm_execute_get_posts( $input = array() ) {
 		'order'          => ( isset( $input['order'] ) && 'ASC' === strtoupper( $input['order'] ) ) ? 'ASC' : 'DESC',
 	);
 
-	if ( ! cm_ai_can_list_post_type( $args['post_type'] ) ) {
+	if ( ! wpshq_ai_can_list_post_type( $args['post_type'] ) ) {
 		return new WP_Error( 'invalid_post_type', __( 'Unknown post type, or you are not allowed to list it.', 'wp-sites-hq' ) );
 	}
 	// Like core REST: private posts only if readable here, other non-public statuses filtered per post below.
@@ -223,7 +222,7 @@ function cm_execute_get_posts( $input = array() ) {
 			'date'      => get_the_date( DATE_RFC3339, $post ),
 			'modified'  => get_the_modified_date( DATE_RFC3339, $post ),
 			'author'    => $author ? $author->display_name : '',
-			'excerpt'   => cm_ai_post_text_visible( $post ) ? wp_trim_words( $post->post_content, 30, '...' ) : '',
+			'excerpt'   => wpshq_ai_post_text_visible( $post ) ? wp_trim_words( $post->post_content, 30, '...' ) : '',
 			'permalink' => get_permalink( $post ),
 		);
 	}
@@ -242,7 +241,7 @@ function cm_execute_get_posts( $input = array() ) {
  * @param string $post_type Post type slug.
  * @return bool
  */
-function cm_ai_can_list_post_type( $post_type ) {
+function wpshq_ai_can_list_post_type( $post_type ) {
 	$obj = get_post_type_object( $post_type );
 	return $obj && ( $obj->public || $obj->show_in_rest || ( $obj->show_ui && current_user_can( $obj->cap->edit_posts ) ) );
 }
@@ -255,6 +254,6 @@ function cm_ai_can_list_post_type( $post_type ) {
  * @param WP_Post $post Post.
  * @return bool
  */
-function cm_ai_post_text_visible( $post ) {
+function wpshq_ai_post_text_visible( $post ) {
 	return '' === $post->post_password || current_user_can( 'edit_post', $post->ID );
 }

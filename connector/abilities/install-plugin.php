@@ -8,14 +8,13 @@
  * @subpackage AI/Abilities
  * @since 1.2.0
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_install_plugin_ability' );
-function cm_register_install_plugin_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_install_plugin_ability' );
+function wpshq_register_install_plugin_ability() {
 	wp_register_ability(
 		'classic-monks/install-plugin',
 		array(
@@ -63,7 +62,7 @@ function cm_register_install_plugin_ability() {
 					'source'         => array( 'type' => 'string' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_install_plugin',
+			'execute_callback'    => 'wpshq_execute_install_plugin',
 			'permission_callback' => function ( $input = array() ) {
 				$activate = ! isset( $input['activate'] ) || filter_var( $input['activate'], FILTER_VALIDATE_BOOLEAN );
 				return current_user_can( 'install_plugins' ) && ( ! $activate || current_user_can( 'activate_plugins' ) );
@@ -88,18 +87,18 @@ function cm_register_install_plugin_ability() {
  * @param array $input Ability input.
  * @return array|WP_Error
  */
-function cm_execute_install_plugin( $input ) {
-	cm_ai_require_plugin_management_files();
+function wpshq_execute_install_plugin( $input ) {
+	wpshq_ai_require_plugin_management_files();
 
 	$activate = ! isset( $input['activate'] ) || filter_var( $input['activate'], FILTER_VALIDATE_BOOLEAN );
 
-	$existing = cm_ai_resolve_installed_plugin( $input );
+	$existing = wpshq_ai_resolve_installed_plugin( $input );
 	if ( is_wp_error( $existing ) && 'cm_plugin_not_found' !== $existing->get_error_code() ) {
 		return $existing;
 	}
 
 	if ( ! is_wp_error( $existing ) ) {
-		$state   = cm_ai_get_plugin_state( $existing['plugin_file'], $existing['plugin_data'] );
+		$state   = wpshq_ai_get_plugin_state( $existing['plugin_file'], $existing['plugin_data'] );
 		$message = __( 'Plugin is already installed.', 'wp-sites-hq' );
 
 		if ( $activate && ! $state['active'] ) {
@@ -122,7 +121,7 @@ function cm_execute_install_plugin( $input ) {
 		return $state;
 	}
 
-	$source = cm_ai_resolve_plugin_install_source( $input );
+	$source = wpshq_ai_resolve_plugin_install_source( $input );
 	if ( is_wp_error( $source ) ) {
 		return $source;
 	}
@@ -162,7 +161,7 @@ function cm_execute_install_plugin( $input ) {
 		}
 	}
 
-	$state              = cm_ai_get_plugin_state( $plugin_file, $plugin_data );
+	$state              = wpshq_ai_get_plugin_state( $plugin_file, $plugin_data );
 	$state['installed'] = true;
 	$state['activated'] = (bool) $state['active'];
 	$state['source']    = $source['source'];

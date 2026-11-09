@@ -10,13 +10,12 @@
  * @subpackage MonksCentral
  * @requires WordPress 7.1+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function cm_load_ability_files() {
+function wpshq_load_ability_files() {
 	$abilities_dir = __DIR__ . '/abilities/';
 
 	$files = array(
@@ -84,15 +83,15 @@ function cm_load_ability_files() {
 		'get-media.php',
 		'import-media-from-url.php',     // Loads media-import-helpers.php
 		'upload-media.php',              // Chunked upload (M6); loads media-import-helpers.php. Holds the chunk helper install-zip.php uses
-		'update-media.php',              // Alt, title, caption, description. Holds cm_can_edit_media()
-		'replace-media.php',             // Also restore-replaced-media; uses the chunk helper and cm_can_edit_media()
+		'update-media.php',              // Alt, title, caption, description. Holds wpshq_can_edit_media()
+		'replace-media.php',             // Also restore-replaced-media; uses the chunk helper and wpshq_can_edit_media()
 		// Users (update-user.php holds the user helpers)
 		'get-users.php',
 		'create-user.php',
 		'update-user.php',
 		'delete-user.php',
 		'send-password-reset.php',       // WP Sites HQ M7
-		// Comments (reply-to-comment.php defines cm_undo_reply_to_comment(), also used by create-comment.php)
+		// Comments (reply-to-comment.php defines wpshq_undo_reply_to_comment(), also used by create-comment.php)
 		'get-comments.php',
 		'moderate-comment.php',
 		'reply-to-comment.php',
@@ -105,13 +104,13 @@ function cm_load_ability_files() {
 	}
 }
 
-cm_load_ability_files();
+wpshq_load_ability_files();
 
 /**
  * A MySQL datetime as RFC 3339, the form a `date-time` output schema promises: strict MCP clients
  * reject "2026-10-30 12:00:00". $gmt: the value is UTC (user_registered, *_gmt), else site time.
  */
-function cm_ability_date( $mysql, $gmt = false ) {
+function wpshq_ability_date( $mysql, $gmt = false ) {
 	// PHP reads the zero date as -0001-11-30, which is not RFC 3339.
 	$date = '0000-00-00 00:00:00' === $mysql ? false : date_create_immutable_from_format( 'Y-m-d H:i:s', (string) $mysql, $gmt ? new DateTimeZone( 'UTC' ) : wp_timezone() );
 	return $date ? $date->format( DATE_RFC3339 ) : '';
@@ -121,7 +120,7 @@ function cm_ability_date( $mysql, $gmt = false ) {
  * Ability errors without an HTTP status reach core REST as 500s, which read as
  * server crashes to REST clients. Give classic-monks errors a 4xx.
  */
-function cm_ability_error_status( $result, $ability_name ) {
+function wpshq_ability_error_status( $result, $ability_name ) {
 	if ( ! is_wp_error( $result ) || 0 !== strpos( $ability_name, 'classic-monks/' ) ) {
 		return $result;
 	}
@@ -139,38 +138,38 @@ function cm_ability_error_status( $result, $ability_name ) {
 	$result->add_data( array_merge( is_array( $data ) ? $data : array(), array( 'status' => $status ) ) );
 	return $result;
 }
-add_filter( 'wp_ability_execute_result', 'cm_ability_error_status', 1000, 2 );
+add_filter( 'wp_ability_execute_result', 'wpshq_ability_error_status', 1000, 2 );
 
 /**
  * Operator-only writes run for the WP Sites HQ app's operator grant only. Over MCP other connections never
  * see them; this also closes core's ability REST routes (plain app passwords). Reads stay open there.
  */
-function cm_block_operator_only_writes( $pre, $ability_name, $input, $ability ) {
+function wpshq_block_operator_only_writes( $pre, $ability_name, $input, $ability ) {
 	if ( is_wp_error( $pre ) || ! wp_is_serving_rest_request() || ! $ability || ! $ability->get_meta_item( 'cm_operator_only' ) ) {
 		return $pre;
 	}
 	$annotations = (array) $ability->get_meta_item( 'annotations' );
-	if ( ! empty( $annotations['readonly'] ) || ( function_exists( 'cm_is_operator_request' ) && cm_is_operator_request() ) ) {
+	if ( ! empty( $annotations['readonly'] ) || ( function_exists( 'wpshq_is_operator_request' ) && wpshq_is_operator_request() ) ) {
 		return $pre;
 	}
 	$message = __( 'Only the WP Sites HQ app can use this tool.', 'wp-sites-hq' );
-	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
-		CM_AI_Activity_Log::mark( $ability_name, 'denied', $message );
+	if ( class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+		WPSHQ_AI_Activity_Log::mark( $ability_name, 'denied', $message );
 	}
 	return new WP_Error( 'cm_operator_only', $message, array( 'status' => 403 ) );
 }
-add_filter( 'wp_pre_execute_ability', 'cm_block_operator_only_writes', 15, 4 );
+add_filter( 'wp_pre_execute_ability', 'wpshq_block_operator_only_writes', 15, 4 );
 
 /**
  * GET/DELETE runs carry input in the query string, which cannot express `{}`, so a
  * no-argument call arrives as null and fails "input is not of type object". Treat a
  * missing input as an empty object: a null can never pass an object schema anyway.
  */
-function cm_default_ability_input( $input, $ability_name, $ability ) {
+function wpshq_default_ability_input( $input, $ability_name, $ability ) {
 	if ( null !== $input ) {
 		return $input;
 	}
 	$schema = $ability->get_input_schema();
 	return ( $schema['type'] ?? '' ) === 'object' ? array() : $input;
 }
-add_filter( 'wp_ability_normalize_input', 'cm_default_ability_input', 10, 3 );
+add_filter( 'wp_ability_normalize_input', 'wpshq_default_ability_input', 10, 3 );

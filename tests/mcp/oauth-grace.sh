@@ -7,7 +7,7 @@ CID=cmc_grace_test
 
 # Prints "refresh_token family" for a new grant of user 1 to client $CID.
 grant() {
-    wpe "\$m = new ReflectionMethod('CM_MCP_OAuth', 'issue'); \$m->setAccessible(true); \$f = bin2hex(random_bytes(16)); CM_MCP_Server::save_connection_settings(1, 'oauth:' . \$f, 'read', ['content']); \$d = \$m->invoke(null, \$f, 1, hash('sha256', '$CID'), 'grace test', 'read')->get_data(); global \$wpdb; \$wpdb->update(\$wpdb->prefix . 'cm_mcp_oauth_tokens', ['resource' => '$MCP'], ['family' => \$f]); echo \$d['refresh_token'], ' ', \$f;"
+    wpe "\$m = new ReflectionMethod('WPSHQ_MCP_OAuth', 'issue'); \$m->setAccessible(true); \$f = bin2hex(random_bytes(16)); WPSHQ_MCP_Server::save_connection_settings(1, 'oauth:' . \$f, 'read', ['content']); \$d = \$m->invoke(null, \$f, 1, hash('sha256', '$CID'), 'grace test', 'read')->get_data(); global \$wpdb; \$wpdb->update(\$wpdb->prefix . 'cm_mcp_oauth_tokens', ['resource' => '$MCP'], ['family' => \$f]); echo \$d['refresh_token'], ' ', \$f;"
 }
 refresh() { curl -sk -d grant_type=refresh_token -d "refresh_token=$1" -d "client_id=$CID" "$OA/token"; }
 mcp_code() { curl -sk -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $1" -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"ping"}' "$MCP"; }

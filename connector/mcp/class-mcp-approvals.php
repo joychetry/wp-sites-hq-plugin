@@ -13,13 +13,12 @@
  * @subpackage MonksCentral
  * @requires WordPress 7.1+ (wp_pre_execute_ability)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class CM_MCP_Approvals {
+class WPSHQ_MCP_Approvals {
 
 	const PAGE          = 'cm-ai-approve';
 	const TTL           = 15 * MINUTE_IN_SECONDS;
@@ -41,7 +40,7 @@ class CM_MCP_Approvals {
 	}
 
 	public static function needs_approval( WP_Ability $ability ) {
-		$annotations = CM_MCP_Server::annotations( $ability );
+		$annotations = WPSHQ_MCP_Server::annotations( $ability );
 		return ! empty( $annotations['destructive'] );
 	}
 
@@ -152,7 +151,7 @@ class CM_MCP_Approvals {
 
 	public static function gate( $pre, $name, $input, $ability ) {
 		// Any namespace: an MCP credential only reaches other plugins' abilities through the allowlist (R-9).
-		if ( is_wp_error( $pre ) || ! self::needs_approval( $ability ) || ! cm_mcp_is_mcp_credential() ) {
+		if ( is_wp_error( $pre ) || ! self::needs_approval( $ability ) || ! wpshq_mcp_is_mcp_credential() ) {
 			return $pre;
 		}
 
@@ -162,22 +161,22 @@ class CM_MCP_Approvals {
 			return $pre;
 		}
 
-		$connection = CM_MCP_Server::current_connection();
+		$connection = WPSHQ_MCP_Server::current_connection();
 		$uuid       = $connection['id'];
 		$always     = self::always_asks( $ability, $input );
 
 		if ( $connection['trusted'] && ( ! $always || $connection['operator'] ) ) {
-			CM_AI_Activity_Log::tag( $name, null === $connection['operator'] ? '[trusted]' : '[operator]' );
+			WPSHQ_AI_Activity_Log::tag( $name, null === $connection['operator'] ? '[trusted]' : '[operator]' );
 			return $pre;
 		}
 
 		if ( ! $always && self::take_similar( $uuid, $name ) ) {
-			CM_AI_Activity_Log::tag( $name, '[approved similar]' );
+			WPSHQ_AI_Activity_Log::tag( $name, '[approved similar]' );
 			return $pre;
 		}
 
 		global $wpdb;
-		$table = CM_AI_Activity_Log::table();
+		$table = WPSHQ_AI_Activity_Log::table();
 		$hash  = self::hash( $uuid, $name, $input );
 		$rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
 			$wpdb->prepare(
@@ -200,14 +199,14 @@ class CM_MCP_Approvals {
 			}
 			if ( 'pending' === $row['status'] ) {
 				// The request row already says it is waiting; a retry adds no row of its own.
-				CM_AI_Activity_Log::continue_on( $name, 0 );
+				WPSHQ_AI_Activity_Log::continue_on( $name, 0 );
 				return self::required_error( (int) $row['id'], $approval );
 			}
 			// Approved: the state must still match what the approver saw, and it runs once.
 			if ( self::preview( $ability, $input ) !== $approval['preview'] ) {
 				$wpdb->update( $table, array( 'status' => 'expired' ), array( 'id' => $row['id'] ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
 				$message = __( 'The content changed after it was approved, so the approval no longer applies. Call the tool again to request a fresh approval.', 'wp-sites-hq' );
-				CM_AI_Activity_Log::mark( $name, 'denied', $message );
+				WPSHQ_AI_Activity_Log::mark( $name, 'denied', $message );
 				return new WP_Error( 'cm_approval_drift', $message, array( 'status' => 409 ) );
 			}
 			// Conditional, so parallel retries can't both spend one approval; the loser asks again.
@@ -223,9 +222,9 @@ class CM_MCP_Approvals {
 				continue;
 			}
 			// The request row carries the run's result, so the log shows one entry: requested, approved, done.
-			CM_AI_Activity_Log::continue_on( $name, (int) $row['id'] );
+			WPSHQ_AI_Activity_Log::continue_on( $name, (int) $row['id'] );
 			/* translators: %s: username of the approver */
-			CM_AI_Activity_Log::tag( $name, sprintf( __( '[approved by %s]', 'wp-sites-hq' ), $approval['approved_by'] ?? '?' ) );
+			WPSHQ_AI_Activity_Log::tag( $name, sprintf( __( '[approved by %s]', 'wp-sites-hq' ), $approval['approved_by'] ?? '?' ) );
 			return $pre;
 		}
 
@@ -234,10 +233,10 @@ class CM_MCP_Approvals {
 			'hash'    => $hash,
 			'preview' => self::preview( $ability, $input ),
 			// The log row's input_json is cut at 8000 bytes; the approver needs all of it.
-			'input'   => CM_AI_Activity_Log::redact( $input ),
+			'input'   => WPSHQ_AI_Activity_Log::redact( $input ),
 			'expires' => time() + self::TTL,
 		);
-		$id       = CM_AI_Activity_Log::request_approval( $name, $approval, __( 'Waiting for approval in the dashboard.', 'wp-sites-hq' ) );
+		$id       = WPSHQ_AI_Activity_Log::request_approval( $name, $approval, __( 'Waiting for approval in the dashboard.', 'wp-sites-hq' ) );
 		return self::required_error( $id, $approval );
 	}
 
@@ -266,7 +265,7 @@ class CM_MCP_Approvals {
 	public static function decline( $id ) {
 		global $wpdb;
 		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
-			CM_AI_Activity_Log::table(),
+			WPSHQ_AI_Activity_Log::table(),
 			array(
 				'status'         => 'declined',
 				'result_summary' => __( 'Declined in the MCP client.', 'wp-sites-hq' ),
@@ -297,7 +296,7 @@ class CM_MCP_Approvals {
 
 	private static function load_request( $id ) {
 		global $wpdb;
-		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', CM_AI_Activity_Log::table(), $id ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', WPSHQ_AI_Activity_Log::table(), $id ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
 		if ( ! $row || empty( $row['approval_json'] ) ) {
 			return null;
 		}
@@ -325,7 +324,7 @@ class CM_MCP_Approvals {
 	 */
 	public static function pending_for_current_user() {
 		global $wpdb;
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE status = 'pending' ORDER BY id DESC LIMIT 500", CM_AI_Activity_Log::table() ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE status = 'pending' ORDER BY id DESC LIMIT 500", WPSHQ_AI_Activity_Log::table() ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
 		$out  = array();
 		foreach ( $rows as $row ) {
 			$row['approval'] = json_decode( (string) $row['approval_json'], true );
@@ -415,7 +414,7 @@ class CM_MCP_Approvals {
 			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own log table, no core API; rows change on every call
 			$decided = $wpdb->update(
-				CM_AI_Activity_Log::table(),
+				WPSHQ_AI_Activity_Log::table(),
 				$update,
 				array(
 					'id'     => $id,
@@ -434,4 +433,4 @@ class CM_MCP_Approvals {
 	}
 }
 
-CM_MCP_Approvals::init();
+WPSHQ_MCP_Approvals::init();

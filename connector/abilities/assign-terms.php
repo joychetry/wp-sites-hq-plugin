@@ -9,7 +9,6 @@
  * @since 2.0.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,8 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 2.0.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_assign_terms_ability' );
-function cm_register_assign_terms_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_assign_terms_ability' );
+function wpshq_register_assign_terms_ability() {
 	wp_register_ability(
 		'classic-monks/assign-terms',
 		array(
@@ -77,7 +76,7 @@ function cm_register_assign_terms_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_assign_terms',
+			'execute_callback'    => 'wpshq_execute_assign_terms',
 			'permission_callback' => function ( $input ) {
 				$tax = get_taxonomy( sanitize_key( $input['taxonomy'] ?? '' ) );
 				if ( ! $tax || empty( $input['post_id'] ) ) {
@@ -86,14 +85,14 @@ function cm_register_assign_terms_ability() {
 				return current_user_can( 'edit_post', absint( $input['post_id'] ) ) && current_user_can( $tax->cap->assign_terms );
 			},
 			'meta'                => array(
-				'cm_preview_callback' => 'cm_preview_assign_terms',
+				'cm_preview_callback' => 'wpshq_preview_assign_terms',
 				'annotations'         => array(
 					'readonly'     => false,
 					'destructive'  => true, // Replaces the current terms unless append=true
 					'idempotent'   => true,
 					'instructions' => 'Assigns term IDs to a post. Replaces existing terms unless append=true. Use get-terms or create-term to get IDs first.',
 				),
-				'cm_undo_callback'    => 'cm_undo_assign_terms',
+				'cm_undo_callback'    => 'wpshq_undo_assign_terms',
 				'show_in_rest'        => true,
 			),
 		)
@@ -107,7 +106,7 @@ function cm_register_assign_terms_ability() {
  * @param array $input Input parameters.
  * @return array|WP_Error Assignment result or error.
  */
-function cm_execute_assign_terms( $input ) {
+function wpshq_execute_assign_terms( $input ) {
 	$post_id  = absint( $input['post_id'] );
 	$taxonomy = sanitize_key( $input['taxonomy'] );
 	$post     = get_post( $post_id );
@@ -134,8 +133,8 @@ function cm_execute_assign_terms( $input ) {
 	}
 	$previous = array_map( 'intval', $previous );
 
-	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
-		CM_AI_Activity_Log::set_undo(
+	if ( class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+		WPSHQ_AI_Activity_Log::set_undo(
 			'classic-monks/assign-terms',
 			array(
 				'post_id'  => $post_id,
@@ -161,7 +160,7 @@ function cm_execute_assign_terms( $input ) {
 /**
  * The post's current terms in the taxonomy, for the approval screen.
  */
-function cm_preview_assign_terms( $input ) {
+function wpshq_preview_assign_terms( $input ) {
 	$ids = wp_get_object_terms( absint( $input['post_id'] ?? 0 ), sanitize_key( $input['taxonomy'] ?? '' ), array( 'fields' => 'ids' ) );
 	if ( is_wp_error( $ids ) ) {
 		return null;
@@ -178,7 +177,7 @@ function cm_preview_assign_terms( $input ) {
 /**
  * Restore the post's previous terms in that taxonomy.
  */
-function cm_undo_assign_terms( $undo ) {
+function wpshq_undo_assign_terms( $undo ) {
 	$tax = get_taxonomy( $undo['taxonomy'] ?? '' );
 	if ( ! $tax || ! current_user_can( 'edit_post', (int) $undo['post_id'] ) || ! current_user_can( $tax->cap->assign_terms ) ) {
 		return new WP_Error( 'forbidden', __( 'You are not allowed to change this post\'s terms.', 'wp-sites-hq' ) );

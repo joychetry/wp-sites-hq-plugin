@@ -9,14 +9,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 7.1+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_get_http_status_ability' );
-function cm_register_get_http_status_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_get_http_status_ability' );
+function wpshq_register_get_http_status_ability() {
 	wp_register_ability(
 		'classic-monks/get-http-status',
 		array(
@@ -46,7 +45,7 @@ function cm_register_get_http_status_ability() {
 					'maintenance' => array( 'type' => 'boolean' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_get_http_status',
+			'execute_callback'    => 'wpshq_execute_get_http_status',
 			'permission_callback' => function () {
 				return current_user_can( 'manage_options' );
 			},
@@ -64,13 +63,13 @@ function cm_register_get_http_status_ability() {
 	);
 }
 
-function cm_execute_get_http_status( $input = array() ) {
+function wpshq_execute_get_http_status( $input = array() ) {
 	$path = isset( $input['path'] ) ? (string) $input['path'] : '/';
 	// Only a path on this site: no scheme, no "//host", no backslash tricks, no whitespace.
 	if ( ! preg_match( '#^/(?![/\\\\])[^\s\\\\]*$#', $path ) || false !== strpos( $path, '://' ) ) {
 		return new WP_Error( 'cm_invalid_path', __( 'The path must start with a single "/" and be a path on this site, like "/" or "/shop/".', 'wp-sites-hq' ) );
 	}
-	return cm_ai_http_status( $path );
+	return wpshq_ai_http_status( $path );
 }
 
 /**
@@ -80,8 +79,8 @@ function cm_execute_get_http_status( $input = array() ) {
  * @param string $path Path starting with "/".
  * @return array url, status, ok, ms, fatal, error, maintenance.
  */
-function cm_ai_http_status( $path = '/' ) {
-	$upgrading   = cm_ai_maintenance_upgrading();
+function wpshq_ai_http_status( $path = '/' ) {
+	$upgrading   = wpshq_ai_maintenance_upgrading();
 	$maintenance = null !== $upgrading && ( time() - $upgrading ) < 10 * MINUTE_IN_SECONDS;
 	// In maintenance mode only the key derived from $upgrading gets past wp_maintenance().
 	if ( $maintenance ) {
@@ -94,7 +93,7 @@ function cm_ai_http_status( $path = '/' ) {
 	set_transient( 'scrape_key_' . $key, $nonce, 60 );
 
 	$url       = home_url( $path );
-	$sslverify = apply_filters( 'https_local_ssl_verify', false, $url );
+	$sslverify = apply_filters( 'https_local_ssl_verify', false, $url ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook
 	$start     = microtime( true );
 	$response  = wp_remote_get(
 		add_query_arg(
@@ -130,7 +129,7 @@ function cm_ai_http_status( $path = '/' ) {
 	// wp_finalize_scraping_edited_file_errors() prints the last fatal between these needles.
 	$status = (int) wp_remote_retrieve_response_code( $response );
 	$body   = (string) wp_remote_retrieve_body( $response );
-	// cm_ai_print_scrape_fatal() prints it too, before shutdown callbacks can replace it in WordPress' copy.
+	// wpshq_ai_print_scrape_fatal() prints it too, before shutdown callbacks can replace it in WordPress' copy.
 	$fatal = null;
 	foreach ( array( 'wp_scraping_result', 'cm_scrape_fatal' ) as $name ) {
 		$needle = "###### {$name}_start:$key ######";
@@ -141,7 +140,7 @@ function cm_ai_http_status( $path = '/' ) {
 		$result = substr( $body, $at + strlen( $needle ) );
 		$result = json_decode( trim( substr( $result, 0, (int) strpos( $result, "###### {$name}_end:$key ######" ) ) ), true );
 		if ( isset( $result['type'], $result['message'] ) ) {
-			$fatal = cm_ai_describe_fatal( $result );
+			$fatal = wpshq_ai_describe_fatal( $result );
 		}
 	}
 
@@ -159,13 +158,13 @@ function cm_ai_http_status( $path = '/' ) {
 // In the loopback itself (WordPress checked the scrape key): shutdown callbacks run before WordPress prints
 // error_get_last(), and a notice from one of them (WooCommerce, Elementor) replaces the fatal there.
 if ( defined( 'WP_SANDBOX_SCRAPING' ) && WP_SANDBOX_SCRAPING ) {
-	add_action( 'shutdown', 'cm_ai_print_scrape_fatal', PHP_INT_MIN );
+	add_action( 'shutdown', 'wpshq_ai_print_scrape_fatal', PHP_INT_MIN );
 }
 
 /**
  * Prints the request's fatal error between cm_scrape_fatal needles, as wp_finalize_scraping_edited_file_errors() does.
  */
-function cm_ai_print_scrape_fatal() {
+function wpshq_ai_print_scrape_fatal() {
 	$error = error_get_last();
 	if ( ! $error || ! in_array( $error['type'], array( E_CORE_ERROR, E_COMPILE_ERROR, E_ERROR, E_PARSE, E_USER_ERROR, E_RECOVERABLE_ERROR ), true ) ) {
 		return;
@@ -177,7 +176,7 @@ function cm_ai_print_scrape_fatal() {
 /**
  * $upgrading from ABSPATH/.maintenance (null without one), as wp_is_maintenance_mode() reads it.
  */
-function cm_ai_maintenance_upgrading() {
+function wpshq_ai_maintenance_upgrading() {
 	$file = ABSPATH . '.maintenance';
 	if ( ! file_exists( $file ) ) {
 		return null;
@@ -194,7 +193,7 @@ function cm_ai_maintenance_upgrading() {
 /**
  * The scrape's error_get_last() as PHP logs it: "PHP Fatal error: <message> in ABSPATH/<file> on line <n>".
  */
-function cm_ai_describe_fatal( array $error ) {
+function wpshq_ai_describe_fatal( array $error ) {
 	$label   = E_PARSE === (int) $error['type'] ? 'PHP Parse error' : 'PHP Fatal error';
 	$message = strtok( str_replace( ABSPATH, 'ABSPATH/', (string) $error['message'] ), "\n" );
 	// Uncaught exceptions end their first line with " in <file>:<line>"; the file and line follow anyway.
@@ -206,5 +205,5 @@ function cm_ai_describe_fatal( array $error ) {
 		$message .= ' in ' . $file . ' on line ' . (int) ( $error['line'] ?? 0 );
 	}
 	$text = $label . ': ' . $message;
-	return class_exists( 'CM_AI_Activity_Log' ) ? CM_AI_Activity_Log::redact( $text ) : $text;
+	return class_exists( 'WPSHQ_AI_Activity_Log' ) ? WPSHQ_AI_Activity_Log::redact( $text ) : $text;
 }

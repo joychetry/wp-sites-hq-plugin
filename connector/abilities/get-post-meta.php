@@ -9,7 +9,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,8 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_get_post_meta_ability' );
-function cm_register_get_post_meta_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_get_post_meta_ability' );
+function wpshq_register_get_post_meta_ability() {
 	wp_register_ability(
 		'classic-monks/get-post-meta',
 		array(
@@ -64,7 +63,7 @@ function cm_register_get_post_meta_ability() {
 					'count'   => array( 'type' => 'integer' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_get_post_meta',
+			'execute_callback'    => 'wpshq_execute_get_post_meta',
 			'permission_callback' => function ( $input ) {
 				if ( empty( $input['post_id'] ) ) {
 					return false;
@@ -91,7 +90,7 @@ function cm_register_get_post_meta_ability() {
  * @param array $input Input parameters.
  * @return array|WP_Error Meta data or error.
  */
-function cm_execute_get_post_meta( $input ) {
+function wpshq_execute_get_post_meta( $input ) {
 	$post_id = absint( $input['post_id'] );
 	$post    = get_post( $post_id );
 

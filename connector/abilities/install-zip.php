@@ -9,14 +9,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 7.1+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_install_zip_ability' );
-function cm_register_install_zip_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_install_zip_ability' );
+function wpshq_register_install_zip_ability() {
 	wp_register_ability(
 		'classic-monks/install-zip',
 		array(
@@ -96,8 +95,8 @@ function cm_register_install_zip_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_install_zip',
-			'permission_callback' => 'cm_install_zip_permission',
+			'execute_callback'    => 'wpshq_execute_install_zip',
+			'permission_callback' => 'wpshq_install_zip_permission',
 			'meta'                => array(
 				// WP Sites HQ only: keeps AI clients under their tool caps.
 				'cm_operator_only' => true,
@@ -116,7 +115,7 @@ function cm_register_install_zip_ability() {
 /**
  * Kind, overwrite and activate for this call: a later chunk keeps its upload's kind and earlier switches.
  */
-function cm_install_zip_options( $input ) {
+function wpshq_install_zip_options( $input ) {
 	$state = empty( $input['upload_id'] ) ? false : get_transient( 'cm_install_zip_' . preg_replace( '/[^A-Za-z0-9]/', '', (string) $input['upload_id'] ) );
 	return array_merge(
 		array(
@@ -129,12 +128,12 @@ function cm_install_zip_options( $input ) {
 	);
 }
 
-function cm_install_zip_permission( $input ) {
+function wpshq_install_zip_permission( $input ) {
 	// DISALLOW_FILE_MODS takes the install capabilities from everyone; let an administrator in so the tool can say why.
 	if ( ! wp_is_file_mod_allowed( 'cm_install_zip' ) ) {
 		return current_user_can( 'manage_options' );
 	}
-	$o    = cm_install_zip_options( $input );
+	$o    = wpshq_install_zip_options( $input );
 	$caps = 'theme' === $o['kind']
 		? array( 'install_themes', $o['overwrite'] ? 'update_themes' : '', $o['activate'] ? 'switch_themes' : '' )
 		: array( 'install_plugins', $o['overwrite'] ? 'update_plugins' : '', $o['activate'] ? 'activate_plugins' : '' );
@@ -146,9 +145,9 @@ function cm_install_zip_permission( $input ) {
 	return true;
 }
 
-function cm_execute_install_zip( $input ) {
+function wpshq_execute_install_zip( $input ) {
 	// WP Sites HQ's own connection only: it installs or takes down code for the whole site.
-	if ( ! cm_is_operator_request() ) {
+	if ( ! wpshq_is_operator_request() ) {
 		return new WP_Error( 'cm_operator_only', __( 'Only the WP Sites HQ app can use this tool.', 'wp-sites-hq' ), array( 'status' => 403 ) );
 	}
 	if ( ! wp_is_file_mod_allowed( 'cm_install_zip' ) ) {
@@ -166,7 +165,7 @@ function cm_execute_install_zip( $input ) {
 		}
 		$set['kind'] = $input['kind'];
 	}
-	$upload = cm_ai_receive_chunk( $input, 'cm_install_zip_', $set );
+	$upload = wpshq_ai_receive_chunk( $input, 'cm_install_zip_', $set );
 	if ( is_wp_error( $upload ) ) {
 		return $upload;
 	}
@@ -191,7 +190,7 @@ function cm_execute_install_zip( $input ) {
 		return new WP_Error( 'cm_not_a_zip', __( 'This file is not a zip. Send the plugin or theme as a .zip file.', 'wp-sites-hq' ) );
 	}
 
-	cm_ai_require_plugin_management_files();
+	wpshq_ai_require_plugin_management_files();
 	$theme    = 'theme' === $o['kind'];
 	$root     = $theme ? get_theme_root() : WP_PLUGIN_DIR;
 	$before   = (array) glob( $root . '/*', GLOB_ONLYDIR );

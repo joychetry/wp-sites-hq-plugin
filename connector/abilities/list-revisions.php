@@ -8,14 +8,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 7.1+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_revision_abilities' );
-function cm_register_revision_abilities() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_revision_abilities' );
+function wpshq_register_revision_abilities() {
 	wp_register_ability(
 		'classic-monks/list-revisions',
 		array(
@@ -50,7 +49,7 @@ function cm_register_revision_abilities() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_list_revisions',
+			'execute_callback'    => 'wpshq_execute_list_revisions',
 			'permission_callback' => function ( $input ) {
 				return ! empty( $input['post_id'] ) && current_user_can( 'edit_post', $input['post_id'] );
 			},
@@ -93,7 +92,7 @@ function cm_register_revision_abilities() {
 					'message'     => array( 'type' => 'string' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_restore_revision',
+			'execute_callback'    => 'wpshq_execute_restore_revision',
 			'permission_callback' => function ( $input ) {
 				$id       = absint( $input['revision_id'] ?? 0 );
 				$revision = wp_get_post_revision( $id );
@@ -102,7 +101,7 @@ function cm_register_revision_abilities() {
 			'meta'                => array(
 				// WP Sites HQ only: keeps AI clients under their tool caps.
 				'cm_operator_only'    => true,
-				'cm_preview_callback' => 'cm_preview_revision_parent',
+				'cm_preview_callback' => 'wpshq_preview_revision_parent',
 				'annotations'         => array(
 					'readonly'     => false,
 					'destructive'  => true, // Replaces the current title and body.
@@ -115,7 +114,7 @@ function cm_register_revision_abilities() {
 	);
 }
 
-function cm_execute_list_revisions( $input ) {
+function wpshq_execute_list_revisions( $input ) {
 	$post = get_post( absint( $input['post_id'] ) );
 	if ( ! $post ) {
 		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
@@ -132,7 +131,7 @@ function cm_execute_list_revisions( $input ) {
 	return array( 'revisions' => $out );
 }
 
-function cm_execute_restore_revision( $input ) {
+function wpshq_execute_restore_revision( $input ) {
 	$id       = absint( $input['revision_id'] );
 	$revision = wp_get_post_revision( $id );
 	if ( ! $revision ) {
@@ -150,8 +149,8 @@ function cm_execute_restore_revision( $input ) {
 	);
 }
 
-function cm_preview_revision_parent( $input ) {
+function wpshq_preview_revision_parent( $input ) {
 	$id       = absint( $input['revision_id'] ?? 0 );
 	$revision = wp_get_post_revision( $id );
-	return $revision ? cm_preview_post_state( array( 'post_id' => $revision->post_parent ) ) : null;
+	return $revision ? wpshq_preview_post_state( array( 'post_id' => $revision->post_parent ) ) : null;
 }

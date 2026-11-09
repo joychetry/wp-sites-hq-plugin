@@ -13,7 +13,7 @@ wpe 'global $wpdb; $t = "'"$TABLE"'"; if ($wpdb->get_var($wpdb->prepare("SHOW TA
 wpe 'update_user_meta(1, "cm_mcp_trusted", ["'"$MCP_UUID"'" => ["x" => 1]]);' >/dev/null
 
 check "active: MCP password confined" "$(code -u "$AUTH" "$ME")" 403
-check "notice on plugins.php with a connection" "$(wpe 'wp_set_current_user(1); cm_mcp_deactivation_notice();')" "~disconnect"
+check "notice on plugins.php with a connection" "$(wpe 'wp_set_current_user(1); wpshq_mcp_deactivation_notice();')" "~disconnect"
 
 (cd "$SITE_ROOT" && $WP_CMD plugin deactivate "$PLUGIN" >/dev/null 2>&1)
 INACTIVE=$(code -u "$AUTH" "$ME")

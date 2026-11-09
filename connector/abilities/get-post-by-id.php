@@ -9,7 +9,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,8 +23,8 @@ require_once __DIR__ . '/content-write-helpers.php';
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_get_post_by_id_ability' );
-function cm_register_get_post_by_id_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_get_post_by_id_ability' );
+function wpshq_register_get_post_by_id_ability() {
 	wp_register_ability(
 		'classic-monks/get-post-by-id',
 		array(
@@ -149,7 +148,7 @@ function cm_register_get_post_by_id_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_get_post_by_id',
+			'execute_callback'    => 'wpshq_execute_get_post_by_id',
 			'permission_callback' => function ( $input ) {
 				if ( empty( $input['post_id'] ) ) {
 					return false;
@@ -176,7 +175,7 @@ function cm_register_get_post_by_id_ability() {
  * @param array $input Input parameters.
  * @return array|WP_Error Post details or error.
  */
-function cm_execute_get_post_by_id( $input ) {
+function wpshq_execute_get_post_by_id( $input ) {
 	$post_id = absint( $input['post_id'] );
 	$post    = get_post( $post_id );
 
@@ -186,7 +185,7 @@ function cm_execute_get_post_by_id( $input ) {
 
 	// Drafts store zero GMT dates; derive them from the local ones, as core REST does.
 	$gmt = function ( $gmt_date, $local_date ) {
-		return cm_ability_date( '0000-00-00 00:00:00' === $gmt_date ? get_gmt_from_date( $local_date ) : $gmt_date, true );
+		return wpshq_ability_date( '0000-00-00 00:00:00' === $gmt_date ? get_gmt_from_date( $local_date ) : $gmt_date, true );
 	};
 
 	$result = array(
@@ -197,9 +196,9 @@ function cm_execute_get_post_by_id( $input ) {
 		'excerpt'           => $post->post_excerpt,
 		'status'            => $post->post_status,
 		'type'              => $post->post_type,
-		'date'              => cm_ability_date( $post->post_date ),
+		'date'              => wpshq_ability_date( $post->post_date ),
 		'date_gmt'          => $gmt( $post->post_date_gmt, $post->post_date ),
-		'modified'          => cm_ability_date( $post->post_modified ),
+		'modified'          => wpshq_ability_date( $post->post_modified ),
 		'modified_gmt'      => $gmt( $post->post_modified_gmt, $post->post_modified ),
 		'author'            => get_the_author_meta( 'display_name', (int) $post->post_author ),
 		'author_id'         => (int) $post->post_author,
@@ -211,14 +210,14 @@ function cm_execute_get_post_by_id( $input ) {
 		'ping_status'       => $post->ping_status,
 		'featured_image'    => get_the_post_thumbnail_url( $post->ID, 'full' ) ?: null,
 		'featured_image_id' => (int) get_post_thumbnail_id( $post->ID ),
-		'terms'             => cm_content_post_terms( $post ),
-		'builder'           => cm_content_builder( $post->ID ),
+		'terms'             => wpshq_content_post_terms( $post ),
+		'builder'           => wpshq_content_builder( $post->ID ),
 		'password'          => $post->post_password,
 		'template'          => (string) get_page_template_slug( $post ),
 		'preview_link'      => (string) get_preview_post_link( $post ),
 	);
 	if ( ! empty( $input['choices'] ) ) {
-		$result['choices'] = cm_content_choices( $post );
+		$result['choices'] = wpshq_content_choices( $post );
 	}
 
 	// Get categories for posts

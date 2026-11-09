@@ -9,7 +9,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,8 +23,8 @@ require_once __DIR__ . '/content-write-helpers.php';
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_create_post_ability' );
-function cm_register_create_post_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_create_post_ability' );
+function wpshq_register_create_post_ability() {
 	wp_register_ability(
 		'classic-monks/create-post',
 		array(
@@ -77,7 +76,7 @@ function cm_register_create_post_ability() {
 						'type'        => 'integer',
 						'description' => 'Attachment ID to use as featured image.',
 					),
-				) + cm_content_write_schema(),
+				) + wpshq_content_write_schema(),
 				'additionalProperties' => false,
 			),
 			'output_schema'       => array(
@@ -111,7 +110,7 @@ function cm_register_create_post_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_create_post',
+			'execute_callback'    => 'wpshq_execute_create_post',
 			'permission_callback' => function ( $input ) {
 				$post_type = isset( $input['post_type'] ) ? $input['post_type'] : 'post';
 				$post_type_obj = get_post_type_object( $post_type );
@@ -143,7 +142,7 @@ function cm_register_create_post_ability() {
  * @param array $input Input parameters.
  * @return array|WP_Error Created post info or error.
  */
-function cm_execute_create_post( $input ) {
+function wpshq_execute_create_post( $input ) {
 	// Validate post type exists
 	$post_type = sanitize_key( isset( $input['post_type'] ) ? $input['post_type'] : 'post' );
 	if ( ! post_type_exists( $post_type ) ) {
@@ -154,7 +153,7 @@ function cm_execute_create_post( $input ) {
 		);
 	}
 
-	$checked = cm_content_write_check( $post_type, 0, $input );
+	$checked = wpshq_content_write_check( $post_type, 0, $input );
 	if ( is_wp_error( $checked ) ) {
 		return $checked;
 	}
@@ -182,7 +181,7 @@ function cm_execute_create_post( $input ) {
 		$post_data['post_date'] = $input['date'];
 	}
 
-	$more = cm_content_post_fields( $post_type, 0, $input, $post_data );
+	$more = wpshq_content_post_fields( $post_type, 0, $input, $post_data );
 	if ( is_wp_error( $more ) ) {
 		return $more;
 	}
@@ -194,7 +193,7 @@ function cm_execute_create_post( $input ) {
 		return $post_id;
 	}
 
-	$written = cm_content_write_after( $post_id, $input );
+	$written = wpshq_content_write_after( $post_id, $input );
 	if ( is_wp_error( $written ) ) {
 		// Nothing half made: the post was created just now, for this call.
 		wp_delete_post( $post_id, true );
