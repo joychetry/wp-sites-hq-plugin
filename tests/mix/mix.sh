@@ -3,11 +3,11 @@
 # Pro and Monks Central, each alone, Free + Monks Central, Pro + Monks Central, and all three. Checks that exactly one
 # connector boots, the highest version wins (a tie goes to the first plugin loaded), and an MCP grant made at the start
 # keeps working, with its settings, while plugins are added, removed and switched.
-# Run: bash tests/mix/mix.sh   (env: CM_PORT (8888), CM_KEEP=1 keeps the last site, CM_WP_VERSION, CM_FREE and CM_PRO (repo paths, default ../classic-monks-free
+# Run: bash tests/mix/mix.sh   (env: CM_PORT (8888), CM_KEEP=1 keeps the last site, CM_WP_VERSION, CM_FREE and CM_PRO (repo paths, default ../classic-monks-lite
 # and ../classic-monks); needs what tests/mcp/ci.sh needs, plus composer install and npm run build here.)
 set -u
 MC_DIR=$(cd "$(dirname "$0")/../.." && pwd)
-FREE=${CM_FREE:-$MC_DIR/../classic-monks-free}
+FREE=${CM_FREE:-$MC_DIR/../classic-monks-lite}; [[ -d $FREE ]] || FREE=$MC_DIR/../classic-monks-free
 PRO=${CM_PRO:-$MC_DIR/../classic-monks}
 PORT=${CM_PORT:-8888}
 SITE=http://127.0.0.1:$PORT
