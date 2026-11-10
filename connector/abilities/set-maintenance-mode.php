@@ -9,14 +9,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 7.1+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_set_maintenance_mode_ability' );
-function cm_register_set_maintenance_mode_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_set_maintenance_mode_ability' );
+function wpshq_register_set_maintenance_mode_ability() {
 	wp_register_ability(
 		'classic-monks/set-maintenance-mode',
 		array(
@@ -38,7 +37,7 @@ function cm_register_set_maintenance_mode_ability() {
 					'bypass' => array( 'type' => 'string' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_set_maintenance_mode',
+			'execute_callback'    => 'wpshq_execute_set_maintenance_mode',
 			'permission_callback' => function () {
 				return current_user_can( 'update_plugins' );
 			},
@@ -57,9 +56,9 @@ function cm_register_set_maintenance_mode_ability() {
 	);
 }
 
-function cm_execute_set_maintenance_mode( $input ) {
+function wpshq_execute_set_maintenance_mode( $input ) {
 	// WP Sites HQ's own connection only: it installs or takes down code for the whole site.
-	if ( ! cm_is_operator_request() ) {
+	if ( ! wpshq_is_operator_request() ) {
 		return new WP_Error( 'cm_operator_only', __( 'Only the WP Sites HQ app can use this tool.', 'wp-sites-hq' ), array( 'status' => 403 ) );
 	}
 	require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -73,7 +72,7 @@ function cm_execute_set_maintenance_mode( $input ) {
 		return array( 'on' => false );
 	}
 	// wp_maintenance() lets through requests that carry the key WordPress' own update check uses.
-	$upgrading = (int) cm_ai_maintenance_upgrading();
+	$upgrading = (int) wpshq_ai_maintenance_upgrading();
 	return array(
 		'on'     => true,
 		'bypass' => 'wp_scrape_key=' . md5( (string) $upgrading ) . '&wp_scrape_nonce=' . $upgrading,

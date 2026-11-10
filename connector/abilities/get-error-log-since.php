@@ -9,14 +9,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 7.1+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_get_error_log_since_ability' );
-function cm_register_get_error_log_since_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_get_error_log_since_ability' );
+function wpshq_register_get_error_log_since_ability() {
 	wp_register_ability(
 		'classic-monks/get-error-log-since',
 		array(
@@ -47,7 +46,7 @@ function cm_register_get_error_log_since_ability() {
 					'warnings'  => array( 'type' => 'integer' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_get_error_log_since',
+			'execute_callback'    => 'wpshq_execute_get_error_log_since',
 			'permission_callback' => function () {
 				// Network-wide reach: super admin only on multisite, as read-debug-log.
 				return current_user_can( is_multisite() ? 'manage_network_options' : 'manage_options' );
@@ -66,14 +65,14 @@ function cm_register_get_error_log_since_ability() {
 	);
 }
 
-function cm_execute_get_error_log_since( $input = array() ) {
-	return cm_ai_error_log_since( isset( $input['offset'] ) ? max( 0, (int) $input['offset'] ) : null );
+function wpshq_execute_get_error_log_since( $input = array() ) {
+	return wpshq_ai_error_log_since( isset( $input['offset'] ) ? max( 0, (int) $input['offset'] ) : null );
 }
 
 /**
  * The PHP error log: WP_DEBUG_LOG when WordPress logs there, else PHP's error_log file. '' when there is none.
  */
-function cm_ai_error_log_path() {
+function wpshq_ai_error_log_path() {
 	// wp_debug_mode() honours WP_DEBUG_LOG only with WP_DEBUG on.
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 		$path = is_string( WP_DEBUG_LOG ) && ! in_array( strtolower( WP_DEBUG_LOG ), array( 'true', '1' ), true ) ? WP_DEBUG_LOG : WP_CONTENT_DIR . '/debug.log';
@@ -90,7 +89,7 @@ function cm_ai_error_log_path() {
  * @param int|null $offset Byte offset from an earlier call.
  * @return array available, offset (the size now), lines, fatal, warnings.
  */
-function cm_ai_error_log_since( $offset = null ) {
+function wpshq_ai_error_log_since( $offset = null ) {
 	$out  = array(
 		'available' => false,
 		'offset'    => 0,
@@ -98,7 +97,7 @@ function cm_ai_error_log_since( $offset = null ) {
 		'fatal'     => 0,
 		'warnings'  => 0,
 	);
-	$path = cm_ai_error_log_path();
+	$path = wpshq_ai_error_log_path();
 	if ( '' === $path ) {
 		return $out;
 	}
@@ -144,8 +143,8 @@ function cm_ai_error_log_since( $offset = null ) {
 		}
 	}
 	$lines = str_replace( ABSPATH, 'ABSPATH/', array_slice( $lines, -50 ) );
-	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
-		$lines = CM_AI_Activity_Log::redact( $lines );
+	if ( class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+		$lines = WPSHQ_AI_Activity_Log::redact( $lines );
 	}
 	$out['lines'] = array_values( $lines );
 	return $out;

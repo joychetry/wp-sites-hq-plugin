@@ -58,7 +58,7 @@ fi
 # Connect to Monks Central is off by default.
 w option update cm_mcp_enabled 1 --quiet
 if [[ $(printf '%s\n' 7.1 "$WP_VERSION" | sort -V | head -1) == 7.1 ]]; then
-    [[ $(w eval 'echo class_exists("CM_MCP_Server") ? "on" : "off";') == on ]] || { echo "Monks Central did not load"; exit 1; }
+    [[ $(w eval 'echo class_exists("WPSHQ_MCP_Server") ? "on" : "off";') == on ]] || { echo "Monks Central did not load"; exit 1; }
 fi
 set +e
 

@@ -12,7 +12,6 @@
  *
  * @see https://developer.wordpress.org/reference/functions/wp_register_ability_category/
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -27,8 +26,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_categories_init', 'cm_register_ability_categories' );
-function cm_register_ability_categories() {
+add_action( 'wp_abilities_api_categories_init', 'wpshq_register_ability_categories' );
+function wpshq_register_ability_categories() {
 
 	/**
 	 * Content Management Category

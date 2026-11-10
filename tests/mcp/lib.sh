@@ -24,7 +24,7 @@ read -r _ PLAIN_UUID PLAIN_PASS <<<"$(mint '')"
 trap 'revoke "$MCP_UUID"; revoke "$PLAIN_UUID"' EXIT
 [[ -n $MCP_PASS && -n $PLAIN_PASS ]] || { echo "could not mint test credentials"; exit 1; }
 # Suites start from full scope and every toolset; a connection with no saved settings is read-only.
-wpe "foreach (['cm_mcp_scopes' => 'full', 'cm_mcp_toolsets' => array_keys(CM_MCP_Server::toolsets())] as \$k => \$v) { \$m = get_user_meta(1, \$k, true) ?: []; \$m['$MCP_UUID'] = \$v; update_user_meta(1, \$k, \$m); }" >/dev/null
+wpe "foreach (['cm_mcp_scopes' => 'full', 'cm_mcp_toolsets' => array_keys(WPSHQ_MCP_Server::toolsets())] as \$k => \$v) { \$m = get_user_meta(1, \$k, true) ?: []; \$m['$MCP_UUID'] = \$v; update_user_meta(1, \$k, \$m); }" >/dev/null
 
 AUTH="$LOGIN:$MCP_PASS"
 PLAIN="$LOGIN:$PLAIN_PASS"

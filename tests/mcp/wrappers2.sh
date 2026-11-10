@@ -4,7 +4,7 @@
 num() { sed -nE "s/.*\"$1\":([0-9]+).*/\\1/p" <<<"$2"; }
 # Tools that can't be undone ask even on a trusted connection (H-3): approve a fresh request (older ones
 # would fail the drift check), then call again.
-approved() { local args=${2:-'{}'} op; wpe "global \$wpdb; \$wpdb->update(CM_AI_Activity_Log::table(), ['status' => 'expired'], ['ability' => 'classic-monks/$1', 'status' => 'pending']);" >/dev/null; op=$(num op_id "$(call "$1" "$args")"); [ -n "$op" ] && wpe "global \$wpdb; \$wpdb->update(CM_AI_Activity_Log::table(), ['status' => 'approved'], ['id' => $op]);" >/dev/null; call "$1" "$args"; }
+approved() { local args=${2:-'{}'} op; wpe "global \$wpdb; \$wpdb->update(WPSHQ_AI_Activity_Log::table(), ['status' => 'expired'], ['ability' => 'classic-monks/$1', 'status' => 'pending']);" >/dev/null; op=$(num op_id "$(call "$1" "$args")"); [ -n "$op" ] && wpe "global \$wpdb; \$wpdb->update(WPSHQ_AI_Activity_Log::table(), ['status' => 'approved'], ['id' => $op]);" >/dev/null; call "$1" "$args"; }
 
 P=$(wpe 'echo wp_insert_post(["post_title" => "cm wrappers2", "post_status" => "publish"]);')
 C=$(wpe "echo wp_insert_comment(['comment_post_ID' => $P, 'comment_content' => 'to delete', 'comment_approved' => 'trash']);")

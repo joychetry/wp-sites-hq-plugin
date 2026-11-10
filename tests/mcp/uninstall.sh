@@ -9,7 +9,7 @@ SITES=$(wpe 'echo implode(" ", is_multisite() ? get_sites(["fields" => "ids", "n
 # PHP run once per site (switch_to_blog on multisite); prints "<site>:<output>" per site.
 each() { wpe "foreach ([${SITES// /,}] as \$id) { if (\$id) switch_to_blog(\$id); echo \$id, ':'; $1; echo ' '; if (\$id) restore_current_blog(); }"; }
 
-each 'CM_MCP_OAuth::install(); set_transient("cm_mcp_oauth_zz_uninstall", "x", 600); global $wpdb; echo $wpdb->get_var("SHOW TABLES LIKE \"{$wpdb->prefix}cm_mcp_oauth_tokens\"") ? "table" : "none"' >/dev/null
+each 'WPSHQ_MCP_OAuth::install(); set_transient("cm_mcp_oauth_zz_uninstall", "x", 600); global $wpdb; echo $wpdb->get_var("SHOW TABLES LIKE \"{$wpdb->prefix}cm_mcp_oauth_tokens\"") ? "table" : "none"' >/dev/null
 check 'setup: OAuth table on every site' "$(each 'global $wpdb; echo $wpdb->get_var("SHOW TABLES LIKE \"{$wpdb->prefix}cm_mcp_oauth_tokens\"") ? "t" : "-"')" "$(for s in $SITES; do printf '%s:t ' "$s"; done)"
 
 for s in $SITES; do

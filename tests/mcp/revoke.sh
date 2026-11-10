@@ -7,7 +7,7 @@ CID=cmc_revoke_test
 
 # Prints "access_token refresh_token family" for a new grant of user 1 to client $CID.
 grant() {
-    wpe "\$m = new ReflectionMethod('CM_MCP_OAuth', 'issue'); \$m->setAccessible(true); \$f = bin2hex(random_bytes(16)); CM_MCP_Server::save_connection_settings(1, 'oauth:' . \$f, 'read', ['content']); \$d = \$m->invoke(null, \$f, 1, hash('sha256', '$CID'), 'revoke test', 'read')->get_data(); global \$wpdb; \$wpdb->update(\$wpdb->prefix . 'cm_mcp_oauth_tokens', ['resource' => '$MCP'], ['family' => \$f]); echo \$d['access_token'], ' ', \$d['refresh_token'], ' ', \$f;"
+    wpe "\$m = new ReflectionMethod('WPSHQ_MCP_OAuth', 'issue'); \$m->setAccessible(true); \$f = bin2hex(random_bytes(16)); WPSHQ_MCP_Server::save_connection_settings(1, 'oauth:' . \$f, 'read', ['content']); \$d = \$m->invoke(null, \$f, 1, hash('sha256', '$CID'), 'revoke test', 'read')->get_data(); global \$wpdb; \$wpdb->update(\$wpdb->prefix . 'cm_mcp_oauth_tokens', ['resource' => '$MCP'], ['family' => \$f]); echo \$d['access_token'], ' ', \$d['refresh_token'], ' ', \$f;"
 }
 revoke_tok() { curl -sk -o /dev/null -w '%{http_code}' "$@" "$OA/revoke"; }
 mcp_code() { curl -sk -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $1" -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"ping"}' "$MCP"; }
@@ -39,7 +39,7 @@ check 'response is no-store'            "$(curl -sk -D - -o /dev/null -d token=x
 # Revoking the last connection of an agent account the host made (cm_mcp_agent) deletes the account; its posts go to the admin.
 A=$(wpe 'echo wp_insert_user(["user_login" => "cm_agent_test", "user_pass" => wp_generate_password(), "role" => "editor"]);')
 wpe "update_user_meta($A, 'cm_mcp_agent', 1);" >/dev/null
-pw() { wpe "echo WP_Application_Passwords::create_new_application_password($1, ['name' => '$2', 'app_id' => CM_MCP_APP_ID])[1]['uuid'];"; }
+pw() { wpe "echo WP_Application_Passwords::create_new_application_password($1, ['name' => '$2', 'app_id' => WPSHQ_MCP_APP_ID])[1]['uuid'];"; }
 P1=$(pw "$A" agent1)
 P2=$(pw "$A" agent2)
 AP=$(wpe "echo wp_insert_post(['post_title' => 'cm agent post', 'post_author' => $A]);")

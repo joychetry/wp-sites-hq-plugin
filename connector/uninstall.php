@@ -61,7 +61,7 @@ function monks_central_connector_uninstall( $self ) {
 		return;
 	}
 
-	// Copy of CM_MCP_APP_ID: the connector's files are not loaded during uninstall.
+	// Copy of WPSHQ_MCP_APP_ID: the connector's files are not loaded during uninstall.
 	$app_id = '285c2739-211b-4f6f-98fb-121e7d24d97b';
 	foreach ( get_users(
 		array(

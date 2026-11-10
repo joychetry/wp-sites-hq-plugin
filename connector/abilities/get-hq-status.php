@@ -9,14 +9,13 @@
  * @subpackage MonksCentral
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_get_hq_status_ability' );
-function cm_register_get_hq_status_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_get_hq_status_ability' );
+function wpshq_register_get_hq_status_ability() {
 	wp_register_ability(
 		'classic-monks/get-hq-status',
 		array(
@@ -45,7 +44,7 @@ function cm_register_get_hq_status_ability() {
 					'pending_approvals' => array( 'type' => 'integer' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_get_hq_status',
+			'execute_callback'    => 'wpshq_execute_get_hq_status',
 			// Anyone who may connect an AI app (the OAuth consent capability), so HQ can report a non-admin connection.
 			'permission_callback' => function () {
 				return current_user_can( 'edit_posts' );
@@ -62,10 +61,10 @@ function cm_register_get_hq_status_ability() {
 	);
 }
 
-function cm_execute_get_hq_status( $input = array() ) {
+function wpshq_execute_get_hq_status( $input = array() ) {
 	$user       = wp_get_current_user();
-	$mcp        = class_exists( 'CM_MCP_Server' );
-	$connection = $mcp ? CM_MCP_Server::current_connection() : null;
+	$mcp        = class_exists( 'WPSHQ_MCP_Server' );
+	$connection = $mcp ? WPSHQ_MCP_Server::current_connection() : null;
 
 	/**
 	 * Filters the whole status. A plugin that bundles the connector can add its own fields (a licence state).
@@ -91,7 +90,7 @@ function cm_execute_get_hq_status( $input = array() ) {
 			'php'               => array( 'version' => PHP_VERSION ),
 			'mcp'               => array(
 				'enabled'           => $mcp,
-				'protocol_versions' => $mcp ? array_merge( CM_MCP_Server::MODERN_VERSIONS, CM_MCP_Server::PROTOCOL_VERSIONS ) : array(),
+				'protocol_versions' => $mcp ? array_merge( WPSHQ_MCP_Server::MODERN_VERSIONS, WPSHQ_MCP_Server::PROTOCOL_VERSIONS ) : array(),
 				// Approvals, undo and the activity log need the 7.1 ability hooks.
 				'approvals'         => version_compare( get_bloginfo( 'version' ), '7.1', '>=' ),
 			),
@@ -123,7 +122,7 @@ function cm_execute_get_hq_status( $input = array() ) {
 				'operator'                  => null !== $connection['operator'],
 				'operator_skips_always_ask' => true === $connection['operator'],
 			) : null,
-			'pending_approvals' => class_exists( 'CM_MCP_Approvals' ) ? count( CM_MCP_Approvals::pending_for_current_user() ) : 0,
+			'pending_approvals' => class_exists( 'WPSHQ_MCP_Approvals' ) ? count( WPSHQ_MCP_Approvals::pending_for_current_user() ) : 0,
 		)
 	);
 }

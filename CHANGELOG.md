@@ -3,6 +3,25 @@
 All notable changes to the WP Sites HQ plugin (Monks Central before 0.2.0). Versions follow semver. The
 connector library in `connector/` has its own version, named in each entry.
 
+## Unreleased
+
+- Connector 2.0.0: every connector function, class, constant and hook now uses
+  the `wpshq_` / `WPSHQ_` prefix (was `cm_` / `CM_`), so it no longer clashes
+  with other plugins' names. Options, tables, user meta, REST routes, ability
+  names and the cron hook keep their names, so connections stay. Breaking for
+  host plugins: the hooks `cm_ai_log_reads`, `cm_ai_operation_logged`,
+  `cm_mcp_skills` and `cm_theme_sandbox_check_url` are now `wpshq_*`, and code
+  that calls `CM_MCP_Server`, `CM_AI_Activity_Log` and the other classes must
+  use the new names. See `docs/CONNECTOR.md` and `docs/connector-prefix-map.json`.
+- Connector 2.0.0: the connector calls the host through two hooks,
+  `wpshq_media_replaced` (after media is replaced or restored) and
+  `wpshq_svg_sanitizer`, instead of Classic Monks function and class names. It
+  still falls back to those names for Classic Monks Pro builds that do not
+  register the hooks yet.
+- Connector 2.0.0: the login link page prints its auto-submit script with
+  `wp_print_inline_script_tag()`, so Content Security Policy plugins can add
+  their nonce.
+
 ## 0.2.1 - 2026-11-02
 
 - Connector 1.2.1: dates from the read tools (posts, pages, users, comments,

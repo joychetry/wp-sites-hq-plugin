@@ -8,7 +8,6 @@
  * @subpackage AI/Abilities
  * @since 1.2.0
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.2.0
  * @return void
  */
-function cm_ai_require_plugin_management_files() {
+function wpshq_ai_require_plugin_management_files() {
 	require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
@@ -35,7 +34,7 @@ function cm_ai_require_plugin_management_files() {
  * @param string $plugin_file Plugin file.
  * @return string
  */
-function cm_ai_get_plugin_slug_from_file( $plugin_file ) {
+function wpshq_ai_get_plugin_slug_from_file( $plugin_file ) {
 	$plugin_file = plugin_basename( (string) $plugin_file );
 	$parts       = explode( '/', $plugin_file );
 
@@ -50,8 +49,8 @@ function cm_ai_get_plugin_slug_from_file( $plugin_file ) {
  * @param array  $plugin_data Plugin header data.
  * @return array
  */
-function cm_ai_get_plugin_state( $plugin_file, $plugin_data ) {
-	cm_ai_require_plugin_management_files();
+function wpshq_ai_get_plugin_state( $plugin_file, $plugin_data ) {
+	wpshq_ai_require_plugin_management_files();
 
 	$plugin_file    = plugin_basename( (string) $plugin_file );
 	$site_active    = is_plugin_active( $plugin_file );
@@ -60,7 +59,7 @@ function cm_ai_get_plugin_state( $plugin_file, $plugin_data ) {
 		: false;
 	$plugin_name    = isset( $plugin_data['Name'] ) ? (string) $plugin_data['Name'] : $plugin_file;
 	$plugin_version = isset( $plugin_data['Version'] ) ? (string) $plugin_data['Version'] : '';
-	$plugin_slug    = cm_ai_get_plugin_slug_from_file( $plugin_file );
+	$plugin_slug    = wpshq_ai_get_plugin_slug_from_file( $plugin_file );
 
 	return array(
 		'plugin_file'    => $plugin_file,
@@ -79,8 +78,8 @@ function cm_ai_get_plugin_state( $plugin_file, $plugin_data ) {
  * @param array $input Ability input.
  * @return array|WP_Error
  */
-function cm_ai_resolve_installed_plugin( $input ) {
-	cm_ai_require_plugin_management_files();
+function wpshq_ai_resolve_installed_plugin( $input ) {
+	wpshq_ai_require_plugin_management_files();
 
 	$all_plugins = get_plugins();
 	$plugin_file = isset( $input['plugin_file'] ) ? plugin_basename( sanitize_text_field( wp_unslash( $input['plugin_file'] ) ) ) : '';
@@ -97,7 +96,7 @@ function cm_ai_resolve_installed_plugin( $input ) {
 	$matches = array();
 
 	foreach ( $all_plugins as $installed_file => $plugin_data ) {
-		$installed_slug = cm_ai_get_plugin_slug_from_file( $installed_file );
+		$installed_slug = wpshq_ai_get_plugin_slug_from_file( $installed_file );
 		$plugin_name    = isset( $plugin_data['Name'] ) ? (string) $plugin_data['Name'] : '';
 		$exact_match    = false;
 		$score          = 0;
@@ -184,8 +183,8 @@ function cm_ai_resolve_installed_plugin( $input ) {
  * @param array $input Ability input.
  * @return array|WP_Error
  */
-function cm_ai_resolve_plugin_install_source( $input ) {
-	cm_ai_require_plugin_management_files();
+function wpshq_ai_resolve_plugin_install_source( $input ) {
+	wpshq_ai_require_plugin_management_files();
 
 	$slug = isset( $input['slug'] ) ? sanitize_key( $input['slug'] ) : '';
 	$name = isset( $input['name'] ) ? sanitize_text_field( wp_unslash( $input['name'] ) ) : '';
@@ -285,7 +284,7 @@ function cm_ai_resolve_plugin_install_source( $input ) {
  * @param string $plugin_file Plugin file.
  * @return bool
  */
-function cm_ai_is_current_plugin( $plugin_file ) {
+function wpshq_ai_is_current_plugin( $plugin_file ) {
 	return plugin_basename( (string) $plugin_file ) === plugin_basename( Monks_Central_Connector::host()['file'] );
 }
 
@@ -297,7 +296,7 @@ function cm_ai_is_current_plugin( $plugin_file ) {
  * @param bool   $network     Network-active (multisite).
  * @return void
  */
-function cm_ai_mark_plugin_active( $plugin_file, $network ) {
+function wpshq_ai_mark_plugin_active( $plugin_file, $network ) {
 	if ( $network ) {
 		$active                 = (array) get_site_option( 'active_sitewide_plugins', array() );
 		$active[ $plugin_file ] = $active[ $plugin_file ] ?? time();

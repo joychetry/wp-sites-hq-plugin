@@ -8,14 +8,13 @@
  * @subpackage AI/Abilities
  * @since 1.2.0
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_update_plugin_ability' );
-function cm_register_update_plugin_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_update_plugin_ability' );
+function wpshq_register_update_plugin_ability() {
 	wp_register_ability(
 		'classic-monks/update-plugin',
 		array(
@@ -71,7 +70,7 @@ function cm_register_update_plugin_ability() {
 					'status'           => array( 'type' => 'integer' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_update_plugin',
+			'execute_callback'    => 'wpshq_execute_update_plugin',
 			'permission_callback' => function () {
 				return current_user_can( 'update_plugins' );
 			},
@@ -95,10 +94,10 @@ function cm_register_update_plugin_ability() {
  * @param array $input Ability input.
  * @return array|WP_Error
  */
-function cm_execute_update_plugin( $input ) {
-	cm_ai_require_plugin_management_files();
+function wpshq_execute_update_plugin( $input ) {
+	wpshq_ai_require_plugin_management_files();
 
-	$resolved = cm_ai_resolve_installed_plugin( $input );
+	$resolved = wpshq_ai_resolve_installed_plugin( $input );
 	if ( is_wp_error( $resolved ) ) {
 		return $resolved;
 	}
@@ -117,7 +116,7 @@ function cm_execute_update_plugin( $input ) {
 	$previous_version = isset( $plugin_data['Version'] ) ? (string) $plugin_data['Version'] : '';
 
 	if ( empty( $response[ $plugin_file ] ) ) {
-		$state                     = cm_ai_get_plugin_state( $plugin_file, $plugin_data );
+		$state                     = wpshq_ai_get_plugin_state( $plugin_file, $plugin_data );
 		$state['previous_version'] = $previous_version;
 		$state['updated']          = false;
 		$state['message']          = __( 'No update is currently available for this plugin.', 'wp-sites-hq' );
@@ -134,7 +133,7 @@ function cm_execute_update_plugin( $input ) {
 	$upgrader = new Plugin_Upgrader( new Automatic_Upgrader_Skin() );
 	if ( $safe ) {
 		// As WP_Automatic_Updater: visitors wait while the new code is checked, and the check gets past the wait.
-		$log_offset = cm_ai_error_log_since()['offset'];
+		$log_offset = wpshq_ai_error_log_since()['offset'];
 		$upgrader->maintenance_mode( true );
 		register_shutdown_function( array( $upgrader, 'maintenance_mode' ), false ); // Off even if this request dies.
 	}
@@ -143,7 +142,7 @@ function cm_execute_update_plugin( $input ) {
 	if ( is_wp_error( $result ) || ! $result ) {
 		// upgrade() may have turned it off already; the old files stay (or come back at shutdown), so it goes back on.
 		if ( $was_active ) {
-			cm_ai_mark_plugin_active( $plugin_file, $network );
+			wpshq_ai_mark_plugin_active( $plugin_file, $network );
 		}
 		if ( $safe ) {
 			$upgrader->maintenance_mode( false );
@@ -165,10 +164,10 @@ function cm_execute_update_plugin( $input ) {
 	wp_clean_plugins_cache( true );
 	if ( $safe ) {
 		// Never load the new file here: if it fatals, this request dies before it can roll back.
-		cm_ai_mark_plugin_active( $plugin_file, $network );
-		$check = cm_ai_update_broke_site( $log_offset );
+		wpshq_ai_mark_plugin_active( $plugin_file, $network );
+		$check = wpshq_ai_update_broke_site( $log_offset );
 		if ( '' !== $check['reason'] ) {
-			return cm_ai_roll_back_plugin_update( $upgrader, $plugin_file, $previous_version, $check );
+			return wpshq_ai_roll_back_plugin_update( $upgrader, $plugin_file, $previous_version, $check );
 		}
 		$upgrader->maintenance_mode( false );
 		$reactivated = null;
@@ -180,7 +179,7 @@ function cm_execute_update_plugin( $input ) {
 
 	$all_plugins = get_plugins();
 	$plugin_data = isset( $all_plugins[ $plugin_file ] ) ? $all_plugins[ $plugin_file ] : $plugin_data;
-	$state       = cm_ai_get_plugin_state( $plugin_file, $plugin_data );
+	$state       = wpshq_ai_get_plugin_state( $plugin_file, $plugin_data );
 
 	$state['previous_version'] = $previous_version;
 	$state['updated']          = true;
@@ -205,10 +204,10 @@ function cm_execute_update_plugin( $input ) {
  * @param int $log_offset Error log size before the update.
  * @return array status (home page) and reason ('' when the site works).
  */
-function cm_ai_update_broke_site( $log_offset ) {
+function wpshq_ai_update_broke_site( $log_offset ) {
 	sleep( 2 ); // As core: the loopback may otherwise still run the old code.
-	$home = cm_ai_http_status( '/' );
-	$log  = cm_ai_error_log_since( $log_offset );
+	$home = wpshq_ai_http_status( '/' );
+	$log  = wpshq_ai_error_log_since( $log_offset );
 
 	// The scrape can miss the fatal (something cleared it at shutdown); the log line then names it.
 	$fatals = preg_grep( '/PHP (Fatal|Parse) error/', $log['lines'] );
@@ -244,10 +243,10 @@ function cm_ai_update_broke_site( $log_offset ) {
  * @param Plugin_Upgrader $upgrader         The upgrader that ran the update (its backup lasts until shutdown).
  * @param string          $plugin_file      Plugin file.
  * @param string          $previous_version Version before the update.
- * @param array           $check            cm_ai_update_broke_site() result.
+ * @param array           $check            wpshq_ai_update_broke_site() result.
  * @return array|WP_Error
  */
-function cm_ai_roll_back_plugin_update( $upgrader, $plugin_file, $previous_version, $check ) {
+function wpshq_ai_roll_back_plugin_update( $upgrader, $plugin_file, $previous_version, $check ) {
 	$slug = dirname( $plugin_file );
 	// A plugin outside a folder ("hello.php") gets no backup; restoring slug "." would empty the plugins folder.
 	$restored = '.' !== $slug
@@ -276,7 +275,7 @@ function cm_ai_roll_back_plugin_update( $upgrader, $plugin_file, $previous_versi
 	wp_update_plugins(); // The upgrade emptied the update list: without this every other plugin's update is gone until the next check.
 
 	$all_plugins = get_plugins();
-	$state       = cm_ai_get_plugin_state( $plugin_file, $all_plugins[ $plugin_file ] ?? array() );
+	$state       = wpshq_ai_get_plugin_state( $plugin_file, $all_plugins[ $plugin_file ] ?? array() );
 
 	$state['previous_version'] = $previous_version;
 	$state['updated']          = false;

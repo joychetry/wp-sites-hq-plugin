@@ -9,7 +9,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,8 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_create_term_ability' );
-function cm_register_create_term_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_create_term_ability' );
+function wpshq_register_create_term_ability() {
 	wp_register_ability(
 		'classic-monks/create-term',
 		array(
@@ -76,7 +75,7 @@ function cm_register_create_term_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_create_term',
+			'execute_callback'    => 'wpshq_execute_create_term',
 			'permission_callback' => function ( $input = array() ) {
 				// The taxonomy's own capability: manage_categories alone would let an editor create menus or product categories.
 				// An unknown taxonomy falls through so execute can say it does not exist.
@@ -103,7 +102,7 @@ function cm_register_create_term_ability() {
  * @param array $input Input parameters.
  * @return array|WP_Error Created term info or error.
  */
-function cm_execute_create_term( $input ) {
+function wpshq_execute_create_term( $input ) {
 	$taxonomy = sanitize_key( $input['taxonomy'] );
 
 	// Validate taxonomy exists

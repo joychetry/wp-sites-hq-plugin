@@ -5,7 +5,7 @@ wpe "update_user_meta(1, 'cm_mcp_trusted', ['$MCP_UUID' => true]);" >/dev/null
 settoolsets() { wpe "\$t = get_user_meta(1, 'cm_mcp_toolsets', true) ?: []; \$t['$MCP_UUID'] = $1; update_user_meta(1, 'cm_mcp_toolsets', \$t);" >/dev/null; }
 count() { grep -o '"name":"[a-z0-9-]*","title"' <<<"$1" | wc -l | tr -d ' '; }
 
-settoolsets "CM_MCP_Server::DEFAULT_TOOLSETS"
+settoolsets "WPSHQ_MCP_Server::DEFAULT_TOOLSETS"
 L=$(rpc tools/list)
 check 'default toolsets stay under 128 tools' "$( (( $(count "$L") < 128 )) && echo yes)" yes
 check 'default hides site admin'              "$L" '!~"name":"get-plugins"'
@@ -16,7 +16,7 @@ L=$(rpc tools/list)
 check 'site toolset lists get-plugins'        "$L" '~"name":"get-plugins"'
 check 'site toolset hides content tools'      "$L" '!~"name":"get-posts"'
 
-settoolsets "array_keys(CM_MCP_Server::toolsets())"
+settoolsets "array_keys(WPSHQ_MCP_Server::toolsets())"
 check 'get-plugins lists WP Sites HQ'      "$(call get-plugins)" '~"name":"WP Sites HQ"'
 check 'search-plugins'                        "$(call search-plugins '{"search":"classic monks"}')" '!~"isError":true'
 check 'set-plugin-auto-update'                "$(call set-plugin-auto-update '{"slug":"wp-sites-hq","enabled":true}')" '!~"isError":true'
@@ -39,7 +39,7 @@ check 'list-themes'                           "$(call list-themes)" '~"active"'
 check 'update-core always asks'               "$(call update-core)" '~"cause":"approval"'
 
 # The fatal check after a theme change fetches the request's Host only for the site's own host, or on a local site.
-fu() { wpe "wp_get_abilities(); echo cm_activate_theme_url_for_host('https://shop.example/', '$1', $2);"; }
+fu() { wpe "wp_get_abilities(); echo wpshq_activate_theme_url_for_host('https://shop.example/', '$1', $2);"; }
 check 'fatal check: own host, another port' "$(fu shop.example:8080 false)" 'https://shop.example:8080/'
 check 'fatal check: a caller-chosen host is ignored' "$(fu 169.254.169.254 false)" 'https://shop.example/'
 check 'fatal check: a local site uses it' "$(fu localhost:8881 true)" 'https://localhost:8881/'

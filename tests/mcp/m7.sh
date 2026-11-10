@@ -37,7 +37,7 @@ check 'get-users filters by a custom role'        "$R" '~"username":"cm_m7_user"
 check 'the filter keeps other users out'          "$R" '!~"username":"admin"'
 err 'get-users refuses a role the site lacks'     "$(call get-users '{"role":"cm_no_such_role"}')"
 E=$(wpe 'echo wp_insert_user(["user_login" => "cm_m7_editor", "user_email" => "cm_m7_editor@example.com", "user_pass" => wp_generate_password(), "role" => "editor"]);')
-check 'an editor is offered no roles' "$(wpe "wp_set_current_user($E); echo wp_json_encode(cm_ai_assignable_roles());")" '[]'
+check 'an editor is offered no roles' "$(wpe "wp_set_current_user($E); echo wp_json_encode(wpshq_ai_assignable_roles());")" '[]'
 
 # send-password-reset: WordPress' own reset email, with a fresh key; the password stays as it was.
 HASH=$(wpe "echo get_userdata($U)->user_pass;")

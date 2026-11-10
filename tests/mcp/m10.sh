@@ -97,7 +97,7 @@ for p in 'shop' '//evil.example/' 'http://evil.example/' '/\\evil.example' '/a b
 done
 
 # get-error-log-since: a marker, then only the new lines, masked and redacted, with fatal and warning counts.
-check 'WP_DEBUG_LOG is on in this site' "$(wpe 'echo cm_ai_error_log_path() === WP_CONTENT_DIR . "/debug.log" ? "yes" : "no";')" yes
+check 'WP_DEBUG_LOG is on in this site' "$(wpe 'echo wpshq_ai_error_log_path() === WP_CONTENT_DIR . "/debug.log" ? "yes" : "no";')" yes
 touch "$LOG"
 R=$(call get-error-log-since)
 ok 'get-error-log-since marker' "$R"

@@ -8,14 +8,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_update_core_db_ability' );
-function cm_register_update_core_db_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_update_core_db_ability' );
+function wpshq_register_update_core_db_ability() {
 	wp_register_ability(
 		'classic-monks/update-core-db',
 		array(
@@ -34,7 +33,7 @@ function cm_register_update_core_db_ability() {
 					'updated'             => array( 'type' => 'boolean' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_update_core_db',
+			'execute_callback'    => 'wpshq_execute_update_core_db',
 			// Core's upgrade.php checks no capability; this is database-only, so the database tools' caps (not update_core,
 			// which DISALLOW_FILE_MODS denies even though the host may have updated the files).
 			'permission_callback' => function () {
@@ -48,14 +47,14 @@ function cm_register_update_core_db_ability() {
 					'idempotent'   => true,
 					'instructions' => 'Run after update-core when get-core-version or the admin asks for a database update. Suggest a backup first.',
 				),
-				'cm_preview_callback' => 'cm_preview_core_db_version',
+				'cm_preview_callback' => 'wpshq_preview_core_db_version',
 				'show_in_rest'        => true,
 			),
 		)
 	);
 }
 
-function cm_preview_core_db_version( $input = array() ) {
+function wpshq_preview_core_db_version( $input = array() ) {
 	global $wp_db_version;
 	return array(
 		'db_version'          => (int) get_option( 'db_version' ),
@@ -63,7 +62,7 @@ function cm_preview_core_db_version( $input = array() ) {
 	);
 }
 
-function cm_execute_update_core_db() {
+function wpshq_execute_update_core_db() {
 	global $wp_db_version;
 	$previous = (int) get_option( 'db_version' );
 

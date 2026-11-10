@@ -8,14 +8,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_delete_comment_ability' );
-function cm_register_delete_comment_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_delete_comment_ability' );
+function wpshq_register_delete_comment_ability() {
 	wp_register_ability(
 		'classic-monks/delete-comment',
 		array(
@@ -46,13 +45,13 @@ function cm_register_delete_comment_ability() {
 					'deleted'         => array( 'type' => 'boolean' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_delete_comment',
+			'execute_callback'    => 'wpshq_execute_delete_comment',
 			'permission_callback' => function ( $input ) {
 				return current_user_can( 'moderate_comments' ) && current_user_can( 'edit_comment', absint( $input['comment_id'] ?? 0 ) );
 			},
 			'meta'                => array(
 				'cm_always_approve'   => true, // Can't be undone: trusted connections still ask.
-				'cm_preview_callback' => 'cm_preview_delete_comment',
+				'cm_preview_callback' => 'wpshq_preview_delete_comment',
 				'annotations'         => array(
 					'readonly'     => false,
 					'destructive'  => true,
@@ -65,7 +64,7 @@ function cm_register_delete_comment_ability() {
 	);
 }
 
-function cm_execute_delete_comment( $input ) {
+function wpshq_execute_delete_comment( $input ) {
 	$comment = get_comment( absint( $input['comment_id'] ) );
 	if ( ! $comment ) {
 		return new WP_Error( 'comment_not_found', __( 'Comment not found.', 'wp-sites-hq' ) );
@@ -89,7 +88,7 @@ function cm_execute_delete_comment( $input ) {
 /**
  * The comment as it is now, for the approval screen.
  */
-function cm_preview_delete_comment( $input ) {
+function wpshq_preview_delete_comment( $input ) {
 	$comment = get_comment( absint( $input['comment_id'] ?? 0 ) );
 	if ( ! $comment ) {
 		return null;

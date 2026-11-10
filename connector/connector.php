@@ -90,7 +90,7 @@ final class Monks_Central_Connector {
 	 */
 	public static function on_host_deactivated() {
 		if ( count( monks_central_connector_copies() ) < 2 ) {
-			cm_mcp_revoke_all_connections();
+			wpshq_mcp_revoke_all_connections();
 		}
 	}
 
@@ -118,7 +118,7 @@ final class Monks_Central_Connector {
 	 * @return bool
 	 */
 	private static function running() {
-		return self::enabled() && class_exists( 'CM_MCP_Server' );
+		return self::enabled() && class_exists( 'WPSHQ_MCP_Server' );
 	}
 
 	/**
@@ -169,7 +169,7 @@ final class Monks_Central_Connector {
 			'supported' => self::supported(),
 			'enabled'   => $enabled,
 			'site'      => home_url(),
-			'endpoint'  => self::running() ? CM_MCP_Server::endpoint_url() : '',
+			'endpoint'  => self::running() ? WPSHQ_MCP_Server::endpoint_url() : '',
 			'https'     => wp_is_application_passwords_supported(),
 		);
 	}
@@ -202,12 +202,12 @@ final class Monks_Central_Connector {
 		if ( ! self::running() || ! current_user_can( 'manage_options' ) ) {
 			return array();
 		}
-		$scopes = CM_MCP_Server::scopes();
+		$scopes = WPSHQ_MCP_Server::scopes();
 		return array_map(
 			function ( $row ) use ( $scopes ) {
 				return $row + array( 'scope_label' => $scopes[ $row['scope'] ] ?? $row['scope'] );
 			},
-			CM_MCP_Server::connections()
+			WPSHQ_MCP_Server::connections()
 		);
 	}
 
@@ -221,7 +221,7 @@ final class Monks_Central_Connector {
 		if ( ! self::running() ) {
 			return array();
 		}
-		$help = CM_MCP_Server::scope_descriptions();
+		$help = WPSHQ_MCP_Server::scope_descriptions();
 		return array(
 			'scopes'           => array_map(
 				function ( $label, $key ) use ( $help ) {
@@ -231,12 +231,12 @@ final class Monks_Central_Connector {
 						'description' => $help[ $key ] ?? '',
 					);
 				},
-				CM_MCP_Server::scopes(),
-				array_keys( CM_MCP_Server::scopes() )
+				WPSHQ_MCP_Server::scopes(),
+				array_keys( WPSHQ_MCP_Server::scopes() )
 			),
-			'toolsets'         => CM_MCP_Server::toolsets(),
-			'default_toolsets' => CM_MCP_Server::default_toolsets(),
-			'namespaces'       => CM_MCP_Server::available_namespaces(),
+			'toolsets'         => WPSHQ_MCP_Server::toolsets(),
+			'default_toolsets' => WPSHQ_MCP_Server::default_toolsets(),
+			'namespaces'       => WPSHQ_MCP_Server::available_namespaces(),
 		);
 	}
 
@@ -249,7 +249,7 @@ final class Monks_Central_Connector {
 	 * @return true|WP_Error
 	 */
 	private static function check_connection( $user_id, $id, $cap ) {
-		if ( ! self::running() || ! current_user_can( 'manage_options' ) || ! CM_MCP_Server::connection_exists( $user_id, $id ) ) {
+		if ( ! self::running() || ! current_user_can( 'manage_options' ) || ! WPSHQ_MCP_Server::connection_exists( $user_id, $id ) ) {
 			return new WP_Error( 'cm_connection_not_found', __( 'That connection no longer exists, or you cannot change it.', 'wp-sites-hq' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( $cap, $user_id, $id ) ) {
@@ -260,7 +260,7 @@ final class Monks_Central_Connector {
 
 	/**
 	 * Revoke a connection: the app is signed out at once.
-	 * Revoking the last connection of an agent account the host created (CM_MCP_Server::AGENT_META) deletes
+	 * Revoking the last connection of an agent account the host created (WPSHQ_MCP_Server::AGENT_META) deletes
 	 * that account too, its content reassigned to the current user.
 	 *
 	 * @param int    $user_id Owner.
@@ -272,13 +272,13 @@ final class Monks_Central_Connector {
 		if ( is_wp_error( $check ) ) {
 			return $check;
 		}
-		if ( CM_MCP_OAuth::is_oauth_id( $id ) ) {
-			CM_MCP_OAuth::revoke_family( substr( $id, strlen( CM_MCP_OAuth::ID_PREFIX ) ) );
+		if ( WPSHQ_MCP_OAuth::is_oauth_id( $id ) ) {
+			WPSHQ_MCP_OAuth::revoke_family( substr( $id, strlen( WPSHQ_MCP_OAuth::ID_PREFIX ) ) );
 		} else {
 			// An MCP Application Password left by Classic Monks Pro.
 			WP_Application_Passwords::delete_application_password( $user_id, $id );
-			CM_MCP_Server::forget_connection( $user_id, $id );
-			if ( CM_MCP_Server::is_lone_agent( $user_id ) && current_user_can( 'delete_users' ) && get_current_user_id() !== $user_id ) {
+			WPSHQ_MCP_Server::forget_connection( $user_id, $id );
+			if ( WPSHQ_MCP_Server::is_lone_agent( $user_id ) && current_user_can( 'delete_users' ) && get_current_user_id() !== $user_id ) {
 				require_once ABSPATH . 'wp-admin/includes/user.php';
 				// Its posts go to the admin revoking it; nothing the agent made is lost.
 				wp_delete_user( $user_id, get_current_user_id() );
@@ -300,10 +300,10 @@ final class Monks_Central_Connector {
 		if ( is_wp_error( $check ) ) {
 			return $check;
 		}
-		if ( null === CM_MCP_Approvals::operator( $user_id, $id ) ) {
+		if ( null === WPSHQ_MCP_Approvals::operator( $user_id, $id ) ) {
 			return new WP_Error( 'cm_not_operator', __( 'This connection is not an operator grant.', 'wp-sites-hq' ), array( 'status' => 400 ) );
 		}
-		CM_MCP_Approvals::save_flag( CM_MCP_Approvals::OPERATOR_META, $user_id, $id, (bool) $skip );
+		WPSHQ_MCP_Approvals::save_flag( WPSHQ_MCP_Approvals::OPERATOR_META, $user_id, $id, (bool) $skip );
 		return true;
 	}
 
@@ -321,20 +321,20 @@ final class Monks_Central_Connector {
 		if ( is_wp_error( $check ) ) {
 			return $check;
 		}
-		if ( isset( $changes['scope'] ) && ! isset( CM_MCP_Server::scopes()[ $changes['scope'] ] ) ) {
+		if ( isset( $changes['scope'] ) && ! isset( WPSHQ_MCP_Server::scopes()[ $changes['scope'] ] ) ) {
 			return new WP_Error( 'cm_invalid_scope', __( 'Pick one of the access levels.', 'wp-sites-hq' ), array( 'status' => 400 ) );
 		}
 		if ( isset( $changes['scope'] ) ) {
-			CM_MCP_Server::save_scope( $user_id, $id, $changes['scope'] );
+			WPSHQ_MCP_Server::save_scope( $user_id, $id, $changes['scope'] );
 		}
 		if ( isset( $changes['toolsets'] ) ) {
-			CM_MCP_Server::save_toolsets( $user_id, $id, CM_MCP_Server::sanitize_toolsets( $changes['toolsets'] ) );
+			WPSHQ_MCP_Server::save_toolsets( $user_id, $id, WPSHQ_MCP_Server::sanitize_toolsets( $changes['toolsets'] ) );
 		}
 		if ( isset( $changes['namespaces'] ) ) {
-			CM_MCP_Server::save_namespaces( $user_id, $id, CM_MCP_Server::sanitize_namespaces( $changes['namespaces'] ) );
+			WPSHQ_MCP_Server::save_namespaces( $user_id, $id, WPSHQ_MCP_Server::sanitize_namespaces( $changes['namespaces'] ) );
 		}
 		if ( isset( $changes['trusted'] ) ) {
-			CM_MCP_Approvals::save_flag( CM_MCP_Approvals::TRUSTED_META, $user_id, $id, $changes['trusted'] ? true : null );
+			WPSHQ_MCP_Approvals::save_flag( WPSHQ_MCP_Approvals::TRUSTED_META, $user_id, $id, $changes['trusted'] ? true : null );
 		}
 		return true;
 	}
@@ -349,7 +349,7 @@ final class Monks_Central_Connector {
 			return array();
 		}
 		$out = array();
-		foreach ( CM_MCP_Approvals::pending_for_current_user() as $row ) {
+		foreach ( WPSHQ_MCP_Approvals::pending_for_current_user() as $row ) {
 			$user  = get_userdata( (int) $row['user_id'] );
 			$out[] = array(
 				'id'          => (int) $row['id'],
@@ -357,7 +357,7 @@ final class Monks_Central_Connector {
 				'client'      => $row['client_label'],
 				'user'        => $user ? $user->user_login : '',
 				'created_at'  => $row['created_at'],
-				'approve_url' => CM_MCP_Approvals::approve_url( $row['id'] ),
+				'approve_url' => WPSHQ_MCP_Approvals::approve_url( $row['id'] ),
 			);
 		}
 		return $out;
@@ -371,13 +371,13 @@ final class Monks_Central_Connector {
 	 */
 	public static function activity( array $args = array() ) {
 		// The log also runs with the endpoint off when a host loads the abilities for its own UI.
-		if ( ! class_exists( 'CM_AI_Activity_Log' ) || ! current_user_can( 'manage_options' ) ) {
+		if ( ! class_exists( 'WPSHQ_AI_Activity_Log' ) || ! current_user_can( 'manage_options' ) ) {
 			return array(
 				'rows'  => array(),
 				'total' => 0,
 			);
 		}
-		return CM_AI_Activity_Log::list_rows( $args );
+		return WPSHQ_AI_Activity_Log::list_rows( $args );
 	}
 
 	/**
@@ -387,9 +387,9 @@ final class Monks_Central_Connector {
 	 * @return true|WP_Error
 	 */
 	public static function undo( $id ) {
-		if ( ! class_exists( 'CM_AI_Activity_Log' ) || ! current_user_can( 'manage_options' ) ) {
+		if ( ! class_exists( 'WPSHQ_AI_Activity_Log' ) || ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error( 'cm_forbidden', __( 'You are not allowed to undo changes.', 'wp-sites-hq' ), array( 'status' => 403 ) );
 		}
-		return CM_AI_Activity_Log::undo( $id );
+		return WPSHQ_AI_Activity_Log::undo( $id );
 	}
 }

@@ -8,14 +8,13 @@
  * @package MonksCentral\Connector
  * @requires WordPress 7.1+ for rows to exist (the log hooks are 7.1+)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_list_ai_activity_ability' );
-function cm_register_list_ai_activity_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_list_ai_activity_ability' );
+function wpshq_register_list_ai_activity_ability() {
 	wp_register_ability(
 		'classic-monks/list-ai-activity',
 		array(
@@ -61,7 +60,7 @@ function cm_register_list_ai_activity_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_list_ai_activity',
+			'execute_callback'    => 'wpshq_execute_list_ai_activity',
 			// The same bar as the connection screen.
 			'permission_callback' => function () {
 				return current_user_can( 'manage_options' );
@@ -78,15 +77,15 @@ function cm_register_list_ai_activity_ability() {
 	);
 }
 
-function cm_execute_list_ai_activity( $input = array() ) {
-	if ( ! class_exists( 'CM_AI_Activity_Log' ) ) {
+function wpshq_execute_list_ai_activity( $input = array() ) {
+	if ( ! class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
 		return new WP_Error( 'cm_module_disabled', __( 'The AI activity log is not available on this site.', 'wp-sites-hq' ) );
 	}
 	$page     = max( 1, (int) ( $input['page'] ?? 1 ) );
 	$per_page = max( 1, min( 100, (int) ( $input['per_page'] ?? 20 ) ) );
 	$tool     = (string) ( $input['tool'] ?? '' );
 
-	$list = CM_AI_Activity_Log::list_rows(
+	$list = WPSHQ_AI_Activity_Log::list_rows(
 		array(
 			'filter'  => (string) ( $input['connection'] ?? '' ),
 			'ability' => '' === $tool || false !== strpos( $tool, '/' ) ? $tool : 'classic-monks/' . $tool,
@@ -120,7 +119,7 @@ function cm_execute_list_ai_activity( $input = array() ) {
 		'total'        => $list['total'],
 		'page'         => $page,
 		'per_page'     => $per_page,
-		'reads_logged' => (bool) apply_filters( 'cm_ai_log_reads', false ),
+		'reads_logged' => (bool) apply_filters( 'wpshq_ai_log_reads', false ),
 		'rows'         => $rows,
 	);
 }

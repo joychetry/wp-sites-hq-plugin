@@ -9,14 +9,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_import_media_from_url_ability' );
-function cm_register_import_media_from_url_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_import_media_from_url_ability' );
+function wpshq_register_import_media_from_url_ability() {
 	wp_register_ability(
 		'classic-monks/import-media-from-url',
 		array(
@@ -66,7 +65,7 @@ function cm_register_import_media_from_url_ability() {
 					'edit_url'      => array( 'type' => 'string' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_import_media_from_url',
+			'execute_callback'    => 'wpshq_execute_import_media_from_url',
 			'permission_callback' => function () {
 				return current_user_can( 'upload_files' );
 			},
@@ -83,7 +82,7 @@ function cm_register_import_media_from_url_ability() {
 	);
 }
 
-function cm_execute_import_media_from_url( $input = array() ) {
+function wpshq_execute_import_media_from_url( $input = array() ) {
 	$url = esc_url_raw( (string) ( $input['url'] ?? '' ), array( 'http', 'https' ) );
 	if ( '' === $url ) {
 		return new WP_Error( 'invalid_url', __( 'A valid http(s) image URL is required.', 'wp-sites-hq' ) );
@@ -106,13 +105,13 @@ function cm_execute_import_media_from_url( $input = array() ) {
 	require_once dirname( __DIR__ ) . '/media-import-helpers.php';
 
 	// Scheme, private/reserved IPs (every redirect hop), IP pinning and size cap.
-	$tmp_file = cm_ai_safe_download( $url, 30 );
+	$tmp_file = wpshq_ai_safe_download( $url, 30 );
 	if ( is_wp_error( $tmp_file ) ) {
 		return $tmp_file;
 	}
 
 	// Type from the sniffed bytes, never the URL; non-images refused, SVG sanitized.
-	$file_array = cm_ai_prepare_image_file( $tmp_file, wp_basename( wp_parse_url( $url, PHP_URL_PATH ) ?: 'image' ) );
+	$file_array = wpshq_ai_prepare_image_file( $tmp_file, wp_basename( wp_parse_url( $url, PHP_URL_PATH ) ?: 'image' ) );
 	if ( is_wp_error( $file_array ) ) {
 		wp_delete_file( $tmp_file );
 		return $file_array;

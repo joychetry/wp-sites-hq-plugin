@@ -8,14 +8,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_delete_user_ability' );
-function cm_register_delete_user_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_delete_user_ability' );
+function wpshq_register_delete_user_ability() {
 	wp_register_ability(
 		'classic-monks/delete-user',
 		array(
@@ -48,7 +47,7 @@ function cm_register_delete_user_ability() {
 					'deleted'  => array( 'type' => 'boolean' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_delete_user',
+			'execute_callback'    => 'wpshq_execute_delete_user',
 			'permission_callback' => function ( $input ) {
 				return ! empty( $input['user_id'] ) && current_user_can( 'delete_user', (int) $input['user_id'] );
 			},
@@ -59,7 +58,7 @@ function cm_register_delete_user_ability() {
 					'idempotent'   => true,
 					'instructions' => 'Cannot be undone. Confirm the user and who receives their content before deleting.',
 				),
-				'cm_preview_callback' => 'cm_preview_user_state',
+				'cm_preview_callback' => 'wpshq_preview_user_state',
 				'cm_always_approve'   => true,
 				'show_in_rest'        => true,
 			),
@@ -67,7 +66,7 @@ function cm_register_delete_user_ability() {
 	);
 }
 
-function cm_execute_delete_user( $input ) {
+function wpshq_execute_delete_user( $input ) {
 	require_once ABSPATH . 'wp-admin/includes/user.php';
 
 	$user_id  = absint( $input['user_id'] );
@@ -82,7 +81,7 @@ function cm_execute_delete_user( $input ) {
 	if ( $reassign === $user_id || ! get_userdata( $reassign ) ) {
 		return new WP_Error( 'cm_user_bad_reassign', __( 'Choose a different, existing user to receive the content.', 'wp-sites-hq' ) );
 	}
-	if ( cm_ai_is_last_admin( $user_id ) ) {
+	if ( wpshq_ai_is_last_admin( $user_id ) ) {
 		return new WP_Error( 'cm_user_last_admin', __( 'This is the last administrator and cannot be deleted.', 'wp-sites-hq' ) );
 	}
 

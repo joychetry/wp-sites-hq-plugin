@@ -25,7 +25,7 @@ check 'health from the last run'         "$(sc "$S" .health)" '{"good":12,"recom
 check 'environment type'                 "$(sc "$S" .environment.type)" '"local"'
 check 'direct file system needs nothing' "$(sc "$S" '.filesystem | [.method, .needs_credentials]')" '["direct",false]'
 # WP-CLI forces the direct method at the default priority.
-check 'FTP-only site needs credentials'  "$(wpe 'add_filter("filesystem_method", function () { return "ftpext"; }, 999); echo wp_json_encode(cm_ai_snapshot_filesystem());')" '~"needs_credentials":true'
+check 'FTP-only site needs credentials'  "$(wpe 'add_filter("filesystem_method", function () { return "ftpext"; }, 999); echo wp_json_encode(wpshq_ai_snapshot_filesystem());')" '~"needs_credentials":true'
 wpe 'delete_transient("health-check-site-status-result");' >/dev/null
 check 'no Site Health run yet is null'   "$(sc "$(call get-site-snapshot)" .health)" null
 

@@ -51,10 +51,10 @@ check 'locale not offered is refused'      "$(bcall "$OP" update-core '{"version
 check 'locale needs a version'             "$(bcall "$OP" update-core '{"locale":"de_DE"}')" '~Name a version together with the locale'
 check 'bad version is a validation error'  "$(bcall "$OP" update-core '{"version":"latest"}')" '~"cause":"validation"'
 check 'current version is a no-op'         "$(sc "$(bcall "$OP" update-core "{\"version\":\"$WPV\"}")" '| [.updated, .message]')" '[false,"WordPress is already at that version."]'
-check 'locale picks its own package'       "$(wpe 'echo cm_ai_find_core_offer("9.9.0", "de_DE")->locale;')" de_DE
-check 'no locale: the site language'       "$(wpe 'echo cm_ai_find_core_offer("9.9.0")->locale;')" en_US
-check 'no locale, site in de_DE'           "$(wpe 'add_filter("locale", function () { return "de_DE"; }); echo cm_ai_find_core_offer("9.9.0")->locale;')" de_DE
-check 'no locale, site language not offered' "$(wpe 'add_filter("locale", function () { return "fr_FR"; }); echo cm_ai_find_core_offer("9.9.0")->locale;')" en_US
+check 'locale picks its own package'       "$(wpe 'echo wpshq_ai_find_core_offer("9.9.0", "de_DE")->locale;')" de_DE
+check 'no locale: the site language'       "$(wpe 'echo wpshq_ai_find_core_offer("9.9.0")->locale;')" en_US
+check 'no locale, site in de_DE'           "$(wpe 'add_filter("locale", function () { return "de_DE"; }); echo wpshq_ai_find_core_offer("9.9.0")->locale;')" de_DE
+check 'no locale, site language not offered' "$(wpe 'add_filter("locale", function () { return "fr_FR"; }); echo wpshq_ai_find_core_offer("9.9.0")->locale;')" en_US
 revoke_grant "$(jq -r .family <<<"$T")"
 
 # Not tested here: an actual core download and install (needs WordPress.org packages).

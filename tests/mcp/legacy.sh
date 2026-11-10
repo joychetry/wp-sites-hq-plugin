@@ -7,7 +7,7 @@ JAR=$(mktemp); trap 'rm -f "$JAR"; revoke "$MCP_UUID"; revoke "$PLAIN_UUID"' EXI
 login "$JAR"
 
 check 'option on'                          "$(wpe 'echo get_option("cm_mcp_enabled");')" 1
-check 'connector not loaded'               "$(wpe 'echo class_exists("CM_MCP_Server") ? "loaded" : "off";')" off
+check 'connector not loaded'               "$(wpe 'echo class_exists("WPSHQ_MCP_Server") ? "loaded" : "off";')" off
 check 'no MCP route'                       "$(code -u "$AUTH" -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"ping"}' "$MCP")" 404
 check 'MCP password still confined'        "$(code -u "$AUTH" "$SITE/wp-json/wp/v2/users/me")" 403
 PAGE=$(curl -sk -b "$JAR" "$MC_PAGE")

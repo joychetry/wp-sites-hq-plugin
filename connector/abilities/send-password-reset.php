@@ -9,14 +9,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 7.1+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_send_password_reset_ability' );
-function cm_register_send_password_reset_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_send_password_reset_ability' );
+function wpshq_register_send_password_reset_ability() {
 	wp_register_ability(
 		'classic-monks/send-password-reset',
 		array(
@@ -42,7 +41,7 @@ function cm_register_send_password_reset_ability() {
 					'email'   => array( 'type' => 'string' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_send_password_reset',
+			'execute_callback'    => 'wpshq_execute_send_password_reset',
 			'permission_callback' => function ( $input ) {
 				return ! empty( $input['user_id'] ) && current_user_can( 'edit_user', (int) $input['user_id'] );
 			},
@@ -61,7 +60,7 @@ function cm_register_send_password_reset_ability() {
 	);
 }
 
-function cm_execute_send_password_reset( $input ) {
+function wpshq_execute_send_password_reset( $input ) {
 	$user = get_userdata( absint( $input['user_id'] ) );
 	if ( ! $user ) {
 		return new WP_Error( 'cm_user_not_found', __( 'User not found.', 'wp-sites-hq' ) );

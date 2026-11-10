@@ -34,4 +34,4 @@ connect() {
 # bcall TOKEN TOOL [ARGS_JSON] -> tools/call response over a Bearer token
 bcall() { local args=${3:-'{}'}; brpc "$1" tools/call "{\"name\":\"$2\",\"arguments\":$args}"; }
 brpc() { local params=${3:-'{}'}; curl -sk -H "Authorization: Bearer $1" -H 'Content-Type: application/json' -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"$2\",\"params\":$params}" "$MCP"; }
-revoke_grant() { wpe "CM_MCP_OAuth::revoke_family('$1');" >/dev/null; }
+revoke_grant() { wpe "WPSHQ_MCP_OAuth::revoke_family('$1');" >/dev/null; }

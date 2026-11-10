@@ -14,7 +14,7 @@ check 'consent page offers operator to admins' "$(cat "$CONSENT_FILE")" '~This i
 AT=$(jq -r .access_token <<<"$T"); FAM=$(jq -r .family <<<"$T")
 check 'operator grant gets full scope'      "$(jq -r .scope <<<"$T")" full
 check 'operator reported by get-hq-status'  "$(hq "$AT" '| [.operator, .operator_skips_always_ask, .trusted]')" '[true,true,true]'
-check 'every tool group'                   "$(hq "$AT" '.toolsets | sort')" "$(wpe 'echo wp_json_encode(array_keys(CM_MCP_Server::toolsets()));' | jq -c sort)"
+check 'every tool group'                   "$(hq "$AT" '.toolsets | sort')" "$(wpe 'echo wp_json_encode(array_keys(WPSHQ_MCP_Server::toolsets()));' | jq -c sort)"
 P=$(newpost)
 check 'always-ask tool runs directly'       "$(bcall "$AT" delete-post "{\"post_id\":$P,\"force\":true}")" '!~isError'
 check 'post really deleted'                 "$(wpe "echo get_post($P) ? 'kept' : 'gone';")" gone

@@ -9,7 +9,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,8 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_list_taxonomies_ability' );
-function cm_register_list_taxonomies_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_list_taxonomies_ability' );
+function wpshq_register_list_taxonomies_ability() {
 	wp_register_ability(
 		'classic-monks/list-taxonomies',
 		array(
@@ -73,7 +72,7 @@ function cm_register_list_taxonomies_ability() {
 					'total'      => array( 'type' => 'integer' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_list_taxonomies',
+			'execute_callback'    => 'wpshq_execute_list_taxonomies',
 			'permission_callback' => function () {
 				return current_user_can( 'manage_categories' );
 			},
@@ -97,7 +96,7 @@ function cm_register_list_taxonomies_ability() {
  * @param array $input Input parameters.
  * @return array Taxonomies information.
  */
-function cm_execute_list_taxonomies( $input = array() ) {
+function wpshq_execute_list_taxonomies( $input = array() ) {
 	$args = array();
 
 	$public_only = isset( $input['public_only'] ) ? (bool) $input['public_only'] : true;

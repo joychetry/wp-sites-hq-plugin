@@ -9,7 +9,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,8 +23,8 @@ require_once __DIR__ . '/content-write-helpers.php';
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_update_post_ability' );
-function cm_register_update_post_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_update_post_ability' );
+function wpshq_register_update_post_ability() {
 	wp_register_ability(
 		'classic-monks/update-post',
 		array(
@@ -76,7 +75,7 @@ function cm_register_update_post_ability() {
 						'minimum'     => 0,
 						'description' => 'Attachment ID to use as featured image; 0 removes it.',
 					),
-				) + cm_content_write_schema(),
+				) + wpshq_content_write_schema(),
 				'additionalProperties' => false,
 			),
 			'output_schema'       => array(
@@ -111,7 +110,7 @@ function cm_register_update_post_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_update_post',
+			'execute_callback'    => 'wpshq_execute_update_post',
 			'permission_callback' => function ( $input ) {
 				if ( empty( $input['post_id'] ) ) {
 					return false;
@@ -125,7 +124,7 @@ function cm_register_update_post_ability() {
 				return current_user_can( 'edit_post', $input['post_id'] );
 			},
 			'meta'                => array(
-				'cm_preview_callback' => 'cm_preview_post_state',
+				'cm_preview_callback' => 'wpshq_preview_post_state',
 				'annotations'         => array(
 					'readonly'     => false,
 					'destructive'  => true, // Updates don't destroy, they modify
@@ -145,7 +144,7 @@ function cm_register_update_post_ability() {
  * @param array $input Input parameters.
  * @return array|WP_Error Updated post info or error.
  */
-function cm_execute_update_post( $input ) {
+function wpshq_execute_update_post( $input ) {
 	$post_id = absint( $input['post_id'] );
 	$post    = get_post( $post_id );
 
@@ -153,11 +152,11 @@ function cm_execute_update_post( $input ) {
 		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
 	}
 
-	$checked = cm_content_write_check( $post->post_type, $post_id, $input );
+	$checked = wpshq_content_write_check( $post->post_type, $post_id, $input );
 	if ( is_wp_error( $checked ) ) {
 		return $checked;
 	}
-	$builder = isset( $input['content'] ) ? cm_content_builder( $post_id ) : null;
+	$builder = isset( $input['content'] ) ? wpshq_content_builder( $post_id ) : null;
 	if ( $builder ) {
 		return new WP_Error(
 			'builder_page',
@@ -203,7 +202,7 @@ function cm_execute_update_post( $input ) {
 		$updated_fields[]           = 'date';
 	}
 
-	$more = cm_content_post_fields( $post->post_type, $post_id, $input, $post_data );
+	$more = wpshq_content_post_fields( $post->post_type, $post_id, $input, $post_data );
 	if ( is_wp_error( $more ) ) {
 		return $more;
 	}
@@ -235,7 +234,7 @@ function cm_execute_update_post( $input ) {
 		$updated_fields[] = 'tags';
 	}
 
-	$written = cm_content_write_after( $post_id, $input );
+	$written = wpshq_content_write_after( $post_id, $input );
 	if ( is_wp_error( $written ) ) {
 		return $written;
 	}

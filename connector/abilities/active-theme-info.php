@@ -9,7 +9,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,8 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_get_theme_ability' );
-function cm_register_get_theme_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_get_theme_ability' );
+function wpshq_register_get_theme_ability() {
 	wp_register_ability(
 		'classic-monks/get-theme',
 		array(
@@ -71,7 +70,7 @@ function cm_register_get_theme_ability() {
 					'total'   => array( 'type' => 'integer' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_get_theme',
+			'execute_callback'    => 'wpshq_execute_get_theme',
 			'permission_callback' => function () {
 				return current_user_can( 'switch_themes' );
 			},
@@ -94,7 +93,7 @@ function cm_register_get_theme_ability() {
  * @since 1.2.0
  * @return array Theme information.
  */
-function cm_execute_get_theme() {
+function wpshq_execute_get_theme() {
 	$current_theme = wp_get_theme();
 	$all_themes    = wp_get_themes();
 

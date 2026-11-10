@@ -10,14 +10,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_get_site_snapshot_ability' );
-function cm_register_get_site_snapshot_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_get_site_snapshot_ability' );
+function wpshq_register_get_site_snapshot_ability() {
 	wp_register_ability(
 		'classic-monks/get-site-snapshot',
 		array(
@@ -54,7 +53,7 @@ function cm_register_get_site_snapshot_ability() {
 					'filesystem'   => array( 'type' => 'object' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_get_site_snapshot',
+			'execute_callback'    => 'wpshq_execute_get_site_snapshot',
 			'permission_callback' => function () {
 				return current_user_can( 'manage_options' );
 			},
@@ -73,7 +72,7 @@ function cm_register_get_site_snapshot_ability() {
 /**
  * How WordPress would write files, and whether that needs credentials nobody stored (FS_METHOD, FTP_* constants).
  */
-function cm_ai_snapshot_filesystem() {
+function wpshq_ai_snapshot_filesystem() {
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	$method = get_filesystem_method();
 	$stored = defined( 'FTP_HOST' ) && defined( 'FTP_USER' ) && ( defined( 'FTP_PASS' ) || defined( 'FTP_PRIKEY' ) );
@@ -85,9 +84,9 @@ function cm_ai_snapshot_filesystem() {
 	);
 }
 
-function cm_execute_get_site_snapshot() {
+function wpshq_execute_get_site_snapshot() {
 	global $wpdb;
-	$updates = cm_ai_list_updates(); // also loads the plugin, update and theme admin files
+	$updates = wpshq_ai_list_updates(); // also loads the plugin, update and theme admin files
 
 	$plugin_updates = array_column( $updates['plugins'], 'new_version', 'plugin' );
 	$auto_plugins   = (array) get_site_option( 'auto_update_plugins', array() );
@@ -168,6 +167,6 @@ function cm_execute_get_site_snapshot() {
 			'cron_disabled'      => defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON,
 			'memory_limit'       => WP_MEMORY_LIMIT,
 		),
-		'filesystem'   => cm_ai_snapshot_filesystem(),
+		'filesystem'   => wpshq_ai_snapshot_filesystem(),
 	);
 }

@@ -9,7 +9,6 @@
  * @since 2.0.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,8 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 2.0.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_reply_to_comment_ability' );
-function cm_register_reply_to_comment_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_reply_to_comment_ability' );
+function wpshq_register_reply_to_comment_ability() {
 	wp_register_ability(
 		'classic-monks/reply-to-comment',
 		array(
@@ -58,7 +57,7 @@ function cm_register_reply_to_comment_ability() {
 					'link'       => array( 'type' => 'string' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_reply_to_comment',
+			'execute_callback'    => 'wpshq_execute_reply_to_comment',
 			'permission_callback' => function ( $input ) {
 				$parent = get_comment( absint( $input['comment_id'] ?? 0 ) );
 				// Same check core's admin "Reply" uses.
@@ -71,7 +70,7 @@ function cm_register_reply_to_comment_ability() {
 					'idempotent'   => false, // Each call posts a new reply
 					'instructions' => 'Replies to a comment as the current user. Read the thread with get-comments first and keep the reply on topic.',
 				),
-				'cm_undo_callback' => 'cm_undo_reply_to_comment',
+				'cm_undo_callback' => 'wpshq_undo_reply_to_comment',
 				'show_in_rest'     => true,
 			),
 		)
@@ -85,7 +84,7 @@ function cm_register_reply_to_comment_ability() {
  * @param array $input Input parameters.
  * @return array|WP_Error Reply info or error.
  */
-function cm_execute_reply_to_comment( $input ) {
+function wpshq_execute_reply_to_comment( $input ) {
 	$parent = get_comment( absint( $input['comment_id'] ) );
 	if ( ! $parent ) {
 		return new WP_Error( 'comment_not_found', __( 'Comment not found.', 'wp-sites-hq' ) );
@@ -122,8 +121,8 @@ function cm_execute_reply_to_comment( $input ) {
 		return new WP_Error( 'reply_failed', __( 'Could not save the reply.', 'wp-sites-hq' ) );
 	}
 
-	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
-		CM_AI_Activity_Log::set_undo( 'classic-monks/reply-to-comment', array( 'comment_id' => (int) $reply_id ) );
+	if ( class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+		WPSHQ_AI_Activity_Log::set_undo( 'classic-monks/reply-to-comment', array( 'comment_id' => (int) $reply_id ) );
 	}
 
 	return array(
@@ -138,7 +137,7 @@ function cm_execute_reply_to_comment( $input ) {
 /**
  * Remove a reply posted by this ability (moves it to the trash).
  */
-function cm_undo_reply_to_comment( $undo ) {
+function wpshq_undo_reply_to_comment( $undo ) {
 	$id = (int) ( $undo['comment_id'] ?? 0 );
 	if ( ! current_user_can( 'edit_comment', $id ) ) {
 		return new WP_Error( 'forbidden', __( 'You are not allowed to remove this reply.', 'wp-sites-hq' ) );

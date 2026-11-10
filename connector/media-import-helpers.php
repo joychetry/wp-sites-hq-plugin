@@ -12,7 +12,6 @@
  * @package ClassicMonks
  * @subpackage AI
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $ip IP address.
  * @return bool
  */
-function cm_ai_ip_is_public( $ip ) {
+function wpshq_ai_ip_is_public( $ip ) {
 	$bin = @inet_pton( trim( (string) $ip, '[]' ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a failed lookup returns false, checked below
 	if ( false === $bin ) {
 		return false;
@@ -62,7 +61,7 @@ function cm_ai_ip_is_public( $ip ) {
  * @param string $url URL.
  * @return string|WP_Error IP address.
  */
-function cm_ai_resolve_public_ip( $url ) {
+function wpshq_ai_resolve_public_ip( $url ) {
 	$scheme = strtolower( (string) wp_parse_url( $url, PHP_URL_SCHEME ) );
 	$host   = trim( (string) wp_parse_url( $url, PHP_URL_HOST ), '[]' );
 
@@ -86,7 +85,7 @@ function cm_ai_resolve_public_ip( $url ) {
 	}
 
 	foreach ( $ips as $ip ) {
-		if ( ! cm_ai_ip_is_public( $ip ) ) {
+		if ( ! wpshq_ai_ip_is_public( $ip ) ) {
 			return new WP_Error( 'cm_ai_private_host', __( 'The image URL points to a private or reserved network address and cannot be imported.', 'wp-sites-hq' ) );
 		}
 	}
@@ -101,11 +100,11 @@ function cm_ai_resolve_public_ip( $url ) {
  * @param int    $timeout Timeout in seconds.
  * @return string|WP_Error Path to the downloaded temp file.
  */
-function cm_ai_safe_download( $url, $timeout = 30 ) {
+function wpshq_ai_safe_download( $url, $timeout = 30 ) {
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 
 	for ( $hop = 0; $hop <= 5; $hop++ ) {
-		$ip = cm_ai_resolve_public_ip( $url );
+		$ip = wpshq_ai_resolve_public_ip( $url );
 		if ( is_wp_error( $ip ) ) {
 			return $ip;
 		}
@@ -181,7 +180,7 @@ function cm_ai_safe_download( $url, $timeout = 30 ) {
  * @param string $stem Filename without extension.
  * @return array|WP_Error { name, tmp_name, type } for media_handle_sideload().
  */
-function cm_ai_prepare_image_file( $path, $stem ) {
+function wpshq_ai_prepare_image_file( $path, $stem ) {
 	$mime = wp_get_image_mime( $path );
 
 	if ( ! $mime ) {
@@ -192,8 +191,15 @@ function cm_ai_prepare_image_file( $path, $stem ) {
 		}
 	}
 
-	// SVG can carry scripts: import it only when a full sanitizer is loaded (Classic Monks Pro's cm_sanitize_svg()).
-	if ( 'image/svg+xml' === $mime && ! function_exists( 'cm_sanitize_svg' ) ) {
+	/**
+	 * The host's SVG cleaner: a callable that takes the SVG markup and returns clean markup or a WP_Error. SVG can
+	 * carry scripts, so without one SVG files are refused. The default is Classic Monks Pro's cm_sanitize_svg(), for
+	 * Pro builds from before this filter.
+	 *
+	 * @param callable|null $sanitizer The cleaner, or null.
+	 */
+	$sanitizer = apply_filters( 'wpshq_svg_sanitizer', function_exists( 'cm_sanitize_svg' ) ? 'cm_sanitize_svg' : null );
+	if ( 'image/svg+xml' === $mime && ! is_callable( $sanitizer ) ) {
 		return new WP_Error( 'cm_ai_not_an_image', __( 'SVG files cannot be imported or uploaded here: this site has no SVG cleaner. Upload them in the Media Library instead.', 'wp-sites-hq' ) );
 	}
 
@@ -205,7 +211,7 @@ function cm_ai_prepare_image_file( $path, $stem ) {
 	}
 
 	if ( 'image/svg+xml' === $mime ) {
-		$clean = cm_sanitize_svg( (string) file_get_contents( $path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- a local temp file
+		$clean = call_user_func( $sanitizer, (string) file_get_contents( $path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- a local temp file
 		if ( is_wp_error( $clean ) ) {
 			return $clean;
 		}
@@ -222,14 +228,14 @@ function cm_ai_prepare_image_file( $path, $stem ) {
 }
 
 /**
- * Identify any file the site accepts: images as cm_ai_prepare_image_file() does, other types
+ * Identify any file the site accepts: images as wpshq_ai_prepare_image_file() does, other types
  * (PDF, video, documents) by core's extension and content check.
  *
  * @param string $path Temp file path.
  * @param string $name File name as sent.
  * @return array|WP_Error { name, tmp_name, type } for media_handle_sideload().
  */
-function cm_ai_prepare_media_file( $path, $name ) {
+function wpshq_ai_prepare_media_file( $path, $name ) {
 	$name  = sanitize_file_name( (string) $name );
 	$check = wp_check_filetype_and_ext( $path, $name );
 	if ( $check['type'] && 0 !== strpos( $check['type'], 'image/' ) ) {
@@ -239,7 +245,7 @@ function cm_ai_prepare_media_file( $path, $name ) {
 			'type'     => $check['type'],
 		);
 	}
-	$image = cm_ai_prepare_image_file( $path, $name );
+	$image = wpshq_ai_prepare_image_file( $path, $name );
 	if ( is_wp_error( $image ) && 'cm_ai_not_an_image' === $image->get_error_code() && 'image/svg+xml' !== wp_check_filetype( $name )['type'] ) {
 		return new WP_Error( 'cm_ai_type_not_allowed', __( 'This file type is not allowed on this site, or the file does not match its extension.', 'wp-sites-hq' ) );
 	}

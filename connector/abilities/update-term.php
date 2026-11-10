@@ -9,7 +9,6 @@
  * @since 2.0.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,8 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 2.0.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_update_term_ability' );
-function cm_register_update_term_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_update_term_ability' );
+function wpshq_register_update_term_ability() {
 	wp_register_ability(
 		'classic-monks/update-term',
 		array(
@@ -82,20 +81,20 @@ function cm_register_update_term_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_update_term',
+			'execute_callback'    => 'wpshq_execute_update_term',
 			'permission_callback' => function ( $input ) {
 				// edit_term maps to the taxonomy's own edit_terms capability.
 				return ! empty( $input['term_id'] ) && current_user_can( 'edit_term', absint( $input['term_id'] ) );
 			},
 			'meta'                => array(
-				'cm_preview_callback' => 'cm_preview_update_term',
+				'cm_preview_callback' => 'wpshq_preview_update_term',
 				'annotations'         => array(
 					'readonly'     => false,
 					'destructive'  => true, // Overwrites the term's current fields
 					'idempotent'   => true,
 					'instructions' => 'Edits an existing term. Use get-terms to find the term ID. Only the fields you pass are changed.',
 				),
-				'cm_undo_callback'    => 'cm_undo_update_term',
+				'cm_undo_callback'    => 'wpshq_undo_update_term',
 				'show_in_rest'        => true,
 			),
 		)
@@ -105,7 +104,7 @@ function cm_register_update_term_ability() {
 /**
  * The editable fields of a term.
  */
-function cm_update_term_fields( $term ) {
+function wpshq_update_term_fields( $term ) {
 	return array(
 		'name'        => (string) $term->name,
 		'slug'        => (string) $term->slug,
@@ -121,7 +120,7 @@ function cm_update_term_fields( $term ) {
  * @param array $input Input parameters.
  * @return array|WP_Error Updated term or error.
  */
-function cm_execute_update_term( $input ) {
+function wpshq_execute_update_term( $input ) {
 	$term = get_term( absint( $input['term_id'] ) );
 	if ( ! $term instanceof WP_Term ) {
 		return new WP_Error( 'term_not_found', __( 'Term not found.', 'wp-sites-hq' ) );
@@ -147,10 +146,10 @@ function cm_execute_update_term( $input ) {
 		return new WP_Error( 'nothing_to_update', __( 'Pass at least one of name, slug, description or parent.', 'wp-sites-hq' ) );
 	}
 
-	$previous = cm_update_term_fields( $term );
+	$previous = wpshq_update_term_fields( $term );
 
-	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
-		CM_AI_Activity_Log::set_undo(
+	if ( class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+		WPSHQ_AI_Activity_Log::set_undo(
 			'classic-monks/update-term',
 			array_merge(
 				$previous,
@@ -173,7 +172,7 @@ function cm_execute_update_term( $input ) {
 			'term_id'  => (int) $term->term_id,
 			'taxonomy' => $term->taxonomy,
 		),
-		cm_update_term_fields( get_term( $term->term_id, $term->taxonomy ) ),
+		wpshq_update_term_fields( get_term( $term->term_id, $term->taxonomy ) ),
 		array( 'previous' => $previous )
 	);
 }
@@ -181,7 +180,7 @@ function cm_execute_update_term( $input ) {
 /**
  * Current state of the term, for the approval screen.
  */
-function cm_preview_update_term( $input ) {
+function wpshq_preview_update_term( $input ) {
 	$term = get_term( absint( $input['term_id'] ?? 0 ) );
 	if ( ! $term instanceof WP_Term ) {
 		return null;
@@ -190,14 +189,14 @@ function cm_preview_update_term( $input ) {
 		'term_id'  => (int) $term->term_id,
 		'taxonomy' => $term->taxonomy,
 		'name'     => $term->name,
-		'hash'     => md5( wp_json_encode( cm_update_term_fields( $term ) ) ),
+		'hash'     => md5( wp_json_encode( wpshq_update_term_fields( $term ) ) ),
 	);
 }
 
 /**
  * Restore the term's previous name, slug, description and parent.
  */
-function cm_undo_update_term( $undo ) {
+function wpshq_undo_update_term( $undo ) {
 	$term_id = (int) ( $undo['term_id'] ?? 0 );
 	if ( ! current_user_can( 'edit_term', $term_id ) ) {
 		return new WP_Error( 'forbidden', __( 'You are not allowed to edit this term.', 'wp-sites-hq' ) );

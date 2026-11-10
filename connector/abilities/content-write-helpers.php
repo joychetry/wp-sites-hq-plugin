@@ -6,7 +6,6 @@
  * @package ClassicMonks
  * @subpackage AI/Abilities
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -17,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return array
  */
-function cm_content_write_schema() {
+function wpshq_content_write_schema() {
 	return array(
 		'terms'      => array(
 			'type'                 => 'object',
@@ -76,7 +75,7 @@ function cm_content_write_schema() {
  * @param array  $post_data Post array, filled in.
  * @return string[]|WP_Error Fields set.
  */
-function cm_content_post_fields( $post_type, $post_id, $input, array &$post_data ) {
+function wpshq_content_post_fields( $post_type, $post_id, $input, array &$post_data ) {
 	$type   = get_post_type_object( $post_type );
 	$fields = array();
 	if ( isset( $input['slug'] ) ) {
@@ -130,7 +129,7 @@ function cm_content_post_fields( $post_type, $post_id, $input, array &$post_data
  * @param WP_Post $post Post.
  * @return array{authors: array, parents: array, templates: object}
  */
-function cm_content_choices( $post ) {
+function wpshq_content_choices( $post ) {
 	$type    = get_post_type_object( $post->post_type );
 	$authors = array();
 	if ( current_user_can( $type->cap->edit_others_posts ) ) {
@@ -185,7 +184,7 @@ function cm_content_choices( $post ) {
  * @param array  $input     Ability input.
  * @return true|WP_Error
  */
-function cm_content_write_check( $post_type, $post_id, $input ) {
+function wpshq_content_write_check( $post_type, $post_id, $input ) {
 	foreach ( (array) ( $input['terms'] ?? array() ) as $taxonomy => $items ) {
 		$tax = get_taxonomy( $taxonomy );
 		if ( ! $tax || ! is_object_in_taxonomy( $post_type, $taxonomy ) ) {
@@ -234,13 +233,13 @@ function cm_content_write_check( $post_type, $post_id, $input ) {
 }
 
 /**
- * Write terms and meta after the post exists. Checked first by cm_content_write_check().
+ * Write terms and meta after the post exists. Checked first by wpshq_content_write_check().
  *
  * @param int   $post_id Post ID.
  * @param array $input   Ability input.
  * @return string[]|WP_Error Fields written.
  */
-function cm_content_write_after( $post_id, $input ) {
+function wpshq_content_write_after( $post_id, $input ) {
 	// On a new post the check above had no post to ask about: now ask, with the field's own
 	// auth callback (register_meta), before anything is written.
 	foreach ( array_keys( (array) ( $input['meta'] ?? array() ) ) as $key ) {
@@ -280,7 +279,7 @@ function cm_content_write_after( $post_id, $input ) {
  * @param WP_Post $post Post.
  * @return object Taxonomy => array{id:int, name:string, slug:string}[]; an object so no terms encode as {}.
  */
-function cm_content_post_terms( $post ) {
+function wpshq_content_post_terms( $post ) {
 	$out = array();
 	foreach ( get_object_taxonomies( $post->post_type ) as $taxonomy ) {
 		$terms            = get_the_terms( $post, $taxonomy );
@@ -305,7 +304,7 @@ function cm_content_post_terms( $post ) {
  * @param int $post_id Post ID.
  * @return string|null 'elementor', 'bricks' or null.
  */
-function cm_content_builder( $post_id ) {
+function wpshq_content_builder( $post_id ) {
 	if ( 'builder' === get_post_meta( $post_id, '_elementor_edit_mode', true ) ) {
 		return 'elementor';
 	}

@@ -8,14 +8,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_update_user_ability' );
-function cm_register_update_user_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_update_user_ability' );
+function wpshq_register_update_user_ability() {
 	wp_register_ability(
 		'classic-monks/update-user',
 		array(
@@ -54,7 +53,7 @@ function cm_register_update_user_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_update_user',
+			'execute_callback'    => 'wpshq_execute_update_user',
 			'permission_callback' => function ( $input ) {
 				return ! empty( $input['user_id'] ) && current_user_can( 'edit_user', (int) $input['user_id'] );
 			},
@@ -65,8 +64,8 @@ function cm_register_update_user_ability() {
 					'idempotent'   => true,
 					'instructions' => 'Confirm the changes with the user, especially role and email changes.',
 				),
-				'cm_preview_callback' => 'cm_preview_user_state',
-				'cm_undo_callback'    => 'cm_undo_update_user',
+				'cm_preview_callback' => 'wpshq_preview_user_state',
+				'cm_undo_callback'    => 'wpshq_undo_update_user',
 				'cm_always_approve'   => true,
 				'show_in_rest'        => true,
 			),
@@ -77,7 +76,7 @@ function cm_register_update_user_ability() {
 /**
  * Who the change targets and their current role, for approvals and drift checks.
  */
-function cm_preview_user_state( $input ) {
+function wpshq_preview_user_state( $input ) {
 	$user = get_userdata( absint( $input['user_id'] ?? 0 ) );
 	if ( ! $user ) {
 		return null;
@@ -94,7 +93,7 @@ function cm_preview_user_state( $input ) {
 /**
  * True when the user is the only administrator left.
  */
-function cm_ai_is_last_admin( $user_id ) {
+function wpshq_ai_is_last_admin( $user_id ) {
 	$admins = get_users(
 		array(
 			'role'   => 'administrator',
@@ -108,12 +107,12 @@ function cm_ai_is_last_admin( $user_id ) {
 /**
  * A role that can manage the site (manage_options) may only be given by someone who can, as create-user requires.
  */
-function cm_ai_can_assign_role( $role ) {
+function wpshq_ai_can_assign_role( $role ) {
 	$object = get_role( $role );
 	return ! $object || empty( $object->capabilities['manage_options'] ) || current_user_can( 'manage_options' );
 }
 
-function cm_execute_update_user( $input ) {
+function wpshq_execute_update_user( $input ) {
 	$user_id = absint( $input['user_id'] );
 	$user    = get_userdata( $user_id );
 	if ( ! $user ) {
@@ -168,17 +167,17 @@ function cm_execute_update_user( $input ) {
 		if ( ! current_user_can( 'promote_user', $user_id ) || ! isset( get_editable_roles()[ $role ] ) ) {
 			return new WP_Error( 'cm_user_role_not_allowed', __( 'That role does not exist or you are not allowed to assign it.', 'wp-sites-hq' ) );
 		}
-		if ( ! cm_ai_can_assign_role( $role ) ) {
+		if ( ! wpshq_ai_can_assign_role( $role ) ) {
 			return new WP_Error( 'cm_user_admin_role_forbidden', __( 'Only administrators can give a user this role.', 'wp-sites-hq' ) );
 		}
-		if ( 'administrator' !== $role && cm_ai_is_last_admin( $user_id ) ) {
+		if ( 'administrator' !== $role && wpshq_ai_is_last_admin( $user_id ) ) {
 			return new WP_Error( 'cm_user_last_admin', __( 'This is the last administrator. Make someone else an administrator first.', 'wp-sites-hq' ) );
 		}
 		$undo['roles'] = array_values( $user->roles );
 	}
 
-	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
-		CM_AI_Activity_Log::set_undo( 'classic-monks/update-user', $undo );
+	if ( class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+		WPSHQ_AI_Activity_Log::set_undo( 'classic-monks/update-user', $undo );
 	}
 
 	if ( count( $data ) > 1 ) {
@@ -200,7 +199,7 @@ function cm_execute_update_user( $input ) {
 /**
  * Put back the profile fields and roles logged before the change.
  */
-function cm_undo_update_user( $undo ) {
+function wpshq_undo_update_user( $undo ) {
 	$user_id = absint( $undo['user_id'] ?? 0 );
 	$user    = get_userdata( $user_id );
 	if ( ! $user || ! current_user_can( 'edit_user', $user_id ) ) {
@@ -212,7 +211,7 @@ function cm_undo_update_user( $undo ) {
 			return new WP_Error( 'forbidden', __( 'You are not allowed to change this user\'s role.', 'wp-sites-hq' ) );
 		}
 		foreach ( (array) $undo['roles'] as $role ) {
-			if ( ! cm_ai_can_assign_role( $role ) ) {
+			if ( ! wpshq_ai_can_assign_role( $role ) ) {
 				return new WP_Error( 'cm_user_admin_role_forbidden', __( 'Only administrators can give a user this role.', 'wp-sites-hq' ) );
 			}
 		}

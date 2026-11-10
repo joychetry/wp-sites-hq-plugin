@@ -9,7 +9,6 @@
  * @since 2.0.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,8 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 2.0.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_moderate_comment_ability' );
-function cm_register_moderate_comment_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_moderate_comment_ability' );
+function wpshq_register_moderate_comment_ability() {
 	wp_register_ability(
 		'classic-monks/moderate-comment',
 		array(
@@ -72,7 +71,7 @@ function cm_register_moderate_comment_ability() {
 					'updated' => array( 'type' => 'integer' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_moderate_comment',
+			'execute_callback'    => 'wpshq_execute_moderate_comment',
 			'permission_callback' => function ( $input ) {
 				if ( ! current_user_can( 'moderate_comments' ) || empty( $input['comment_ids'] ) ) {
 					return false;
@@ -85,14 +84,14 @@ function cm_register_moderate_comment_ability() {
 				return true;
 			},
 			'meta'                => array(
-				'cm_preview_callback' => 'cm_preview_moderate_comment',
+				'cm_preview_callback' => 'wpshq_preview_moderate_comment',
 				'annotations'         => array(
 					'readonly'     => false,
 					'destructive'  => true, // Spam and trash hide content from the site
 					'idempotent'   => true,
 					'instructions' => 'Moderate comments in bulk (max 50). Use get-comments with a status filter to find comment IDs first. Trash is recoverable with untrash.',
 				),
-				'cm_undo_callback'    => 'cm_undo_moderate_comment',
+				'cm_undo_callback'    => 'wpshq_undo_moderate_comment',
 				'show_in_rest'        => true,
 			),
 		)
@@ -106,7 +105,7 @@ function cm_register_moderate_comment_ability() {
  * @param array $input Input parameters.
  * @return array|WP_Error Per-comment results or error.
  */
-function cm_execute_moderate_comment( $input ) {
+function wpshq_execute_moderate_comment( $input ) {
 	$action = sanitize_key( $input['action'] );
 	$ids    = array_slice( array_unique( array_map( 'absint', (array) $input['comment_ids'] ) ), 0, 50 );
 
@@ -145,8 +144,8 @@ function cm_execute_moderate_comment( $input ) {
 		$undo[ $id ] = $previous;
 	}
 
-	if ( class_exists( 'CM_AI_Activity_Log' ) && $undo ) {
-		CM_AI_Activity_Log::set_undo( 'classic-monks/moderate-comment', array( 'statuses' => $undo ) );
+	if ( class_exists( 'WPSHQ_AI_Activity_Log' ) && $undo ) {
+		WPSHQ_AI_Activity_Log::set_undo( 'classic-monks/moderate-comment', array( 'statuses' => $undo ) );
 	}
 
 	// Status each action leads to; unspam/untrash just leave spam/trash.
@@ -185,7 +184,7 @@ function cm_execute_moderate_comment( $input ) {
 /**
  * Current status of each targeted comment, for the approval screen.
  */
-function cm_preview_moderate_comment( $input ) {
+function wpshq_preview_moderate_comment( $input ) {
 	$out = array();
 	foreach ( array_slice( (array) ( $input['comment_ids'] ?? array() ), 0, 50 ) as $id ) {
 		$out[] = array(
@@ -199,7 +198,7 @@ function cm_preview_moderate_comment( $input ) {
 /**
  * Put each comment back to the status it had before the call.
  */
-function cm_undo_moderate_comment( $undo ) {
+function wpshq_undo_moderate_comment( $undo ) {
 	// wp_get_comment_status() names differ from wp_set_comment_status() inputs.
 	$map = array(
 		'approved'   => 'approve',

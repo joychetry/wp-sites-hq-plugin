@@ -25,7 +25,7 @@ setscope full
 check 'another editor sees none of it'  "$(wpe "\$u = wp_insert_user(['user_login' => 'cm_pend_editor', 'user_pass' => wp_generate_password(), 'role' => 'editor']); wp_set_current_user(\$u); \$r = wp_get_ability('classic-monks/list-pending-approvals')->execute(array()); require_once ABSPATH . 'wp-admin/includes/user.php'; wp_delete_user(\$u); echo is_wp_error(\$r) ? \$r->get_error_code() : \$r['count'];")" 0
 check 'subscriber refused'              "$(wpe "\$u = wp_insert_user(['user_login' => 'cm_pend_sub', 'user_pass' => wp_generate_password(), 'role' => 'subscriber']); wp_set_current_user(\$u); \$r = wp_get_ability('classic-monks/list-pending-approvals')->execute(array()); require_once ABSPATH . 'wp-admin/includes/user.php'; wp_delete_user(\$u); echo is_wp_error(\$r) ? \$r->get_error_code() : 'ran';")" ability_invalid_permissions
 
-wpe "global \$wpdb; \$t = CM_AI_Activity_Log::table(); \$a = json_decode(\$wpdb->get_var(\"SELECT approval_json FROM \$t WHERE id = $OP\"), true); \$a['expires'] = time() - 1; \$wpdb->update(\$t, ['approval_json' => wp_json_encode(\$a)], ['id' => $OP]);" >/dev/null
+wpe "global \$wpdb; \$t = WPSHQ_AI_Activity_Log::table(); \$a = json_decode(\$wpdb->get_var(\"SELECT approval_json FROM \$t WHERE id = $OP\"), true); \$a['expires'] = time() - 1; \$wpdb->update(\$t, ['approval_json' => wp_json_encode(\$a)], ['id' => $OP]);" >/dev/null
 check 'expired request is left out'     "$(mine "$OP" " | length")" 0
 
 wpe "global \$wpdb; \$wpdb->query(\"UPDATE {\$wpdb->prefix}cm_ai_log SET status = 'expired' WHERE status = 'pending' AND connection_uuid = '$MCP_UUID'\"); wp_delete_post($P, true);" >/dev/null

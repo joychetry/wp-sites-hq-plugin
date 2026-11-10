@@ -1,6 +1,6 @@
 <?php
 /**
- * cm_ability_date(): MySQL datetimes become the RFC 3339 a `date-time` output schema promises.
+ * wpshq_ability_date(): MySQL datetimes become the RFC 3339 a `date-time` output schema promises.
  *
  * @package MonksCentral\Connector
  */
@@ -35,15 +35,15 @@ final class AbilityDateTest extends TestCase {
 	}
 
 	public function test_site_time_gets_the_site_offset(): void {
-		$this->assertSame( '2026-10-30T12:00:00+05:30', cm_ability_date( '2026-10-30 12:00:00' ) );
+		$this->assertSame( '2026-10-30T12:00:00+05:30', wpshq_ability_date( '2026-10-30 12:00:00' ) );
 	}
 
 	public function test_gmt_values_stay_utc(): void {
-		$this->assertSame( '2026-10-30T12:00:00+00:00', cm_ability_date( '2026-10-30 12:00:00', true ) );
+		$this->assertSame( '2026-10-30T12:00:00+00:00', wpshq_ability_date( '2026-10-30 12:00:00', true ) );
 	}
 
 	public function test_zero_and_empty_dates_are_empty(): void {
-		$this->assertSame( '', cm_ability_date( '0000-00-00 00:00:00' ) );
-		$this->assertSame( '', cm_ability_date( '' ) );
+		$this->assertSame( '', wpshq_ability_date( '0000-00-00 00:00:00' ) );
+		$this->assertSame( '', wpshq_ability_date( '' ) );
 	}
 }

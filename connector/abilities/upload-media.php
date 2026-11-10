@@ -9,17 +9,16 @@
  * @subpackage AI/Abilities
  * @requires WordPress 7.1+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 // Decoded bytes per chunk; keeps each request well under common post_max_size limits.
-const CM_UPLOAD_CHUNK_MAX = 2 * MB_IN_BYTES;
+const WPSHQ_UPLOAD_CHUNK_MAX = 2 * MB_IN_BYTES;
 
-add_action( 'wp_abilities_api_init', 'cm_register_upload_media_ability' );
-function cm_register_upload_media_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_upload_media_ability' );
+function wpshq_register_upload_media_ability() {
 	wp_register_ability(
 		'classic-monks/upload-media',
 		array(
@@ -75,7 +74,7 @@ function cm_register_upload_media_ability() {
 					'mime_type'     => array( 'type' => 'string' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_upload_media',
+			'execute_callback'    => 'wpshq_execute_upload_media',
 			'permission_callback' => function ( $input ) {
 				if ( ! empty( $input['post_id'] ) && ! current_user_can( 'edit_post', $input['post_id'] ) ) {
 					return false;
@@ -102,12 +101,12 @@ function cm_register_upload_media_ability() {
  * $set is merged into the upload's state on each call. The state lives an hour after each chunk; on the
  * last chunk (done) it is dropped and the caller owns the file. Returns id, state and size, or a WP_Error.
  */
-function cm_ai_receive_chunk( $input, $prefix, $set = array() ) {
+function wpshq_ai_receive_chunk( $input, $prefix, $set = array() ) {
 	$chunk = base64_decode( (string) $input['data'], true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- chunks arrive base64 encoded over JSON
 	if ( false === $chunk ) {
 		return new WP_Error( 'invalid_data', __( 'data is not valid base64.', 'wp-sites-hq' ) );
 	}
-	if ( strlen( $chunk ) > CM_UPLOAD_CHUNK_MAX ) {
+	if ( strlen( $chunk ) > WPSHQ_UPLOAD_CHUNK_MAX ) {
 		return new WP_Error( 'chunk_too_large', __( 'Each chunk may hold at most 2 MB.', 'wp-sites-hq' ) );
 	}
 
@@ -177,8 +176,8 @@ function cm_ai_receive_chunk( $input, $prefix, $set = array() ) {
 	);
 }
 
-add_action( 'cm_ai_chunk_expire', 'cm_ai_chunk_expire', 10, 2 );
-function cm_ai_chunk_expire( $key, $path ) {
+add_action( 'cm_ai_chunk_expire', 'wpshq_ai_chunk_expire', 10, 2 );
+function wpshq_ai_chunk_expire( $key, $path ) {
 	if ( false === get_transient( $key ) ) {
 		wp_delete_file( $path );
 		return;
@@ -187,8 +186,8 @@ function cm_ai_chunk_expire( $key, $path ) {
 	wp_schedule_single_event( time() + HOUR_IN_SECONDS, 'cm_ai_chunk_expire', array( $key, $path ) );
 }
 
-function cm_execute_upload_media( $input ) {
-	$upload = cm_ai_receive_chunk( $input, 'cm_upload_' );
+function wpshq_execute_upload_media( $input ) {
+	$upload = wpshq_ai_receive_chunk( $input, 'cm_upload_' );
 	if ( is_wp_error( $upload ) ) {
 		return $upload;
 	}
@@ -207,7 +206,7 @@ function cm_execute_upload_media( $input ) {
 	require_once ABSPATH . 'wp-admin/includes/image.php';
 	require_once dirname( __DIR__ ) . '/media-import-helpers.php';
 
-	$file = cm_ai_prepare_media_file( $state['path'], $state['name'] );
+	$file = wpshq_ai_prepare_media_file( $state['path'], $state['name'] );
 	if ( is_wp_error( $file ) ) {
 		wp_delete_file( $state['path'] );
 		return $file;

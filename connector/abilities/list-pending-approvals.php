@@ -9,14 +9,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 7.1+ (approvals)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_list_pending_approvals_ability' );
-function cm_register_list_pending_approvals_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_list_pending_approvals_ability' );
+function wpshq_register_list_pending_approvals_ability() {
 	wp_register_ability(
 		'classic-monks/list-pending-approvals',
 		array(
@@ -41,7 +40,7 @@ function cm_register_list_pending_approvals_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_list_pending_approvals',
+			'execute_callback'    => 'wpshq_execute_list_pending_approvals',
 			// Connection owners may decide their own requests, whatever their role (see the approve page).
 			'permission_callback' => function () {
 				return current_user_can( 'edit_posts' );
@@ -58,9 +57,9 @@ function cm_register_list_pending_approvals_ability() {
 	);
 }
 
-function cm_execute_list_pending_approvals( $input = array() ) {
+function wpshq_execute_list_pending_approvals( $input = array() ) {
 	$approvals = array();
-	$rows      = class_exists( 'CM_MCP_Approvals' ) ? CM_MCP_Approvals::pending_for_current_user() : array();
+	$rows      = class_exists( 'WPSHQ_MCP_Approvals' ) ? WPSHQ_MCP_Approvals::pending_for_current_user() : array();
 	foreach ( $rows as $row ) {
 		$user        = get_userdata( (int) $row['user_id'] );
 		$approvals[] = array(
@@ -71,7 +70,7 @@ function cm_execute_list_pending_approvals( $input = array() ) {
 			'user'         => $user ? $user->user_login : '',
 			'created_at'   => $row['created_at'],
 			'expires_in'   => max( 0, (int) $row['approval']['expires'] - time() ),
-			'approve_url'  => CM_MCP_Approvals::approve_url( $row['id'] ),
+			'approve_url'  => WPSHQ_MCP_Approvals::approve_url( $row['id'] ),
 			'input'        => $row['approval']['input'] ?? null,
 			'preview'      => $row['approval']['preview'] ?? null,
 		);

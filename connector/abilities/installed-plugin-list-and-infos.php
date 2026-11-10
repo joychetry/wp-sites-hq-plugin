@@ -9,7 +9,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,8 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_get_plugins_ability' );
-function cm_register_get_plugins_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_get_plugins_ability' );
+function wpshq_register_get_plugins_ability() {
 	wp_register_ability(
 		'classic-monks/get-plugins',
 		array(
@@ -113,7 +112,7 @@ function cm_register_get_plugins_ability() {
 					'updates_checked_at'     => array( 'type' => 'string' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_get_plugins',
+			'execute_callback'    => 'wpshq_execute_get_plugins',
 			'permission_callback' => function () {
 				return current_user_can( 'activate_plugins' );
 			},
@@ -137,7 +136,7 @@ function cm_register_get_plugins_ability() {
  * @param array $input Input parameters.
  * @return array|WP_Error Plugins information or permission error.
  */
-function cm_execute_get_plugins( $input = array() ) {
+function wpshq_execute_get_plugins( $input = array() ) {
 	if ( ! function_exists( 'get_plugins' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	}
@@ -239,7 +238,7 @@ function cm_execute_get_plugins( $input = array() ) {
 
 		$update_package_url = null;
 		if ( $include_update_package_url && ! empty( $update_payload['package'] ) ) {
-			$update_package_url = cm_mask_plugin_update_package_url( (string) $update_payload['package'] );
+			$update_package_url = wpshq_mask_plugin_update_package_url( (string) $update_payload['package'] );
 		}
 
 		if ( $is_active ) {
@@ -293,7 +292,7 @@ function cm_execute_get_plugins( $input = array() ) {
  * @param string $url Update package URL.
  * @return string|null Masked URL or null when invalid.
  */
-function cm_mask_plugin_update_package_url( $url ) {
+function wpshq_mask_plugin_update_package_url( $url ) {
 	$parts = wp_parse_url( $url );
 	if ( empty( $parts['scheme'] ) || empty( $parts['host'] ) ) {
 		return null;

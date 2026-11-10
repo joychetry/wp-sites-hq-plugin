@@ -9,7 +9,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,8 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_get_media_ability' );
-function cm_register_get_media_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_get_media_ability' );
+function wpshq_register_get_media_ability() {
 	wp_register_ability(
 		'classic-monks/get-media',
 		array(
@@ -143,7 +142,7 @@ function cm_register_get_media_ability() {
 					),
 				),
 			),
-			'execute_callback'    => 'cm_execute_get_media',
+			'execute_callback'    => 'wpshq_execute_get_media',
 			'permission_callback' => function () {
 				return current_user_can( 'upload_files' );
 			},
@@ -167,7 +166,7 @@ function cm_register_get_media_ability() {
  * @param array $input Input parameters.
  * @return array Media items and total count.
  */
-function cm_execute_get_media( $input = array() ) {
+function wpshq_execute_get_media( $input = array() ) {
 	$args = array(
 		'post_type'      => 'attachment',
 		'post_status'    => 'inherit',
@@ -207,7 +206,7 @@ function cm_execute_get_media( $input = array() ) {
 			'url'       => wp_get_attachment_url( $post->ID ),
 			'mime_type' => $post->post_mime_type,
 			'alt_text'  => get_post_meta( $post->ID, '_wp_attachment_image_alt', true ) ?: '',
-			'date'      => cm_ability_date( $post->post_date ),
+			'date'      => wpshq_ability_date( $post->post_date ),
 		);
 
 		// Thumbnail (for images)
@@ -231,7 +230,7 @@ function cm_execute_get_media( $input = array() ) {
 		$item['file_name']   = $file_path ? wp_basename( $file_path ) : '';
 		$item['author_id']   = (int) $post->post_author;
 		$item['author']      = (string) get_the_author_meta( 'display_name', (int) $post->post_author );
-		$item['usage']       = empty( $input['usage'] ) ? null : cm_media_usage_count( $post->ID, $metadata );
+		$item['usage']       = empty( $input['usage'] ) ? null : wpshq_media_usage_count( $post->ID, $metadata );
 
 		$media[] = $item;
 	}
@@ -252,7 +251,7 @@ function cm_execute_get_media( $input = array() ) {
  * @param array|false $metadata Its attachment metadata.
  * @return int
  */
-function cm_media_usage_count( $id, $metadata ) {
+function wpshq_media_usage_count( $id, $metadata ) {
 	global $wpdb;
 	$file  = (string) get_post_meta( $id, '_wp_attached_file', true );
 	$names = array( wp_basename( $file ) );

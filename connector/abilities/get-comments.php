@@ -9,7 +9,6 @@
  * @since 1.2.0
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,8 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.0
  */
-add_action( 'wp_abilities_api_init', 'cm_register_get_comments_ability' );
-function cm_register_get_comments_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_get_comments_ability' );
+function wpshq_register_get_comments_ability() {
 	wp_register_ability(
 		'classic-monks/get-comments',
 		array(
@@ -103,7 +102,7 @@ function cm_register_get_comments_ability() {
 					'returned' => array( 'type' => 'integer' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_get_comments',
+			'execute_callback'    => 'wpshq_execute_get_comments',
 			'permission_callback' => function () {
 				return current_user_can( 'moderate_comments' );
 			},
@@ -127,7 +126,7 @@ function cm_register_get_comments_ability() {
  * @param array $input Input parameters.
  * @return array Comments with metadata.
  */
-function cm_execute_get_comments( $input = array() ) {
+function wpshq_execute_get_comments( $input = array() ) {
 	$args = array(
 		'number'  => min( absint( isset( $input['limit'] ) ? $input['limit'] : 10 ), 100 ),
 		'status'  => sanitize_key( isset( $input['status'] ) ? $input['status'] : 'approve' ),
@@ -151,7 +150,7 @@ function cm_execute_get_comments( $input = array() ) {
 			'author_email' => $comment->comment_author_email,
 			'author_url'   => $comment->comment_author_url,
 			'content'      => $comment->comment_content,
-			'date'         => cm_ability_date( $comment->comment_date ),
+			'date'         => wpshq_ability_date( $comment->comment_date ),
 			'status'       => wp_get_comment_status( $comment ),
 			'parent'       => (int) $comment->comment_parent,
 			'user_id'      => (int) $comment->user_id,

@@ -35,7 +35,7 @@ TOK=cmat_$(printf 'ab%.0s' {1..32})
 call update-post-metadata "{\"post_id\":$PID,\"key\":\"zz_note\",\"value\":\"$TOK Bearer zzBearerVal AIza$(printf 'Q%.0s' {1..35}) abCD 12ef GHij 34kl MNop 56qr -----BEGIN PRIVATE KEY-----zzPem-----END PRIVATE KEY-----\"}" >/dev/null
 L=$(lastlog)
 for s in "$TOK" zzBearerVal AIzaQQ '56qr' zzPem; do check "value redacted: ${s:0:12}" "$L" "!~$s"; done
-check 'author key survives redaction' "$(wpe "echo wp_json_encode(CM_AI_Activity_Log::redact(['post_author' => 7, 'auth_key' => 's']));")" '{"post_author":7,"auth_key":"[redacted]"}'
+check 'author key survives redaction' "$(wpe "echo wp_json_encode(WPSHQ_AI_Activity_Log::redact(['post_author' => 7, 'auth_key' => 's']));")" '{"post_author":7,"auth_key":"[redacted]"}'
 check 'content scope refuses a site tool'   "$(call deactivate-plugin '{"slug":"woocommerce"}')" '~"cause":"scope"'
 
 setscope full

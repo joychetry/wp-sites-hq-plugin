@@ -11,17 +11,16 @@
  * @subpackage AI/Abilities
  * @requires WordPress 7.1+
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const CM_LOGIN_LINK_TTL        = 60;
-const CM_LOGIN_LINK_RATE_LIMIT = 5; // links per user per 10 minutes
+const WPSHQ_LOGIN_LINK_TTL        = 60;
+const WPSHQ_LOGIN_LINK_RATE_LIMIT = 5; // links per user per 10 minutes
 
-add_action( 'wp_abilities_api_init', 'cm_register_create_login_link_ability' );
-function cm_register_create_login_link_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_create_login_link_ability' );
+function wpshq_register_create_login_link_ability() {
 	wp_register_ability(
 		'classic-monks/create-login-link',
 		array(
@@ -43,8 +42,8 @@ function cm_register_create_login_link_ability() {
 					'expires_in' => array( 'type' => 'integer' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_create_login_link',
-			'permission_callback' => 'cm_is_operator_request',
+			'execute_callback'    => 'wpshq_execute_create_login_link',
+			'permission_callback' => 'wpshq_is_operator_request',
 			'meta'                => array(
 				'annotations'      => array(
 					'readonly'    => false,
@@ -60,12 +59,12 @@ function cm_register_create_login_link_ability() {
 /**
  * The current request comes from a WP Sites HQ operator grant.
  */
-function cm_is_operator_request() {
-	$connection = function_exists( 'cm_mcp_is_mcp_credential' ) && cm_mcp_is_mcp_credential() ? CM_MCP_Server::current_connection() : null;
+function wpshq_is_operator_request() {
+	$connection = function_exists( 'wpshq_mcp_is_mcp_credential' ) && wpshq_mcp_is_mcp_credential() ? WPSHQ_MCP_Server::current_connection() : null;
 	return $connection && null !== $connection['operator'];
 }
 
-function cm_execute_create_login_link() {
+function wpshq_execute_create_login_link() {
 	if ( ! is_ssl() && 'local' !== wp_get_environment_type() ) {
 		return new WP_Error( 'cm_login_link_insecure', __( 'Login links need HTTPS on this site.', 'wp-sites-hq' ), array( 'status' => 400 ) );
 	}
@@ -73,23 +72,23 @@ function cm_execute_create_login_link() {
 	$user_id = get_current_user_id();
 	$rate    = 'cm_login_link_rate_' . $user_id;
 	$count   = (int) get_transient( $rate );
-	if ( $count >= CM_LOGIN_LINK_RATE_LIMIT ) {
+	if ( $count >= WPSHQ_LOGIN_LINK_RATE_LIMIT ) {
 		return new WP_Error( 'cm_login_link_rate_limited', __( 'Too many login links in a short time. Wait a few minutes and try again.', 'wp-sites-hq' ), array( 'status' => 429 ) );
 	}
 	// shortcut: each new link restarts the 10-minute window, and parallel calls can share a count; fine for one app per user.
 	set_transient( $rate, $count + 1, 10 * MINUTE_IN_SECONDS );
 
-	// The cmll_ shape is masked by CM_AI_Activity_Log::redact(), so the logged result never holds a usable link.
+	// The cmll_ shape is masked by WPSHQ_AI_Activity_Log::redact(), so the logged result never holds a usable link.
 	$token = 'cmll_' . bin2hex( random_bytes( 32 ) );
 	set_transient(
 		'cm_login_link_' . hash( 'sha256', $token ),
 		array(
 			'user_id'    => $user_id,
-			'connection' => CM_MCP_Server::current_connection()['id'],
-			'label'      => CM_AI_Activity_Log::caller()['label'],
-			'expires'    => time() + CM_LOGIN_LINK_TTL,
+			'connection' => WPSHQ_MCP_Server::current_connection()['id'],
+			'label'      => WPSHQ_AI_Activity_Log::caller()['label'],
+			'expires'    => time() + WPSHQ_LOGIN_LINK_TTL,
 		),
-		CM_LOGIN_LINK_TTL
+		WPSHQ_LOGIN_LINK_TTL
 	);
 
 	return array(
@@ -100,12 +99,12 @@ function cm_execute_create_login_link() {
 			),
 			wp_login_url()
 		),
-		'expires_in' => CM_LOGIN_LINK_TTL,
+		'expires_in' => WPSHQ_LOGIN_LINK_TTL,
 	);
 }
 
-add_action( 'login_form_cm_login_link', 'cm_handle_login_link' );
-function cm_handle_login_link() {
+add_action( 'login_form_cm_login_link', 'wpshq_handle_login_link' );
+function wpshq_handle_login_link() {
 	nocache_headers();
 	header( 'Referrer-Policy: no-referrer' );
 	$token = sanitize_text_field( wp_unslash( $_REQUEST['token'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- the single-use token is the credential
@@ -125,7 +124,7 @@ function cm_handle_login_link() {
 		<input type="hidden" name="token" value="<?php echo esc_attr( $token ); ?>">
 		<button type="submit"><?php esc_html_e( 'Continue to the dashboard', 'wp-sites-hq' ); ?></button>
 	</form>
-	<script>document.getElementById( 'cm-login-link' ).submit();</script>
+		<?php wp_print_inline_script_tag( "document.getElementById( 'cm-login-link' ).submit();" ); ?>
 </body>
 </html>
 		<?php
@@ -136,17 +135,17 @@ function cm_handle_login_link() {
 	$data = get_transient( $key );
 	// Single use: only the request that actually deletes the token may sign in. The grant must still be an operator.
 	$valid = is_array( $data ) && delete_transient( $key ) && $data['expires'] >= time() && get_userdata( $data['user_id'] )
-		&& class_exists( 'CM_MCP_Server' ) && CM_MCP_Server::connection_exists( $data['user_id'], $data['connection'] )
-		&& null !== CM_MCP_Approvals::operator( $data['user_id'], $data['connection'] );
+		&& class_exists( 'WPSHQ_MCP_Server' ) && WPSHQ_MCP_Server::connection_exists( $data['user_id'], $data['connection'] )
+		&& null !== WPSHQ_MCP_Approvals::operator( $data['user_id'], $data['connection'] );
 	if ( ! $valid ) {
 		wp_die( esc_html__( 'This login link is invalid, expired or already used. Open the site from WP Sites HQ again.', 'wp-sites-hq' ), esc_html__( 'Login link', 'wp-sites-hq' ), array( 'response' => 403 ) );
 	}
 
 	$user = get_userdata( $data['user_id'] );
 	wp_set_auth_cookie( $user->ID, false, is_ssl() );
-	CM_AI_Activity_Log::record( $user->ID, $data['connection'], $data['label'] ?? '', 'classic-monks/use-login-link', __( 'Signed in to wp-admin with a one-time login link.', 'wp-sites-hq' ) );
+	WPSHQ_AI_Activity_Log::record( $user->ID, $data['connection'], $data['label'] ?? '', 'classic-monks/use-login-link', __( 'Signed in to wp-admin with a one-time login link.', 'wp-sites-hq' ) );
 	// Core fires this after every sign-in; last-login columns and similar tracking rely on it.
-	do_action( 'wp_login', $user->user_login, $user );
+	do_action( 'wp_login', $user->user_login, $user ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook
 	wp_safe_redirect( admin_url() );
 	exit;
 }

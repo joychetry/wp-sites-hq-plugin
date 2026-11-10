@@ -8,14 +8,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_update_core_ability' );
-function cm_register_update_core_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_update_core_ability' );
+function wpshq_register_update_core_ability() {
 	wp_register_ability(
 		'classic-monks/update-core',
 		array(
@@ -50,7 +49,7 @@ function cm_register_update_core_ability() {
 					'message'          => array( 'type' => 'string' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_update_core',
+			'execute_callback'    => 'wpshq_execute_update_core',
 			// update_core is denied by core when DISALLOW_FILE_MODS is set.
 			'permission_callback' => function () {
 				return current_user_can( 'update_core' );
@@ -62,7 +61,7 @@ function cm_register_update_core_ability() {
 					'idempotent'   => false,
 					'instructions' => 'Suggest a full backup first and confirm with the user. Major updates can break older plugins.',
 				),
-				'cm_preview_callback' => 'cm_preview_core_version',
+				'cm_preview_callback' => 'wpshq_preview_core_version',
 				'cm_always_approve'   => true,
 				'show_in_rest'        => true,
 			),
@@ -70,7 +69,7 @@ function cm_register_update_core_ability() {
 	);
 }
 
-function cm_preview_core_version( $input ) {
+function wpshq_preview_core_version( $input ) {
 	return array( 'version' => (string) get_bloginfo( 'version' ) );
 }
 
@@ -79,8 +78,8 @@ function cm_preview_core_version( $input ) {
  *
  * @return object|null
  */
-function cm_ai_find_core_offer( $version, $locale = '' ) {
-	cm_ai_get_core_update_offer(); // refreshes the update_core transient when it is stale
+function wpshq_ai_find_core_offer( $version, $locale = '' ) {
+	wpshq_ai_get_core_update_offer(); // refreshes the update_core transient when it is stale
 	$offer = find_core_update( $version, $locale ? $locale : get_locale() );
 	if ( ! $offer && ! $locale ) {
 		$offer = find_core_update( $version, 'en_US' );
@@ -88,7 +87,7 @@ function cm_ai_find_core_offer( $version, $locale = '' ) {
 	return $offer ? $offer : null;
 }
 
-function cm_execute_update_core( $input = array() ) {
+function wpshq_execute_update_core( $input = array() ) {
 	$previous = (string) get_bloginfo( 'version' );
 	$version  = (string) ( $input['version'] ?? '' );
 	$locale   = (string) ( $input['locale'] ?? '' );
@@ -99,7 +98,7 @@ function cm_execute_update_core( $input = array() ) {
 	if ( '' !== $version && $version === $previous && ( '' === $locale || get_locale() === $locale ) ) {
 		$offer = null;
 	} elseif ( '' !== $version ) {
-		$offer = cm_ai_find_core_offer( $version, $locale );
+		$offer = wpshq_ai_find_core_offer( $version, $locale );
 		if ( ! $offer ) {
 			$offered = array_map(
 				function ( $o ) {
@@ -115,7 +114,7 @@ function cm_execute_update_core( $input = array() ) {
 			);
 		}
 	} else {
-		$offer = cm_ai_get_core_update_offer();
+		$offer = wpshq_ai_get_core_update_offer();
 	}
 
 	if ( ! $offer ) {
@@ -127,7 +126,7 @@ function cm_execute_update_core( $input = array() ) {
 		);
 	}
 
-	cm_ai_require_plugin_management_files();
+	wpshq_ai_require_plugin_management_files();
 	$upgrader = new Core_Upgrader( new Automatic_Upgrader_Skin() );
 	$result   = $upgrader->upgrade( $offer );
 

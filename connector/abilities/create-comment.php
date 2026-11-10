@@ -8,14 +8,13 @@
  * @subpackage AI/Abilities
  * @requires WordPress 6.9+ (Abilities API)
  */
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- cm_ is the plugin-wide prefix and these names match Classic Monks Pro, so a site keeps its connection when it moves between them.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'wp_abilities_api_init', 'cm_register_create_comment_ability' );
-function cm_register_create_comment_ability() {
+add_action( 'wp_abilities_api_init', 'wpshq_register_create_comment_ability' );
+function wpshq_register_create_comment_ability() {
 	wp_register_ability(
 		'classic-monks/create-comment',
 		array(
@@ -51,7 +50,7 @@ function cm_register_create_comment_ability() {
 					'link'       => array( 'type' => 'string' ),
 				),
 			),
-			'execute_callback'    => 'cm_execute_create_comment',
+			'execute_callback'    => 'wpshq_execute_create_comment',
 			'permission_callback' => function ( $input ) {
 				// Same check as reply-to-comment (core's admin "Reply").
 				$post_id = absint( $input['post_id'] ?? 0 );
@@ -64,14 +63,14 @@ function cm_register_create_comment_ability() {
 					'idempotent'   => false, // Each call posts a new comment
 					'instructions' => 'Posts a comment as the current user. For answers to existing comments use reply-to-comment.',
 				),
-				'cm_undo_callback' => 'cm_undo_reply_to_comment', // Trashes the comment by ID; defined in reply-to-comment.php.
+				'cm_undo_callback' => 'wpshq_undo_reply_to_comment', // Trashes the comment by ID; defined in reply-to-comment.php.
 				'show_in_rest'     => true,
 			),
 		)
 	);
 }
 
-function cm_execute_create_comment( $input ) {
+function wpshq_execute_create_comment( $input ) {
 	$post = get_post( absint( $input['post_id'] ) );
 	if ( ! $post ) {
 		return new WP_Error( 'post_not_found', __( 'Post not found.', 'wp-sites-hq' ) );
@@ -107,8 +106,8 @@ function cm_execute_create_comment( $input ) {
 		return new WP_Error( 'comment_failed', __( 'Could not save the comment.', 'wp-sites-hq' ) );
 	}
 
-	if ( class_exists( 'CM_AI_Activity_Log' ) ) {
-		CM_AI_Activity_Log::set_undo( 'classic-monks/create-comment', array( 'comment_id' => (int) $comment_id ) );
+	if ( class_exists( 'WPSHQ_AI_Activity_Log' ) ) {
+		WPSHQ_AI_Activity_Log::set_undo( 'classic-monks/create-comment', array( 'comment_id' => (int) $comment_id ) );
 	}
 
 	return array(

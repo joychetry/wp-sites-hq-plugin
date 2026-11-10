@@ -40,7 +40,7 @@ APPROVE=$(curl -sk -b "$JAR" "$SITE/wp-admin/admin.php?page=cm-ai-approve&op=$OP
 check 'approval page renders'               "$APPROVE" '~Approve change'
 check '... with its decision form'          "$APPROVE" '~name="action" value="cm_ai_decide"'
 check '... and no PHP notices'              "$APPROVE" '!~<b>Warning</b>'
-wpe "global \$wpdb; \$wpdb->update(CM_AI_Activity_Log::table(), ['status' => 'expired'], ['id' => $OP]); wp_delete_post($P, true);" >/dev/null
+wpe "global \$wpdb; \$wpdb->update(WPSHQ_AI_Activity_Log::table(), ['status' => 'expired'], ['id' => $OP]); wp_delete_post($P, true);" >/dev/null
 
 # Undo from the screen: a term renamed over MCP (trusted, so it runs without approval) gets its name back.
 wpe "\$m = get_user_meta(1, 'cm_mcp_trusted', true) ?: []; \$m['$MCP_UUID'] = true; update_user_meta(1, 'cm_mcp_trusted', \$m);" >/dev/null

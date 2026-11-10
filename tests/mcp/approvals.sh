@@ -5,9 +5,9 @@
 newpost() { wpe 'echo wp_insert_post(["post_title" => "cm approval test", "post_status" => "draft"]);'; }
 status() { wpe "echo get_post_status($1);"; }
 opid() { sed -E 's/.*"op_id":([0-9]+).*/\1/' <<<"$1"; }
-approve() { wpe "global \$wpdb; \$wpdb->update(CM_AI_Activity_Log::table(), ['status' => 'approved'], ['id' => $1]);" >/dev/null; }
+approve() { wpe "global \$wpdb; \$wpdb->update(WPSHQ_AI_Activity_Log::table(), ['status' => 'approved'], ['id' => $1]);" >/dev/null; }
 # Through the approve page's handler, as a person would.
-decide() { wpe "wp_set_current_user(1); \$_POST = \$_REQUEST = ['op' => $1, 'decision' => 'approve', '_wpnonce' => wp_create_nonce('cm_ai_decide_$1')]; add_filter('wp_redirect', function () { throw new Exception('redirect'); }); try { CM_MCP_Approvals::handle_decision(); } catch (Exception \$e) {}" >/dev/null; }
+decide() { wpe "wp_set_current_user(1); \$_POST = \$_REQUEST = ['op' => $1, 'decision' => 'approve', '_wpnonce' => wp_create_nonce('cm_ai_decide_$1')]; add_filter('wp_redirect', function () { throw new Exception('redirect'); }); try { WPSHQ_MCP_Approvals::handle_decision(); } catch (Exception \$e) {}" >/dev/null; }
 
 P=$(newpost)
 R1=$(call delete-post "{\"post_id\":$P}")
@@ -29,7 +29,7 @@ check 'request + retries + run = one row'   "$(logrows)" 1
 check 'request row carries the result'      "$(oprow)" '~ok |'
 check '... tagged with the approver'        "$(oprow)" '~[approved by admin]'
 check 'no Refused row for the waiting retry' "$(wpe "global \$wpdb; echo \$wpdb->get_var(\"SELECT COUNT(*) FROM {\$wpdb->prefix}cm_ai_log WHERE status = 'denied' AND result_summary = 'Still waiting for approval.'\");")" 0
-check 'approve page says it ran'            "$(wpe "wp_set_current_user(1); \$_GET['op'] = $OP; ob_start(); CM_MCP_Approvals::render_page(); echo ob_get_clean();")" '~Approved and already run.'
+check 'approve page says it ran'            "$(wpe "wp_set_current_user(1); \$_GET['op'] = $OP; ob_start(); WPSHQ_MCP_Approvals::render_page(); echo ob_get_clean();")" '~Approved and already run.'
 check 'approved op runs once'               "$(call delete-post "{\"post_id\":$P}")" '~"cause":"approval"'
 check '... a new request is a new row'      "$(logrows)" 2
 
@@ -88,7 +88,7 @@ BIG="$(printf 'x%.0s' {1..20000})TAILMARK"
 P6=$(newpost)
 R3=$(call update-post "{\"post_id\":$P6,\"content\":\"$BIG\"}") # bash 3.2 mangles \" in a nested $( )
 OP3=$(opid "$R3")
-check 'approve page shows the full input'   "$(wpe "wp_set_current_user(1); \$_GET['op'] = $OP3; ob_start(); CM_MCP_Approvals::render_page(); echo false !== strpos(ob_get_clean(), 'TAILMARK') ? 'full' : 'cut';")" full
+check 'approve page shows the full input'   "$(wpe "wp_set_current_user(1); \$_GET['op'] = $OP3; ob_start(); WPSHQ_MCP_Approvals::render_page(); echo false !== strpos(ob_get_clean(), 'TAILMARK') ? 'full' : 'cut';")" full
 
 for id in $P $P2 $P3 $P4 $P6; do wpe "wp_delete_post($id, true);" >/dev/null; done
 done_checks
