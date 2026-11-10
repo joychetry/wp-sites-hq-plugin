@@ -5,6 +5,17 @@ connector library in `connector/` has its own version, named in each entry.
 
 ## Unreleased
 
+- Connector 2.0.1: sites that also run a plugin bundling connector 1.x (Classic
+  Monks Pro before its 2.0.0 sync) work again. When such a copy is registered,
+  the connector loads `connector/compat-1x.php`, which gives that plugin the old
+  `cm_` / `CM_` names it calls (functions, the four classes, the eight
+  constants) and also fires the old hook names. Before, Pro's AI image
+  generation and `bricks-import-external-image` stopped with a fatal error,
+  `search-content` and `create-post-summaries` failed, Logs > AI Activity did
+  not load, undo data, live toasts and AI jobs stopped, and the
+  `cm_ai_log_reads` and `cm_theme_sandbox_check_url` filters were ignored. The
+  file is generated from `docs/connector-prefix-map.json` by
+  `bin/connector-compat.php`.
 - Connector 2.0.0: every connector function, class, constant and hook now uses
   the `wpshq_` / `WPSHQ_` prefix (was `cm_` / `CM_`), so it no longer clashes
   with other plugins' names. Options, tables, user meta, REST routes, ability

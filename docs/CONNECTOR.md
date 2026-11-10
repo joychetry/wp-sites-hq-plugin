@@ -77,6 +77,37 @@ nothing hooks `wpshq_media_replaced`, the connector calls
 exist, and the default of `wpshq_svg_sanitizer` is `cm_sanitize_svg` if it
 exists. Remove them once every host registers the hooks.
 
+## Hosts that still bundle connector 1.x
+
+A plugin that bundles a 1.x copy (Classic Monks Pro until it syncs 2.0.0) calls
+the library by its old `cm_` / `CM_` names. When a 2.x copy wins the loader,
+those names would be missing. So while any registered copy is older than 2.0.0,
+`Monks_Central_Connector::boot()` loads `connector/compat-1x.php`, after the
+abilities, which:
+
+- aliases the four classes (`CM_MCP_Server` and the rest) and defines the eight
+  `CM_*` constants from their `WPSHQ_*` values;
+- loads `media-import-helpers.php` up front (1.x hosts require it from the
+  running copy and call its helpers by name);
+- declares every mapped `cm_*` function as a forwarder to its `wpshq_*` name
+  (hand-written for the two that take a parameter by reference);
+- fires the four old hook names from the new ones: `cm_mcp_skills`,
+  `cm_ai_log_reads` and `cm_theme_sandbox_check_url` run inside the `wpshq_*`
+  filters, and `cm_ai_operation_logged` runs inside `wpshq_ai_operation_logged`.
+
+Every declaration is skipped when the old name already exists or the new one is
+not loaded, so a host that defines the names itself (or a synced 2.x host,
+which never triggers the file) is left alone. The file is generated; after
+changing the map or a connector function's signature run:
+
+```sh
+php bin/connector-compat.php          # rewrite connector/compat-1x.php
+php bin/connector-compat.php --check  # fails if the file is out of date (a unit test runs it)
+```
+
+`tests/mix/legacy-host.sh` runs a released Pro with connector 1.2.1 next to
+this plugin. Remove the file once no supported host bundles a 1.x copy.
+
 ## Renaming again
 
 `bin/connector-prefix.php` did the rename with PHP's tokenizer: it changes
