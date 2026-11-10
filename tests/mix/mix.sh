@@ -73,31 +73,34 @@ works() {
     check "$1: get-hq-status runs" "$(tool get-hq-status)" ok
 }
 bump() { echo "<?php if ( ! defined( 'ABSPATH' ) ) { exit; } return '$2';" >"$ROOT/wp-content/plugins/$1/connector/version.php"; }
-LIB=$(sed -n "s/^return '\(.*\)';/\1/p" "$MC_DIR/connector/version.php")
+ver() { sed -n "s/^return '\(.*\)';/\1/p" "$1/connector/version.php"; }
+LIB=$(ver "$MC_DIR") FREE_LIB=$(ver "$FREE") PRO_LIB=$(ver "$PRO")
+# win NAME1 VERSION1 NAME2 VERSION2: what booted() shows for two copies loaded in this order (higher wins, a tie the first).
+win() { [[ $(printf '%s\n' "$2" "$4" | sort -V | tail -1) == "$2" ]] && echo "1 $2 $1" || echo "1 $4 $3"; }
 
 site 'Monks Central alone, then Free'
 on wp-sites-hq; enable; grant
 check 'MC alone boots one copy'        "$(booted)" "1 $LIB WP Sites HQ"
 works 'MC alone'
 on classic-monks
-check 'Free + MC: one copy, tie goes to the first loaded' "$(booted)" "1 $LIB Classic Monks"
+check 'Free + MC: one copy, the higher version (a tie: the first loaded)' "$(booted)" "$(win 'Classic Monks' "$FREE_LIB" 'WP Sites HQ' "$LIB")"
 works 'Free + MC'
 bump wp-sites-hq 9.0.0
 check 'Free + newer MC: MC runs'       "$(booted)" '1 9.0.0 WP Sites HQ'
 works 'Free + newer MC'
 off wp-sites-hq
-check 'Free alone after MC removed'    "$(booted)" "1 $LIB Classic Monks"
+check 'Free alone after MC removed'    "$(booted)" "1 $FREE_LIB Classic Monks"
 works 'Free alone'
 echo "::endgroup::"
 
 site 'Pro alone, then Monks Central'
 on classic-monks-pro; enable; pro_ai; grant
-check 'Pro alone boots one copy'       "$(booted)" "1 $LIB Classic Monks Pro"
+check 'Pro alone boots one copy'       "$(booted)" "1 $PRO_LIB Classic Monks Pro"
 check '... its switch is the shared one' "$(wpe 'global $wpdb; echo $wpdb->get_var("SELECT option_value FROM {$wpdb->options} WHERE option_name = \"cm_mcp_enabled\"");')" 1
 works 'Pro alone'
 check '... Pro tools served'          "$(tool get-features)" ok
 on wp-sites-hq
-check 'Pro + MC: one copy, tie goes to the first loaded' "$(booted)" "1 $LIB Classic Monks Pro"
+check 'Pro + MC: one copy, the higher version (a tie: the first loaded)' "$(booted)" "$(win 'Classic Monks Pro' "$PRO_LIB" 'WP Sites HQ' "$LIB")"
 works 'Pro + MC'
 bump wp-sites-hq 9.0.0
 check 'Pro + newer MC: MC runs'        "$(booted)" '1 9.0.0 WP Sites HQ'
@@ -115,18 +118,18 @@ site 'All three'
 on classic-monks-pro; enable; pro_ai; grant
 on wp-sites-hq classic-monks
 # classic-monks-pro/ sorts before classic-monks/, so Pro loads first and Free stands down.
-check 'all three: one Classic Monks, one copy' "$(booted)" "1 $LIB Classic Monks Pro"
+check 'all three: one Classic Monks, one copy' "$(booted)" "$(win 'Classic Monks Pro' "$PRO_LIB" 'WP Sites HQ' "$LIB")"
 check '... Free stands down'           "$(wpe 'echo function_exists("cm_hq_licence_status") ? "pro" : "free";')" pro
 works 'all three'
 check '... Pro tools served'          "$(tool get-features)" ok
 off classic-monks-pro
-check 'Free + MC after Pro removed'    "$(booted)" "1 $LIB Classic Monks"
+check 'Free + MC after Pro removed'    "$(booted)" "$(win 'Classic Monks' "$FREE_LIB" 'WP Sites HQ' "$LIB")"
 works 'Free + MC (from all three)'
 off classic-monks
 check 'MC alone at the end'            "$(booted)" "1 $LIB WP Sites HQ"
 works 'MC alone (from all three)'
 on classic-monks-pro
-check 'switched back to Pro'           "$(booted)" "1 $LIB Classic Monks Pro"
+check 'switched back to Pro'           "$(booted)" "$(win 'Classic Monks Pro' "$PRO_LIB" 'WP Sites HQ' "$LIB")"
 works 'switched back to Pro'
 echo "::endgroup::"
 
