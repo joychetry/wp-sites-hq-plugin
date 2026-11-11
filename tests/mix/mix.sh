@@ -83,13 +83,13 @@ on wp-sites-hq; enable; grant
 check 'MC alone boots one copy'        "$(booted)" "1 $LIB WP Sites HQ"
 works 'MC alone'
 on classic-monks
-check 'Free + MC: one copy, the higher version (a tie: the first loaded)' "$(booted)" "$(win 'Classic Monks' "$FREE_LIB" 'WP Sites HQ' "$LIB")"
+check 'Free + MC: one copy, the higher version (a tie: the first loaded)' "$(booted)" "$(win 'Classic Monks Lite' "$FREE_LIB" 'WP Sites HQ' "$LIB")"
 works 'Free + MC'
 bump wp-sites-hq 9.0.0
 check 'Free + newer MC: MC runs'       "$(booted)" '1 9.0.0 WP Sites HQ'
 works 'Free + newer MC'
 off wp-sites-hq
-check 'Free alone after MC removed'    "$(booted)" "1 $FREE_LIB Classic Monks"
+check 'Free alone after MC removed'    "$(booted)" "1 $FREE_LIB Classic Monks Lite"
 works 'Free alone'
 echo "::endgroup::"
 
@@ -123,7 +123,7 @@ check '... Free stands down'           "$(wpe 'echo function_exists("cm_hq_licen
 works 'all three'
 check '... Pro tools served'          "$(tool get-features)" ok
 off classic-monks-pro
-check 'Free + MC after Pro removed'    "$(booted)" "$(win 'Classic Monks' "$FREE_LIB" 'WP Sites HQ' "$LIB")"
+check 'Free + MC after Pro removed'    "$(booted)" "$(win 'Classic Monks Lite' "$FREE_LIB" 'WP Sites HQ' "$LIB")"
 works 'Free + MC (from all three)'
 off classic-monks
 check 'MC alone at the end'            "$(booted)" "1 $LIB WP Sites HQ"
