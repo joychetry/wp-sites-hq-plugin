@@ -340,16 +340,6 @@ function Activity( { version, onNotice } ) {
 }
 
 function Status( { state, runsHere, onToggle } ) {
-	if ( state.legacy ) {
-		return (
-			<Notice status="info" isDismissible={ false }>
-				{ __(
-					'Classic Monks connects this site to WP Sites HQ for now. Manage the connection under Classic Monks > WP Sites HQ.',
-					'wp-sites-hq'
-				) }
-			</Notice>
-		);
-	}
 	if ( ! runsHere ) {
 		return (
 			<Notice status="info" isDismissible={ false }>
@@ -496,7 +486,7 @@ export default function Connector( { initial, onNotice } ) {
 	);
 
 	const { state } = screen;
-	const runsHere = screen.runs_here && ! state.legacy;
+	const runsHere = screen.runs_here;
 
 	return (
 		<>

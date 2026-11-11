@@ -11,7 +11,7 @@ PLUGIN_DIR=$(cd "$(dirname "$0")/../.." && pwd)
 WP_VERSION=${CM_WP_VERSION:-7.1.3}
 SUITES=("$@")
 ((${#SUITES[@]})) || [[ $(printf '%s\n' 7.1 "$WP_VERSION" | sort -V | head -1) == 7.1 ]] || SUITES=(legacy)
-((${#SUITES[@]})) || SUITES=(annotations smoke protocol approvals trust site wrappers wrappers2 content m6 m7 m10 m8 media2 acf oauth hq-status pending-approvals revoke oauth-grace operator login-link updates snapshot admin-page loader standdown deactivate uninstall)
+((${#SUITES[@]})) || SUITES=(annotations smoke protocol approvals trust site wrappers wrappers2 content m6 m7 m10 m8 media2 acf oauth hq-status pending-approvals revoke oauth-grace operator login-link updates snapshot admin-page loader deactivate uninstall)
 
 PORT=${CM_PORT:-8889}
 export CM_SITE_ROOT=${CM_SITE_ROOT:-$(mktemp -d)}

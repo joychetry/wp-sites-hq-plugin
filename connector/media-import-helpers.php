@@ -193,12 +193,11 @@ function wpshq_ai_prepare_image_file( $path, $stem ) {
 
 	/**
 	 * The host's SVG cleaner: a callable that takes the SVG markup and returns clean markup or a WP_Error. SVG can
-	 * carry scripts, so without one SVG files are refused. The default is Classic Monks Pro's cm_sanitize_svg(), for
-	 * Pro builds from before this filter.
+	 * carry scripts, so without one SVG files are refused.
 	 *
 	 * @param callable|null $sanitizer The cleaner, or null.
 	 */
-	$sanitizer = apply_filters( 'wpshq_svg_sanitizer', function_exists( 'cm_sanitize_svg' ) ? 'cm_sanitize_svg' : null );
+	$sanitizer = apply_filters( 'wpshq_svg_sanitizer', null );
 	if ( 'image/svg+xml' === $mime && ! is_callable( $sanitizer ) ) {
 		return new WP_Error( 'cm_ai_not_an_image', __( 'SVG files cannot be imported or uploaded here: this site has no SVG cleaner. Upload them in the Media Library instead.', 'wp-sites-hq' ) );
 	}

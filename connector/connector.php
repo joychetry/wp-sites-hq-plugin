@@ -35,25 +35,12 @@ final class Monks_Central_Connector {
 	private static $copy = array();
 
 	/**
-	 * Whether a Classic Monks build with its own connector is serving the site instead.
-	 *
-	 * @var bool
-	 */
-	private static $legacy = false;
-
-	/**
 	 * Load the connector. Runs on plugins_loaded (priority 1).
 	 *
 	 * @param array $copy The winning copy, as registered.
 	 */
 	public static function boot( array $copy ) {
 		self::$copy = $copy;
-		// Classic Monks builds from before this library carry the same code and names; let them serve.
-		if ( defined( 'CM_FUNCTIONS_DIR' ) && ( is_readable( CM_FUNCTIONS_DIR . 'ai/mcp/mcp-guard.php' ) || is_readable( CM_FUNCTIONS_DIR . 'monks-central/mcp/mcp-guard.php' ) ) ) {
-			self::$legacy = true;
-			return;
-		}
-
 		// The guard confines MCP credentials even while the connector is off.
 		require_once __DIR__ . '/mcp/mcp-guard.php';
 		foreach ( monks_central_connector_copies() as $host ) {
@@ -65,7 +52,6 @@ final class Monks_Central_Connector {
 		 * UI that runs them (Classic Monks Pro's chat). Runs on plugins_loaded at priority 1.
 		 */
 		if ( ! $enabled && ! ( self::supported() && apply_filters( 'monks_central_load_abilities', false ) ) ) {
-			self::compat_1x();
 			return;
 		}
 		require_once __DIR__ . '/cm-abilities-categories.php';
@@ -75,20 +61,6 @@ final class Monks_Central_Connector {
 			require_once __DIR__ . '/mcp/class-mcp-server.php';
 		}
 		add_action( 'wp_abilities_api_init', array( __CLASS__, 'register_host_abilities' ), 20 );
-		self::compat_1x();
-	}
-
-	/**
-	 * Give hosts that bundle a 1.x copy (which call the cm_ / CM_ names) the old names, after everything they name
-	 * has loaded. Not needed, and not loaded, once every host bundles 2.x.
-	 */
-	private static function compat_1x() {
-		foreach ( monks_central_connector_copies() as $host ) {
-			if ( version_compare( $host['connector'], '2.0.0', '<' ) ) {
-				require_once __DIR__ . '/compat-1x.php';
-				return;
-			}
-		}
 	}
 
 	/**
@@ -124,7 +96,7 @@ final class Monks_Central_Connector {
 	 * @return bool
 	 */
 	public static function enabled() {
-		return ! self::$legacy && (bool) get_option( self::OPTION ) && self::supported();
+		return (bool) get_option( self::OPTION ) && self::supported();
 	}
 
 	/**
@@ -180,7 +152,6 @@ final class Monks_Central_Connector {
 				monks_central_connector_copies()
 			),
 			'page_url'  => self::ui() ? self::ui()->page_url() : '',
-			'legacy'    => self::$legacy,
 			'supported' => self::supported(),
 			'enabled'   => $enabled,
 			'site'      => home_url(),

@@ -36,24 +36,6 @@ Updates arrive in wp-admin like any other plugin update. The plugin reads the
 latest GitHub release (not drafts or pre-releases) and installs its zip only
 when the SHA-256 matches the release's `wp-sites-hq.zip.sha256`.
 
-## Moving from Monks Central
-
-This plugin was called Monks Central and lived in the folder `monks-central`.
-WordPress cannot move a plugin to a new folder with an update, so each release
-also carries the 0.1.4 bridge as `monks-central.zip` (built from tag
-`v0.1.4-bridge`, branch `bridge/0.1.x`). Sites on Monks Central 0.1.x update to
-the bridge, which shows "Move this site": one click installs WP Sites HQ,
-activates it and deactivates Monks Central (old). Connections and settings stay.
-
-By hand: install `wp-sites-hq.zip`, activate WP Sites HQ, then deactivate and
-delete Monks Central (old). Activate WP Sites HQ first: deleting the old plugin
-while WP Sites HQ is not active removes the site's connections.
-
-Kept from Monks Central so sites need no data migration: the settings option
-`monks_central_settings`, the `MONKS_CENTRAL_*` constants, the `MonksCentral`
-namespace, the settings page slug `monks-central`, the REST namespaces and
-every connector option, table and ability name.
-
 ## Local development
 
 ```sh
@@ -104,9 +86,8 @@ with `WP_DEBUG` on.
 ## Releasing
 
 Pushing a `v*` tag (for example `v0.2.0`, matching the plugin's `Version`) runs
-`.github/workflows/release.yml`: it builds `wp-sites-hq.zip` and the bridge
-`monks-central.zip` (from tag `v0.1.4-bridge`), writes a SHA-256 for each and
-creates a draft release with the four files and the version's `CHANGELOG.md`
+`.github/workflows/release.yml`: it builds `wp-sites-hq.zip`, writes its SHA-256 and
+creates a draft release with the two files and the version's `CHANGELOG.md`
 section. Nothing is public until someone publishes the draft. See
 `docs/release/checklist.md`.
 

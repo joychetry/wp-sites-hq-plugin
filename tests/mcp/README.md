@@ -42,6 +42,5 @@ Against another site, set `CM_SITE` (URL), `CM_SITE_ROOT` (WordPress root) and `
 | `hq-status.sh` | `get-hq-status` (plugin, connector version and hosts), the WordPress 7.1 header and readme. |
 | `admin-page.sh` | Settings › WP Sites HQ and its REST routes: the switch, connections, approval requests, activity and undo; editors are refused. |
 | `loader.sh` | Version-wins loader: a fixture plugin bundles a newer copy (9.9.9), which runs while the bundled copy sleeps; host versions, the `monks_central_register_abilities` hook, grants kept when either plugin is deactivated. |
-| `standdown.sh` | With a Classic Monks build that carries its own connector (simulated), the shared connector stands down. |
 | `deactivate.sh`, `uninstall.sh` | Deactivation and uninstall revoke every connection. They run last; use a throwaway site. |
 | `legacy.sh` | WordPress below 7.1: the connector stays off and cannot be switched on. |

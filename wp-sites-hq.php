@@ -36,10 +36,6 @@ if ( defined( 'MONKS_CENTRAL_VERSION' ) ) {
 			if ( current_user_can( 'activate_plugins' ) ) {
 				/* translators: 1: folder of the copy that runs, 2: folder of the duplicate copy. */
 				$message = sprintf( __( 'Two copies of WP Sites HQ are active: %1$s and %2$s. Only the first one runs. Delete the other one on the Plugins screen.', 'wp-sites-hq' ), $monks_central_other, __DIR__ );
-				// The old folder sorts first in active_plugins, so it runs until the move deactivates it.
-				if ( 'monks-central' === basename( $monks_central_other ) ) {
-					$message = __( 'Deactivate Monks Central (old) to finish the move to WP Sites HQ.', 'wp-sites-hq' );
-				}
 				printf( '<div class="notice notice-error"><p>%s</p></div>', esc_html( $message ) );
 			}
 		};

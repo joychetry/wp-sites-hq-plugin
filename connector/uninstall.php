@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Other installed plugins that bundle the connector (or carry Classic Monks' own copy), as basenames.
+ * Other installed plugins that bundle the connector as basenames.
  *
  * @param string $self Basename of the plugin being deleted.
  * @return string[]
@@ -33,11 +33,8 @@ function monks_central_connector_other_hosts( $self ) {
 		if ( $file === $self || '.' === $dir ) {
 			continue;
 		}
-		foreach ( array( 'connector/load.php', 'functions/monks-central/mcp/mcp-guard.php', 'functions/ai/mcp/mcp-guard.php' ) as $marker ) {
-			if ( file_exists( WP_PLUGIN_DIR . '/' . $dir . '/' . $marker ) ) {
-				$hosts[] = $file;
-				break;
-			}
+		if ( file_exists( WP_PLUGIN_DIR . '/' . $dir . '/connector/load.php' ) ) {
+			$hosts[] = $file;
 		}
 	}
 	return $hosts;
