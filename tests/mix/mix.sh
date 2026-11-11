@@ -33,7 +33,7 @@ site() {
     unzip -q "$ROOT/sqlite.zip" -d "$ROOT/wp-content/plugins" && rm "$ROOT/sqlite.zip"
     local sq="$ROOT/wp-content/plugins/sqlite-database-integration"
     sed -e "s#{SQLITE_IMPLEMENTATION_FOLDER_PATH}#$sq#" -e 's#{SQLITE_PLUGIN}#sqlite-database-integration/load.php#' "$sq/db.copy" >"$ROOT/wp-content/db.php"
-    w config create --dbname=wp --dbuser=wp --dbpass=wp --skip-check --quiet --extra-php <<<"define( 'WP_ENVIRONMENT_TYPE', 'local' ); define( 'WP_DEBUG', true ); define( 'WP_DEBUG_LOG', true ); define( 'WP_DEBUG_DISPLAY', false );"
+    w config create --dbname=wp --dbuser=wp --dbpass=wp --skip-check --quiet --extra-php <<<"define( 'WP_ENVIRONMENT_TYPE', 'local' ); define( 'WP_DEBUG', true ); define( 'WP_DEBUG_LOG', true ); define( 'WP_DEBUG_DISPLAY', false ); define( 'AUTOMATIC_UPDATER_DISABLED', true ); define( 'WP_AUTO_UPDATE_CORE', false );"
     w core install --url="$SITE" --title='Mix' --admin_user=admin --admin_password=admin --admin_email=admin@example.com --skip-email --quiet
     w rewrite structure '/%postname%/' --quiet
     rsync -a --exclude=.git --exclude=node_modules --exclude=dist --exclude=tests "$MC_DIR/" "$ROOT/wp-content/plugins/wp-sites-hq/"
