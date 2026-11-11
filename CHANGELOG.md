@@ -5,23 +5,19 @@ connector library in `connector/` has its own version, named in each entry.
 
 ## Unreleased
 
-- Connector 3.0.0 (breaking for host plugins): the loader and host API use the
-  `wpshq_` / `WPSHQ_` names too: `wpshq_connector_register()` (and
-  `_copies`, `_pick`, `_boot`, `_other_hosts`, `_uninstall`), `WPSHQ_Connector`,
-  `WPSHQ_Connector_UI`, `WPSHQ_CONNECTOR_VERSION`, `WPSHQ_CONNECTOR_DIR`, and
-  the hooks `wpshq_register_abilities`, `wpshq_load_abilities`,
-  `wpshq_toolsets`, `wpshq_default_toolsets`, `wpshq_scope_descriptions`,
-  `wpshq_instructions`, `wpshq_tool_enabled`, `wpshq_error_hints`,
-  `wpshq_hq_status`, `wpshq_hq_modules` and `wpshq_activity_caller`. No old
-  name is kept. Every plugin that bundles the connector on a site must bundle
-  3.0.0: an older copy has a loader of its own and the two copies clash.
-  `docs/connector-prefix-map.json` lists every old and new name, and
-  `bin/connector-prefix.php apply` renames host code.
-- Connector 3.0.0: removed what kept older Classic Monks builds working: the
-  stand-down for builds that carry their own connector (and the `legacy` field
-  of `WPSHQ_Connector::state()`), the calls to Pro's media and SVG functions
-  by name (hook `wpshq_media_replaced` and `wpshq_svg_sanitizer`), and the
-  one-time rename of the app's old grant names.
+- Connector 1.0.0, the first public version of the shared connector library.
+  Every name uses the WP Sites HQ prefix: functions and hooks `wpshq_*`,
+  classes and constants `WPSHQ_*`, the loader `wpshq_connector_register()`
+  (and `_copies`, `_pick`, `_boot`, `_other_hosts`, `_uninstall`),
+  `WPSHQ_Connector`, `WPSHQ_Connector_UI`, `WPSHQ_CONNECTOR_VERSION` and
+  `WPSHQ_CONNECTOR_DIR`. The host API is the hooks `wpshq_register_abilities`,
+  `wpshq_load_abilities`, `wpshq_toolsets`, `wpshq_hq_status` and the rest, plus
+  `wpshq_media_replaced` and `wpshq_svg_sanitizer`. Every plugin that bundles
+  the connector on a site must bundle 1.0.0 or later. Earlier development
+  builds (0.x to 3.0.0) used other names and are not supported.
+- The login link page prints its auto-submit script with
+  `wp_print_inline_script_tag()`, so Content Security Policy plugins can add
+  their nonce.
 - The plugin's own names are WP Sites HQ throughout: namespace `WPSitesHQ`,
   constants `WPSHQ_VERSION`, `WPSHQ_FILE`, `WPSHQ_DIR` and `WPSHQ_URL`, the
   option `wpshq_settings`, the update cache `wpshq_release`, the REST
@@ -31,20 +27,6 @@ connector library in `connector/` has its own version, named in each entry.
   old option are not carried over.
 - Releases carry only `wp-sites-hq.zip` and its SHA-256: the 0.1.4 bridge zip
   is no longer attached.
-- Connector 2.0.0: every connector function, class, constant and hook now uses
-  the `wpshq_` / `WPSHQ_` prefix (was `cm_` / `CM_`), so it no longer clashes
-  with other plugins' names. Options, tables, user meta, REST routes, ability
-  names and the cron hook keep their names, so connections stay. Breaking for
-  host plugins: the hooks `cm_ai_log_reads`, `cm_ai_operation_logged`,
-  `cm_mcp_skills` and `cm_theme_sandbox_check_url` are now `wpshq_*`, and code
-  that calls `CM_MCP_Server`, `CM_AI_Activity_Log` and the other classes must
-  use the new names. See `docs/CONNECTOR.md` and `docs/connector-prefix-map.json`.
-- Connector 2.0.0: the connector calls the host through two hooks,
-  `wpshq_media_replaced` (after media is replaced or restored) and
-  `wpshq_svg_sanitizer`, instead of Classic Monks function and class names.
-- Connector 2.0.0: the login link page prints its auto-submit script with
-  `wp_print_inline_script_tag()`, so Content Security Policy plugins can add
-  their nonce.
 
 ## 0.2.1 - 2026-11-02
 

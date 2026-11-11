@@ -13,10 +13,9 @@ functions `wpshq_*`, classes `WPSHQ_*` (`WPSHQ_MCP_Server`, `WPSHQ_MCP_OAuth`,
 and the other `wpshq_connector_*()` functions, `WPSHQ_Connector`,
 `WPSHQ_Connector_UI`, `WPSHQ_CONNECTOR_VERSION`, `WPSHQ_CONNECTOR_DIR`, and the
 hooks hosts add to (`wpshq_register_abilities`, `wpshq_load_abilities`,
-`wpshq_toolsets`, `wpshq_hq_status` and the rest). Connector 2.0.0 renamed the
-library's own `cm_*` / `CM_*` names; 3.0.0 renamed the loader and host API,
-which carried the plugin's old name. `docs/connector-prefix-map.json` lists
-every old and new name. No old name is kept as an alias.
+`wpshq_toolsets`, `wpshq_hq_status` and the rest). `docs/connector-prefix-map.json` lists the names development builds used and
+their current names, for host code that needs renaming. No old name is kept as
+an alias.
 
 Stored and wire names keep their `cm_` / `classic-monks` names, which the
 connector shares with Classic Monks:
@@ -29,10 +28,10 @@ codes, the ability meta keys `cm_undo_callback`, `cm_preview_callback` and
 set in `wp-config.php`.
 
 Host code that calls connector classes or functions must use the current names.
-The loader functions changed name in 3.0.0, so a copy older than 3.0.0 has a
-loader of its own: it does not see 3.x copies and boots too, which fails with
-a fatal error (the connector classes are declared twice). Every plugin that
-bundles the connector on a site must bundle 3.0.0 or later.
+Development builds before 1.0.0 used other loader names, so such a copy does
+not see 1.x copies and boots too, which fails with a fatal error (the connector
+classes are declared twice). Every plugin that bundles the connector on a site
+must bundle 1.0.0 or later.
 
 ## Hooks the connector fires for hosts
 

@@ -1,7 +1,7 @@
 <?php
 /**
- * Renames the connector library's global symbols from the cm_ / CM_ (2.0.0) and monks_central_ / Monks_Central_ /
- * MONKS_CENTRAL_ (3.0.0) prefixes to wpshq_ / WPSHQ_, with PHP's tokenizer,
+ * Renames the connector library's global symbols from the cm_ / CM_ and monks_central_ / Monks_Central_ /
+ * MONKS_CENTRAL_ development-build prefixes to wpshq_ / WPSHQ_, with PHP's tokenizer,
  * so stored and wire names (options, meta, tables, REST routes, ability names, cron hooks, nonces, error codes) that
  * share the old prefix keep their exact text.
  *
