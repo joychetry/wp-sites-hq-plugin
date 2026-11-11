@@ -2,12 +2,12 @@
 /**
  * Bootstrap and module registry.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral;
+namespace WPSitesHQ;
 
-use MonksCentral\Contracts\Module;
+use WPSitesHQ\Contracts\Module;
 
 /**
  * Boots the plugin: shared services first, then every enabled module.
@@ -24,7 +24,7 @@ final class Plugin {
 	/**
 	 * Abilities API category shared by every module's abilities.
 	 */
-	public const ABILITY_CATEGORY = 'monks-central';
+	public const ABILITY_CATEGORY = 'wp-sites-hq';
 
 	/**
 	 * The booted instance, so other code can reach the registry.
@@ -124,7 +124,7 @@ final class Plugin {
 	 * @return array{dependencies: array<mixed>, version: string}|null
 	 */
 	public static function asset( string $name ): ?array {
-		$file = MONKS_CENTRAL_DIR . "build/{$name}.asset.php";
+		$file = WPSHQ_DIR . "build/{$name}.asset.php";
 		return is_readable( $file ) ? require $file : null;
 	}
 

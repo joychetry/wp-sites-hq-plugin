@@ -2,17 +2,17 @@
 /**
  * Module registry tests.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral\Tests;
+namespace WPSitesHQ\Tests;
 
 use Brain\Monkey\Functions;
-use MonksCentral\Plugin;
-use MonksCentral\Settings;
-use MonksCentral\Tests\Fixtures\OffModule;
-use MonksCentral\Tests\Fixtures\OnModule;
-use MonksCentral\Tests\Fixtures\RecordingModule;
+use WPSitesHQ\Plugin;
+use WPSitesHQ\Settings;
+use WPSitesHQ\Tests\Fixtures\OffModule;
+use WPSitesHQ\Tests\Fixtures\OnModule;
+use WPSitesHQ\Tests\Fixtures\RecordingModule;
 
 final class PluginTest extends TestCase {
 

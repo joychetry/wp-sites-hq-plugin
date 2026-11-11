@@ -9,7 +9,7 @@
  * Ported from Classic Monks Pro; same names and data, so Pro takes over on upgrade.
  *
  * @package ClassicMonks
- * @subpackage MonksCentral
+ * @subpackage WPSitesHQ
  * @requires WordPress 7.1+ (Abilities API, wp_pre_execute_ability)
  */
 
@@ -106,7 +106,7 @@ class WPSHQ_MCP_Server {
 		 * What each scope allows, in the host's words (its tool groups may add more than the connector's).
 		 */
 		return apply_filters(
-			'monks_central_scope_descriptions',
+			'wpshq_scope_descriptions',
 			array(
 				'read'    => __( 'Can look but not change anything.', 'wp-sites-hq' ),
 				'content' => __( 'Posts, pages, media, terms and comments.', 'wp-sites-hq' ),
@@ -121,7 +121,7 @@ class WPSHQ_MCP_Server {
 		 * Tool groups a connection can pick (key => label). Hosts add groups for their abilities' categories (see TOOLSET_OF_CATEGORY).
 		 */
 		return apply_filters(
-			'monks_central_toolsets',
+			'wpshq_toolsets',
 			array(
 				'content' => __( 'Content', 'wp-sites-hq' ),
 				'media'   => __( 'Media', 'wp-sites-hq' ),
@@ -137,7 +137,7 @@ class WPSHQ_MCP_Server {
 	 * @return string[]
 	 */
 	public static function default_toolsets() {
-		return array_values( array_intersect( (array) apply_filters( 'monks_central_default_toolsets', self::DEFAULT_TOOLSETS ), array_keys( self::toolsets() ) ) );
+		return array_values( array_intersect( (array) apply_filters( 'wpshq_default_toolsets', self::DEFAULT_TOOLSETS ), array_keys( self::toolsets() ) ) );
 	}
 
 	/**
@@ -677,9 +677,9 @@ class WPSHQ_MCP_Server {
 
 	private static function server_info() {
 		return array(
-			'name'    => sanitize_title( Monks_Central_Connector::host()['name'] ),
-			'title'   => Monks_Central_Connector::host()['name'],
-			'version' => MONKS_CENTRAL_CONNECTOR_VERSION,
+			'name'    => sanitize_title( WPSHQ_Connector::host()['name'] ),
+			'title'   => WPSHQ_Connector::host()['name'],
+			'version' => WPSHQ_CONNECTOR_VERSION,
 		);
 	}
 
@@ -688,7 +688,7 @@ class WPSHQ_MCP_Server {
 		 * What the agent is told on initialize. Hosts add their own tools' guidance.
 		 */
 		return apply_filters(
-			'monks_central_instructions',
+			'wpshq_instructions',
 			sprintf(
 			/* translators: 1: site URL, 2: username */
 				__( 'These tools act on the WordPress site %1$s as the user "%2$s", with that user\'s permissions. Destructive tools need the user\'s approval: give the user approve_url, then call the same tool again with the same arguments.', 'wp-sites-hq' ),
@@ -919,7 +919,7 @@ class WPSHQ_MCP_Server {
 	 * Whether a classic-monks/* ability is offered at all. Hosts with their own per-tool switches turn some off.
 	 */
 	private static function tool_enabled( $name ) {
-		return (bool) apply_filters( 'monks_central_tool_enabled', true, $name );
+		return (bool) apply_filters( 'wpshq_tool_enabled', true, $name );
 	}
 
 	private static function lacks_approval_gate( WP_Ability $ability ) {
@@ -944,7 +944,7 @@ class WPSHQ_MCP_Server {
 		/**
 		 * Error code => array( cause, retry_ok, hint ) for the agent. Hosts add their abilities' codes.
 		 */
-		$causes                          = apply_filters( 'monks_central_error_hints', $causes );
+		$causes                          = apply_filters( 'wpshq_error_hints', $causes );
 		$code                            = (string) $error->get_error_code();
 		list( $cause, $retry_ok, $hint ) = $causes[ $code ] ?? array( 'tool', true, 'Check the message; retry once if it looks transient.' );
 

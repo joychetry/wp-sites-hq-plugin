@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Monks Central M3: create-login-link (operator grants only). Signs in as admin/admin. Run: bash tests/mcp/login-link.sh
+# WP Sites HQ M3: create-login-link (operator grants only). Signs in as admin/admin. Run: bash tests/mcp/login-link.sh
 . "$(dirname "$0")/lib.sh"
 . "$(dirname "$0")/oauth-lib.sh"
 ADMIN=${CM_ADMIN_USER:-admin}; ADMIN_PASS=${CM_ADMIN_PASS:-admin}
@@ -10,12 +10,12 @@ token_of() { sed -E 's/.*token=([a-z0-9_]+).*/\1/' <<<"$1"; }
 post_link() { curl -sk -D - -o /dev/null --data-urlencode "token=$1" "$SITE/wp-login.php?action=cm_login_link"; }
 link() { bcall "$1" create-login-link | jq -r '.result.structuredContent.url // .result.content[0].text'; }
 
-T=$(connect "$ADMIN" "$ADMIN_PASS" 'Monks Central' -d operator=1)
+T=$(connect "$ADMIN" "$ADMIN_PASS" 'WP Sites HQ' -d operator=1)
 OP=$(jq -r .access_token <<<"$T"); FAM=$(jq -r .family <<<"$T")
 check 'listed for the operator'              "$(brpc "$OP" tools/list)" '~"name":"create-login-link"'
 check 'hidden from a full app password'      "$(rpc tools/list)" '!~"name":"create-login-link"'
 check 'unknown tool for a full app password' "$(call create-login-link)" '~Unknown tool'
-T2=$(connect "$ADMIN" "$ADMIN_PASS" 'Monks Central' -d scope=full -d 'toolsets[]=site')
+T2=$(connect "$ADMIN" "$ADMIN_PASS" 'WP Sites HQ' -d scope=full -d 'toolsets[]=site')
 check 'unknown tool for a non-operator grant' "$(bcall "$(jq -r .access_token <<<"$T2")" create-login-link)" '~Unknown tool'
 revoke_grant "$(jq -r .family <<<"$T2")"
 check 'no other user can be named'           "$(bcall "$OP" create-login-link '{"user_id":2}')" '~"isError":true'
@@ -35,7 +35,7 @@ check '... as the grant user'                "$P" "~=$ADMIN%7C"
 check 'POST is no-referrer'                  "$(tr '[:upper:]' '[:lower:]' <<<"$P")" '~referrer-policy: no-referrer'
 check 'fires wp_login (seen by a mu-plugin)' "$(wpe 'echo get_user_meta(1, "cm_ll_test_login", true) > time() - 60 ? "yes" : "no"; delete_user_meta(1, "cm_ll_test_login");')" yes
 rm -f "$MU"
-check 'use is logged on the grant'           "$(wpe "global \$wpdb; echo \$wpdb->get_var(\"SELECT CONCAT(user_id, ' ', status, ' ', client_label) FROM {\$wpdb->prefix}cm_ai_log WHERE connection_uuid = 'oauth:$FAM' AND ability = 'classic-monks/use-login-link' ORDER BY id DESC LIMIT 1\");")" '1 ok Monks Central'
+check 'use is logged on the grant'           "$(wpe "global \$wpdb; echo \$wpdb->get_var(\"SELECT CONCAT(user_id, ' ', status, ' ', client_label) FROM {\$wpdb->prefix}cm_ai_log WHERE connection_uuid = 'oauth:$FAM' AND ability = 'classic-monks/use-login-link' ORDER BY id DESC LIMIT 1\");")" '1 ok WP Sites HQ'
 check 'second use refused'                   "$(post_link "$TOK")" '~HTTP/1.1 403'
 check '... and not logged as a use'          "$(wpe "global \$wpdb; echo \$wpdb->get_var(\"SELECT COUNT(*) FROM {\$wpdb->prefix}cm_ai_log WHERE connection_uuid = 'oauth:$FAM' AND ability = 'classic-monks/use-login-link'\");")" 1
 check 'a fresh link signs in'                "$(post_link "$(token_of "$(link "$OP")")")" "~=$ADMIN%7C"
@@ -55,7 +55,7 @@ revoke_grant "$FAM"
 check 'revoked grant: link refused'          "$(post_link "$TOK")" '~HTTP/1.1 403'
 
 # Another admin's operator grant signs in as that admin, never as the first one.
-T=$(connect cm_ll_admin2 cm-ll-admin2-pass 'Monks Central' -d operator=1)
+T=$(connect cm_ll_admin2 cm-ll-admin2-pass 'WP Sites HQ' -d operator=1)
 P=$(post_link "$(token_of "$(link "$(jq -r .access_token <<<"$T")")")")
 check "second admin's link is theirs"        "$P" '~=cm_ll_admin2%7C'
 revoke_grant "$(jq -r .family <<<"$T")"

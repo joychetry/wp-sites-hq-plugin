@@ -18,12 +18,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"MonksCentral\\": "src/"
+			"WPSitesHQ\\": "src/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"MonksCentral\\Tests\\": "tests/php/"
+			"WPSitesHQ\\Tests\\": "tests/php/"
 		}
 	},
 	"config": {

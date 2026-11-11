@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Monks Central M7 user tools over MCP: send-password-reset, the roles get-users offers, and delete-user
+# WP Sites HQ M7 user tools over MCP: send-password-reset, the roles get-users offers, and delete-user
 # handing content to another user. Run: bash tests/mcp/m7.sh
 . "$(dirname "$0")/lib.sh"
 . "$(dirname "$0")/oauth-lib.sh"
@@ -20,7 +20,7 @@ ok() { check "$1" "$2" '!~"isError":true'; }
 err() { check "$1" "$2" '~"isError":true'; }
 
 check 'send-password-reset is hidden from a full app password' "$(rpc tools/list)" '!~"name":"send-password-reset"'
-T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'Monks Central' -d operator=1)
+T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'WP Sites HQ' -d operator=1)
 OP=$(jq -r .access_token <<<"$T"); FAM=$(jq -r .family <<<"$T")
 rpc() { brpc "$OP" "$@"; }
 check 'send-password-reset is listed for the operator' "$(rpc tools/list)" '~"name":"send-password-reset"'

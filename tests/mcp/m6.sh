@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Monks Central M6 content tools over MCP: terms for any taxonomy, custom fields, dates,
+# WP Sites HQ M6 content tools over MCP: terms for any taxonomy, custom fields, dates,
 # builder pages, revisions, untrash and chunked upload. Run: bash tests/mcp/m6.sh
 . "$(dirname "$0")/lib.sh"
 . "$(dirname "$0")/oauth-lib.sh"
@@ -24,10 +24,10 @@ id() { sed -E 's/.*"(id|post_id|attachment_id)":([0-9]+).*/\2/' <<<"$1"; }
 ok() { check "$1" "$2" '!~"isError":true'; }
 err() { check "$1" "$2" '~"isError":true'; }
 
-# These tools are for Monks Central: other connections never see them.
+# These tools are for WP Sites HQ: other connections never see them.
 LIST=$(rpc tools/list)
 check 'hidden from a full app password' "$LIST" '!~"name":"list-post-types"'
-T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'Monks Central' -d operator=1)
+T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'WP Sites HQ' -d operator=1)
 OP=$(jq -r .access_token <<<"$T"); FAM=$(jq -r .family <<<"$T")
 rpc() { brpc "$OP" "$@"; }
 LIST=$(rpc tools/list)
@@ -140,7 +140,7 @@ check 'featured image is set'               "$(wpe "echo get_post_thumbnail_id($
 err 'a non-image is refused'                "$(call upload-media "{\"filename\":\"x.png\",\"data\":\"$(printf 'not an image' | base64 -w0)\",\"done\":true}")"
 err 'bad base64 is refused'                 "$(call upload-media '{"filename":"x.png","data":"%%%"}')"
 
-# Editor fields (Monks Central's full-page editor): slug, parent, order, author, password, template, excerpt lines.
+# Editor fields (WP Sites HQ's full-page editor): slug, parent, order, author, password, template, excerpt lines.
 PG=$(id "$(call create-post '{"title":"cm m6 parent","post_type":"page","status":"draft"}')")
 R=$(call create-post "{\"title\":\"cm m6 child\",\"post_type\":\"page\",\"status\":\"draft\",\"parent\":$PG,\"menu_order\":3,\"slug\":\"cm m6 Kid\"}")
 ok 'create-post with parent, order and slug' "$R"

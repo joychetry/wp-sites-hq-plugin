@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Monks Central M12: refresh-token replay grace (60 s after rotation). Run: bash tests/mcp/oauth-grace.sh
+# WP Sites HQ M12: refresh-token replay grace (60 s after rotation). Run: bash tests/mcp/oauth-grace.sh
 . "$(dirname "$0")/lib.sh"
 
 OA="$SITE/wp-json/classic-monks/v1/oauth"

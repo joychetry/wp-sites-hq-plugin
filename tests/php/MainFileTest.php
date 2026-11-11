@@ -2,10 +2,10 @@
 /**
  * Main plugin file tests.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral\Tests;
+namespace WPSitesHQ\Tests;
 
 use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
@@ -27,16 +27,16 @@ final class MainFileTest extends TestCase {
 		Actions\expectAdded( 'plugins_loaded' )->never();
 
 		// failOnWarning turns any "Constant ... already defined" warning into a failure.
-		include MONKS_CENTRAL_FILE;
-		include MONKS_CENTRAL_FILE;
+		include WPSHQ_FILE;
+		include WPSHQ_FILE;
 
-		$this->assertSame( dirname( __DIR__, 2 ) . '/', MONKS_CENTRAL_DIR );
+		$this->assertSame( dirname( __DIR__, 2 ) . '/', WPSHQ_DIR );
 	}
 
 	public function test_a_second_copy_in_another_folder_shows_one_notice(): void {
 		$dir = sys_get_temp_dir() . '/wp-sites-hq-copy-' . uniqid();
 		mkdir( $dir );
-		copy( MONKS_CENTRAL_FILE, $dir . '/wp-sites-hq.php' );
+		copy( WPSHQ_FILE, $dir . '/wp-sites-hq.php' );
 
 		Actions\expectAdded( 'admin_notices' )->once();
 		Actions\expectAdded( 'plugins_loaded' )->never();
@@ -45,21 +45,21 @@ final class MainFileTest extends TestCase {
 
 		unlink( $dir . '/wp-sites-hq.php' );
 		rmdir( $dir );
-		$this->assertSame( MONKS_CENTRAL_DIR . 'wp-sites-hq.php', MONKS_CENTRAL_FILE );
+		$this->assertSame( WPSHQ_DIR . 'wp-sites-hq.php', WPSHQ_FILE );
 	}
 
 	public function test_a_second_copy_registers_its_connector(): void {
 		// Otherwise deactivating the copy that runs looks like the last host leaving, which revokes every connection.
-		require_once MONKS_CENTRAL_DIR . 'connector/load.php';
+		require_once WPSHQ_DIR . 'connector/load.php';
 		$dir = sys_get_temp_dir() . '/wp-sites-hq-copy-' . uniqid();
 		mkdir( $dir . '/connector', 0777, true );
-		copy( MONKS_CENTRAL_FILE, $dir . '/wp-sites-hq.php' );
-		copy( MONKS_CENTRAL_DIR . 'connector/version.php', $dir . '/connector/version.php' );
+		copy( WPSHQ_FILE, $dir . '/wp-sites-hq.php' );
+		copy( WPSHQ_DIR . 'connector/version.php', $dir . '/connector/version.php' );
 		Functions\when( 'get_file_data' )->justReturn( array( 'Version' => '9.0.0' ) );
 
 		include $dir . '/wp-sites-hq.php';
 
-		$copy = array_column( monks_central_connector_copies(), null, 'dir' )[ $dir . '/connector' ] ?? null;
+		$copy = array_column( wpshq_connector_copies(), null, 'dir' )[ $dir . '/connector' ] ?? null;
 		unlink( $dir . '/connector/version.php' );
 		rmdir( $dir . '/connector' );
 		unlink( $dir . '/wp-sites-hq.php' );

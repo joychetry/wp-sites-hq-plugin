@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Monks Central media manager: get-media details, upload-media for any allowed type, update-media,
+# WP Sites HQ media manager: get-media details, upload-media for any allowed type, update-media,
 # replace-media and restore-replaced-media, with undo. Run: bash tests/mcp/media2.sh
 . "$(dirname "$0")/lib.sh"
 . "$(dirname "$0")/oauth-lib.sh"
@@ -27,7 +27,7 @@ LIST=$(rpc tools/list)
 for t in update-media replace-media restore-replaced-media; do
     check "hidden from a full app password: $t" "$LIST" "!~\"name\":\"$t\""
 done
-T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'Monks Central' -d operator=1)
+T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'WP Sites HQ' -d operator=1)
 OP=$(jq -r .access_token <<<"$T"); FAM=$(jq -r .family <<<"$T")
 rpc() { brpc "$OP" "$@"; }
 LIST=$(rpc tools/list)

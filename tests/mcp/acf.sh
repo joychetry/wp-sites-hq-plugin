@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Monks Central ACF fields: get-acf-fields and update-acf-fields with ACF free from wordpress.org, then the
+# WP Sites HQ ACF fields: get-acf-fields and update-acf-fields with ACF free from wordpress.org, then the
 # PRO types (repeater, gallery, flexible content) with Secure Custom Fields. Installs both plugins and deletes
 # them, the field groups and the test posts at the end. Run: bash tests/mcp/acf.sh
 . "$(dirname "$0")/lib.sh"
@@ -23,7 +23,7 @@ has() { wpe "var_export(metadata_exists('post', $1, '$2'));"; }
 
 # Without ACF the tools are not there at all.
 wpc plugin deactivate advanced-custom-fields secure-custom-fields --quiet
-T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'Monks Central' -d operator=1)
+T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'WP Sites HQ' -d operator=1)
 OP=$(jq -r .access_token <<<"$T"); FAM=$(jq -r .family <<<"$T")
 orpc() { brpc "$OP" "$@"; }
 ocall() { bcall "$OP" "$@"; }
@@ -34,7 +34,7 @@ wpc plugin install advanced-custom-fields --activate --quiet
 check 'ACF free is active'                  "$(wpe 'echo defined("ACF_VERSION") && ! defined("ACF_PRO") ? "free" : "no";')" free
 LIST=$(rpc tools/list)
 check 'get-acf-fields listed for an MCP client' "$LIST" '~"name":"get-acf-fields"'
-check 'update-acf-fields is Monks Central only' "$LIST" '!~"name":"update-acf-fields"'
+check 'update-acf-fields is WP Sites HQ only' "$LIST" '!~"name":"update-acf-fields"'
 check 'the operator gets update-acf-fields' "$(orpc tools/list)" '~"name":"update-acf-fields"'
 
 check 'the fixture group is made'           "$(wpc eval-file "$FIX" 'cm acf')" group_cm_acf

@@ -2,7 +2,7 @@
 /**
  * WP Sites HQ connector: cleanup when a plugin that bundles it is deleted.
  *
- * Call monks_central_connector_uninstall() from the host's uninstall.php. The
+ * Call wpshq_connector_uninstall() from the host's uninstall.php. The
  * connector's data is shared by every plugin that bundles it, so:
  * - credentials (MCP Application Passwords, OAuth tokens, per-connection meta)
  *   go only when no other plugin that runs the connector is active, since
@@ -10,7 +10,7 @@
  * - the activity log and the on/off option go only when no other plugin that
  *   bundles the connector is installed, so switching plugins keeps them.
  *
- * @package MonksCentral\Connector
+ * @package WPSitesHQ\Connector
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,12 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Other installed plugins that bundle the connector (or carry Classic Monks' own copy), as basenames.
+ * Other installed plugins that bundle the connector as basenames.
  *
  * @param string $self Basename of the plugin being deleted.
  * @return string[]
  */
-function monks_central_connector_other_hosts( $self ) {
+function wpshq_connector_other_hosts( $self ) {
 	if ( ! function_exists( 'get_plugins' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	}
@@ -33,11 +33,8 @@ function monks_central_connector_other_hosts( $self ) {
 		if ( $file === $self || '.' === $dir ) {
 			continue;
 		}
-		foreach ( array( 'connector/load.php', 'functions/monks-central/mcp/mcp-guard.php', 'functions/ai/mcp/mcp-guard.php' ) as $marker ) {
-			if ( file_exists( WP_PLUGIN_DIR . '/' . $dir . '/' . $marker ) ) {
-				$hosts[] = $file;
-				break;
-			}
+		if ( file_exists( WP_PLUGIN_DIR . '/' . $dir . '/connector/load.php' ) ) {
+			$hosts[] = $file;
 		}
 	}
 	return $hosts;
@@ -48,9 +45,9 @@ function monks_central_connector_other_hosts( $self ) {
  *
  * @param string $self Basename of the plugin being deleted (WP_UNINSTALL_PLUGIN).
  */
-function monks_central_connector_uninstall( $self ) {
+function wpshq_connector_uninstall( $self ) {
 	global $wpdb;
-	$others = monks_central_connector_other_hosts( $self );
+	$others = wpshq_connector_other_hosts( $self );
 	$active = array_filter(
 		$others,
 		function ( $file ) {

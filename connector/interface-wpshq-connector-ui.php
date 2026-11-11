@@ -3,18 +3,18 @@
  * WP Sites HQ connector: what a host plugin renders.
  *
  * The connector has no admin UI of its own. The plugin whose copy is running
- * passes a class implementing this interface to monks_central_connector_register()
+ * passes a class implementing this interface to wpshq_connector_register()
  * and draws the screens from the data the connector hands it. Forms post the
  * fields given in each view; the connector checks and runs the action.
  *
- * @package MonksCentral\Connector
+ * @package WPSitesHQ\Connector
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-interface Monks_Central_Connector_UI {
+interface WPSHQ_Connector_UI {
 
 	/**
 	 * Admin URL of the host's connection screen (connected apps, approvals, activity).

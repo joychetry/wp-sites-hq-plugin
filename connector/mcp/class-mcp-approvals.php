@@ -10,7 +10,7 @@
  * declined → used), keyed by a hash of connection + tool + arguments.
  *
  * @package ClassicMonks
- * @subpackage MonksCentral
+ * @subpackage WPSitesHQ
  * @requires WordPress 7.1+ (wp_pre_execute_ability)
  */
 
@@ -359,7 +359,7 @@ class WPSHQ_MCP_Approvals {
 			'expired'  => __( 'This request expired. The agent can ask again.', 'wp-sites-hq' ),
 		);
 
-		$ui = Monks_Central_Connector::ui();
+		$ui = WPSHQ_Connector::ui();
 		if ( ! $ui ) {
 			wp_die( esc_html__( 'The plugin running the connection has no approval page.', 'wp-sites-hq' ), '', 500 );
 		}

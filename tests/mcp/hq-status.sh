@@ -7,13 +7,13 @@ sc() { jq -c ".result.structuredContent$1" <<<"$S"; }
 
 S=$(call get-hq-status)
 check 'plugin name'                     "$(sc .plugin.name)" '"WP Sites HQ"'
-check 'plugin version'                  "$(sc .plugin.version)" "\"$(wpe 'echo MONKS_CENTRAL_VERSION;')\""
-check 'header version matches the constant' "$(wpe 'echo get_file_data(MONKS_CENTRAL_FILE, ["v" => "Version"])["v"] === MONKS_CENTRAL_VERSION ? "same" : "drift";')" same
-check 'connector version'               "$(sc .connector.version)" "\"$(wpe 'echo MONKS_CENTRAL_CONNECTOR_VERSION;')\""
+check 'plugin version'                  "$(sc .plugin.version)" "\"$(wpe 'echo WPSHQ_VERSION;')\""
+check 'header version matches the constant' "$(wpe 'echo get_file_data(WPSHQ_FILE, ["v" => "Version"])["v"] === WPSHQ_VERSION ? "same" : "drift";')" same
+check 'connector version'               "$(sc .connector.version)" "\"$(wpe 'echo WPSHQ_CONNECTOR_VERSION;')\""
 check 'connector hosts listed'          "$(sc '.connector.hosts[0].name')" '"WP Sites HQ"'
 # M15: WordPress 7.1 is the minimum.
-check 'header requires WordPress 7.1'   "$(wpe 'echo get_file_data(MONKS_CENTRAL_FILE, ["r" => "Requires at least"])["r"];')" 7.1
-check 'readme requires WordPress 7.1'   "$(wpe 'echo get_file_data(MONKS_CENTRAL_DIR . "readme.txt", ["r" => "Requires at least"])["r"];')" 7.1
+check 'header requires WordPress 7.1'   "$(wpe 'echo get_file_data(WPSHQ_FILE, ["r" => "Requires at least"])["r"];')" 7.1
+check 'readme requires WordPress 7.1'   "$(wpe 'echo get_file_data(WPSHQ_DIR . "readme.txt", ["r" => "Requires at least"])["r"];')" 7.1
 check 'wordpress version'               "$(sc .wordpress.version)" "\"$(wpe 'echo get_bloginfo("version");')\""
 check 'php version'                     "$(sc .php.version)" "\"$(wpe 'echo PHP_VERSION;')\""
 check 'protocol versions, modern first' "$(sc '.mcp.protocol_versions[0]')" '"2026-07-28"'

@@ -2,13 +2,13 @@
 /**
  * Test double that records register() calls.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral\Tests\Fixtures;
+namespace WPSitesHQ\Tests\Fixtures;
 
-use MonksCentral\Contracts\Module;
-use MonksCentral\Settings;
+use WPSitesHQ\Contracts\Module;
+use WPSitesHQ\Settings;
 
 abstract class RecordingModule implements Module {
 

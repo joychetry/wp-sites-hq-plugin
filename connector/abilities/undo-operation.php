@@ -5,7 +5,7 @@
  * The Undo button of the connection screen as a tool: reverses one logged change
  * through its ability's cm_undo_callback. Destructive, so a person approves it.
  *
- * @package MonksCentral\Connector
+ * @package WPSitesHQ\Connector
  * @requires WordPress 7.1+ (the activity log and undo data)
  */
 

@@ -5,7 +5,7 @@
  * Pages through the AI activity log: what each AI connection changed,
  * was refused, or is waiting on.
  *
- * @package MonksCentral\Connector
+ * @package WPSitesHQ\Connector
  * @requires WordPress 7.1+ for rows to exist (the log hooks are 7.1+)
  */
 

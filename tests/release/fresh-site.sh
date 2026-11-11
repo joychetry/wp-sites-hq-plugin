@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Release test: the built zip on a clean WordPress 7.1, connected by the Monks Central app, then updated from a local
+# Release test: the built zip on a clean WordPress 7.1, connected by the WP Sites HQ app, then updated from a local
 # fake GitHub release (a wrong checksum is refused first, then the right one installs and the connection survives).
-# Run: bin/build-zip.sh && bash tests/release/fresh-site.sh <monks-central app checkout>
+# Run: bin/build-zip.sh && bash tests/release/fresh-site.sh <WP Sites HQ app checkout>
 #   The app checkout needs `cargo build --release -p monks-cli` (target/release/monks) and
 #   `cargo build -p monks-core --example acceptance`. Needs php (pdo_sqlite), wp-cli, curl, unzip, jq, python3.
 #   Env: CM_WP_VERSION (7.1.3), CM_PORT (8888) for the site, CM_RELEASE_PORT (8889) for the fake release.
 # Everything lives in one temp folder, the app's data folder too; its keychain item is deleted at the end.
 set -euo pipefail
 PLUGIN_DIR=$(cd "$(dirname "$0")/../.." && pwd)
-APP=$(cd "${1:?usage: fresh-site.sh <monks-central app checkout>}" && pwd)
+APP=$(cd "${1:?usage: fresh-site.sh <WP Sites HQ app checkout>}" && pwd)
 ZIP=$PLUGIN_DIR/dist/wp-sites-hq.zip
 PORT=${CM_PORT:-8888}
 RPORT=${CM_RELEASE_PORT:-8889}
@@ -24,7 +24,7 @@ w() { $WP --path="$ROOT" "$@"; }
 drive() { "$APP/target/debug/examples/acceptance" "$@"; }
 # The versions under test come from the checkout; the fake release is the next patch.
 VER=$(sed -n 's/^ \* Version: *\([0-9.]*\)$/\1/p' "$PLUGIN_DIR/wp-sites-hq.php")
-CONST=$(sed -n "s/^define( 'MONKS_CENTRAL_VERSION', '\([0-9.]*\)' );$/\1/p" "$PLUGIN_DIR/wp-sites-hq.php")
+CONST=$(sed -n "s/^define( 'WPSHQ_VERSION', '\([0-9.]*\)' );$/\1/p" "$PLUGIN_DIR/wp-sites-hq.php")
 CONNECTOR=$(sed -n "s/^return '\([0-9.]*\)';$/\1/p" "$PLUGIN_DIR/connector/version.php")
 [[ -n $VER && $VER == "$CONST" && -n $CONNECTOR ]] || { echo "could not read versions: header [$VER] constant [$CONST] connector [$CONNECTOR]"; exit 1; }
 NEXT=${VER%.*}.$((${VER##*.} + 1))
@@ -49,7 +49,7 @@ define( 'WP_DEBUG', true );
 define( 'WP_DEBUG_LOG', true );
 define( 'WP_DEBUG_DISPLAY', false );
 PHP
-w core install --url="$SITE" --title='Monks Central fresh site' --admin_user=admin --admin_password=admin --admin_email=admin@example.com --skip-email --quiet
+w core install --url="$SITE" --title='WP Sites HQ fresh site' --admin_user=admin --admin_password=admin --admin_email=admin@example.com --skip-email --quiet
 w rewrite structure '/%postname%/' --quiet
 
 PHP_CLI_SERVER_WORKERS=4 php -S "127.0.0.1:$PORT" -t "$ROOT" "$PLUGIN_DIR/tests/mcp/router.php" >"$WORK/site.log" 2>&1 &
@@ -70,10 +70,10 @@ check 'installed from the zip, active' "$(w plugin get wp-sites-hq --field=statu
 # WP-CLI's own deprecation notices land in debug.log as well; only the site's count.
 site_errors() { grep -v 'phar://' "$ROOT/wp-content/debug.log" 2>/dev/null || true; }
 check 'no PHP errors on activation' "$(site_errors)" ''
-check 'Connect to Monks Central is off on a new install' "$(curl -s -o /dev/null -w '%{http_code}' "$SITE/wp-json/classic-monks/v1/mcp")" 404
-# The admin's switch on Settings > Monks Central, through its REST route.
+check 'Connect to WP Sites HQ is off on a new install' "$(curl -s -o /dev/null -w '%{http_code}' "$SITE/wp-json/classic-monks/v1/mcp")" 404
+# The admin's switch on Settings > WP Sites HQ, through its REST route.
 w user application-password create admin fresh-site-test --porcelain >"$WORK/admin.pass"
-curl -sf -u "admin:$(cat "$WORK/admin.pass")" -H 'Content-Type: application/json' -d '{"enabled":true}' "$SITE/wp-json/monks-central/v1/connector" >/dev/null
+curl -sf -u "admin:$(cat "$WORK/admin.pass")" -H 'Content-Type: application/json' -d '{"enabled":true}' "$SITE/wp-json/wp-sites-hq/v1/connector" >/dev/null
 w user application-password delete admin "$(w user application-password list admin --name=fresh-site-test --field=uuid)" --quiet
 check 'the admin turned it on' "$(w option get cm_mcp_enabled)" 1
 
@@ -95,7 +95,7 @@ has 'monks doctor passes' "$doctor" 'All checks passed.'
 connect=$(PATH=$WORK/bin:$PATH drive connect-oauth "$SITE" "$ROOT" 2>&1) || true
 echo "$connect"
 has 'the app connected through OAuth as operator' "$connect" 'operator true'
-check 'the site has one connection' "$(w --user=admin eval 'echo count( Monks_Central_Connector::connections() );')" 1
+check 'the site has one connection' "$(w --user=admin eval 'echo count( WPSHQ_Connector::connections() );')" 1
 plugins=$(drive plugins 2>&1) || true
 has "the app sees WP Sites HQ $VER and connector $CONNECTOR" "$plugins" "plugin WP Sites HQ $VER  connector $CONNECTOR"
 has 'the app check succeeds' "$(drive check 2>&1)" 'health Ok'
@@ -103,7 +103,7 @@ has 'the app check succeeds' "$(drive check 2>&1)" 'health Ok'
 echo "== Update from a fake release"
 # Version $NEXT of the same build, served like GitHub serves a release.
 mkdir -p "$WORK/next" && unzip -q "$ZIP" -d "$WORK/next"
-sed -i -e "s/^\( \* Version: *\)$VER$/\1$NEXT/" -e "s/'MONKS_CENTRAL_VERSION', '$VER'/'MONKS_CENTRAL_VERSION', '$NEXT'/" "$WORK/next/wp-sites-hq/wp-sites-hq.php"
+sed -i -e "s/^\( \* Version: *\)$VER$/\1$NEXT/" -e "s/'WPSHQ_VERSION', '$VER'/'WPSHQ_VERSION', '$NEXT'/" "$WORK/next/wp-sites-hq/wp-sites-hq.php"
 (cd "$WORK/next" && zip -qr "$REL/wp-sites-hq.zip" wp-sites-hq)
 jq -n --arg t "v$NEXT" --arg u "http://127.0.0.1:$RPORT" '{tag_name: $t, draft: false, prerelease: false, html_url: ($u + "/release"), body: "Fake release for the update test.",
     assets: [{name: "wp-sites-hq.zip", browser_download_url: ($u + "/wp-sites-hq.zip")}, {name: "wp-sites-hq.zip.sha256", browser_download_url: ($u + "/wp-sites-hq.zip.sha256")}]}' >"$REL/releases/latest"
@@ -117,7 +117,7 @@ add_filter( 'pre_http_request', function ( \$pre, \$args, \$url ) {
 add_filter( 'http_request_host_is_external', fn( \$external, \$host ) => '127.0.0.1' === \$host || \$external, 10, 2 );
 add_filter( 'http_allowed_safe_ports', fn( \$ports ) => array_merge( \$ports, array( $RPORT ) ) );
 PHP
-fresh() { w transient delete monks_central_release --network --quiet; w transient delete update_plugins --network --quiet; }
+fresh() { w transient delete wpshq_release --network --quiet; w transient delete update_plugins --network --quiet; }
 
 echo "0000000000000000000000000000000000000000000000000000000000000000  wp-sites-hq.zip" >"$REL/wp-sites-hq.zip.sha256"
 fresh
@@ -131,7 +131,7 @@ fresh
 w plugin update wp-sites-hq --quiet
 check "the matching zip installs $NEXT" "$(w plugin get wp-sites-hq --field=status) $(w plugin get wp-sites-hq --field=version)" "active $NEXT"
 check 'the connector stays on' "$(w option get cm_mcp_enabled)" 1
-check 'the connection survives the update' "$(w --user=admin eval 'echo count( Monks_Central_Connector::connections() );')" 1
+check 'the connection survives the update' "$(w --user=admin eval 'echo count( WPSHQ_Connector::connections() );')" 1
 has 'the app still checks the site' "$(drive check 2>&1)" 'health Ok'
 has "the app sees $NEXT" "$(drive plugins 2>&1)" "plugin WP Sites HQ $NEXT  connector $CONNECTOR"
 check 'no PHP errors' "$(site_errors)" ''

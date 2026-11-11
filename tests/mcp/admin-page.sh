@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Settings > Monks Central: the page, its REST routes (switch, connected apps, approvals, activity, undo), as an admin
+# Settings > WP Sites HQ: the page, its REST routes (switch, connected apps, approvals, activity, undo), as an admin
 # and an editor. Signs in as admin/admin (CM_ADMIN_USER / CM_ADMIN_PASS). Run: bash tests/mcp/admin-page.sh
 . "$(dirname "$0")/lib.sh"
 JAR=$(mktemp); EJAR=$(mktemp)
@@ -11,12 +11,12 @@ ping() { code -u "$AUTH" -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0
 body() { echo "${1#* }"; }
 
 PAGE=$(curl -sk -b "$JAR" "$MC_PAGE")
-check 'page renders for admins'             "$PAGE" '~id="monks-central-admin"'
+check 'page renders for admins'             "$PAGE" '~id="wp-sites-hq-admin"'
 check 'loads the screen script'             "$PAGE" '~wp-sites-hq/build/admin.js'
 check 'screen data: this plugin runs it'    "$PAGE" '~"runs_here":true'
 check 'screen data: switch on'              "$PAGE" '~"enabled":true'
 check 'no PHP notices on the page'          "$PAGE" '!~<b>Warning</b>'
-check 'listed under Settings'               "$(curl -sk -b "$JAR" "$SITE/wp-admin/")" '~options-general.php?page=monks-central'
+check 'listed under Settings'               "$(curl -sk -b "$JAR" "$SITE/wp-admin/")" '~options-general.php?page=wp-sites-hq'
 check 'editors cannot open the page'        "$(curl -sk -b "$EJAR" -o /dev/null -w '%{http_code}' "$MC_PAGE")" 403
 check 'editors get no screen data'          "$(mc_rest "$EJAR" GET '' | cut -d' ' -f1)" 403
 check 'no screen data without a nonce'      "$(curl -sk -b "$JAR" -o /dev/null -w '%{http_code}' "$MC_API")" 401
@@ -24,7 +24,7 @@ check 'no screen data without a nonce'      "$(curl -sk -b "$JAR" -o /dev/null -
 S=$(body "$(mc_rest "$JAR" GET '')")
 check 'shows the site address'              "$(jq -r .state.site <<<"$S")" "$SITE"
 check 'shows the endpoint'                  "$(jq -r .state.endpoint <<<"$S")" "$MCP"
-check 'shows the connector version'         "$(jq -r .state.version <<<"$S")" "$(wpe 'echo MONKS_CENTRAL_CONNECTOR_VERSION;')"
+check 'shows the connector version'         "$(jq -r .state.version <<<"$S")" "$(wpe 'echo WPSHQ_CONNECTOR_VERSION;')"
 check 'lists the connection'                "$(jq -r --arg id "$MCP_UUID" '.connections[] | select(.uuid == $id) | .scope_label' <<<"$S")" '!'
 
 # A logged change and a pending request show up.

@@ -7,7 +7,7 @@
  * otherwise accept it on every REST route and over XML-RPC.
  *
  * @package ClassicMonks
- * @subpackage MonksCentral
+ * @subpackage WPSitesHQ
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -206,7 +206,7 @@ function wpshq_mcp_revoke_all_connections() {
  * Only while one plugin bundles the connector: with another one active, connections stay.
  */
 function wpshq_mcp_deactivation_notice() {
-	if ( ! current_user_can( 'activate_plugins' ) || count( monks_central_connector_copies() ) > 1 ) {
+	if ( ! current_user_can( 'activate_plugins' ) || count( wpshq_connector_copies() ) > 1 ) {
 		return;
 	}
 	global $wpdb;
@@ -226,7 +226,7 @@ function wpshq_mcp_deactivation_notice() {
 			$count,
 			'wp-sites-hq'
 		),
-		Monks_Central_Connector::host()['name'],
+		WPSHQ_Connector::host()['name'],
 		$count
 	);
 	if ( is_multisite() ) {

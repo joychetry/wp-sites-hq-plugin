@@ -1,37 +1,32 @@
 # Changelog
 
-All notable changes to the WP Sites HQ plugin (Monks Central before 0.2.0). Versions follow semver. The
+All notable changes to the WP Sites HQ plugin. Versions follow semver. The
 connector library in `connector/` has its own version, named in each entry.
 
 ## Unreleased
 
-- Connector 2.0.1: sites that also run a plugin bundling connector 1.x (Classic
-  Monks Pro before its 2.0.0 sync) work again. When such a copy is registered,
-  the connector loads `connector/compat-1x.php`, which gives that plugin the old
-  `cm_` / `CM_` names it calls (functions, the four classes, the eight
-  constants) and also fires the old hook names. Before, Pro's AI image
-  generation and `bricks-import-external-image` stopped with a fatal error,
-  `search-content` and `create-post-summaries` failed, Logs > AI Activity did
-  not load, undo data, live toasts and AI jobs stopped, and the
-  `cm_ai_log_reads` and `cm_theme_sandbox_check_url` filters were ignored. The
-  file is generated from `docs/connector-prefix-map.json` by
-  `bin/connector-compat.php`.
-- Connector 2.0.0: every connector function, class, constant and hook now uses
-  the `wpshq_` / `WPSHQ_` prefix (was `cm_` / `CM_`), so it no longer clashes
-  with other plugins' names. Options, tables, user meta, REST routes, ability
-  names and the cron hook keep their names, so connections stay. Breaking for
-  host plugins: the hooks `cm_ai_log_reads`, `cm_ai_operation_logged`,
-  `cm_mcp_skills` and `cm_theme_sandbox_check_url` are now `wpshq_*`, and code
-  that calls `CM_MCP_Server`, `CM_AI_Activity_Log` and the other classes must
-  use the new names. See `docs/CONNECTOR.md` and `docs/connector-prefix-map.json`.
-- Connector 2.0.0: the connector calls the host through two hooks,
-  `wpshq_media_replaced` (after media is replaced or restored) and
-  `wpshq_svg_sanitizer`, instead of Classic Monks function and class names. It
-  still falls back to those names for Classic Monks Pro builds that do not
-  register the hooks yet.
-- Connector 2.0.0: the login link page prints its auto-submit script with
+- Connector 1.0.0, the first public version of the shared connector library.
+  Every name uses the WP Sites HQ prefix: functions and hooks `wpshq_*`,
+  classes and constants `WPSHQ_*`, the loader `wpshq_connector_register()`
+  (and `_copies`, `_pick`, `_boot`, `_other_hosts`, `_uninstall`),
+  `WPSHQ_Connector`, `WPSHQ_Connector_UI`, `WPSHQ_CONNECTOR_VERSION` and
+  `WPSHQ_CONNECTOR_DIR`. The host API is the hooks `wpshq_register_abilities`,
+  `wpshq_load_abilities`, `wpshq_toolsets`, `wpshq_hq_status` and the rest, plus
+  `wpshq_media_replaced` and `wpshq_svg_sanitizer`. Every plugin that bundles
+  the connector on a site must bundle 1.0.0 or later. Earlier development
+  builds (0.x to 3.0.0) used other names and are not supported.
+- The login link page prints its auto-submit script with
   `wp_print_inline_script_tag()`, so Content Security Policy plugins can add
   their nonce.
+- The plugin's own names are WP Sites HQ throughout: namespace `WPSitesHQ`,
+  constants `WPSHQ_VERSION`, `WPSHQ_FILE`, `WPSHQ_DIR` and `WPSHQ_URL`, the
+  option `wpshq_settings`, the update cache `wpshq_release`, the REST
+  namespace `wp-sites-hq/v1`, the settings page `options-general.php?page=wp-sites-hq`,
+  the ability category `wp-sites-hq`, script, style and CSS names
+  `wp-sites-hq-*` and the `window.wpshqAdmin` object. Settings saved under the
+  old option are not carried over.
+- Releases carry only `wp-sites-hq.zip` and its SHA-256: the 0.1.4 bridge zip
+  is no longer attached.
 
 ## 0.2.1 - 2026-11-02
 
@@ -85,14 +80,14 @@ Renamed WP Sites HQ; one click moves the plugin folder.
 
 ## 0.1.0 - 2026-10-29
 
-First release: the site connector for the Monks Central app.
+First release: the site connector for the app.
 
 - Connector 1.1.0, shared with Classic Monks and Classic Monks Pro. Each plugin
   registers its bundled copy and the highest version runs, so any mix of the
   three gives one connector. It keeps the existing tables and option names, so
   connections survive adding, removing or switching plugins.
 - OAuth 2.1 sign-in with PKCE and a consent page per app: tool groups, access
-  level, and an administrator's "this is my Monks Central app" (operator) flag.
+  level, and an administrator's "this is my app" (operator) flag.
 - MCP endpoint for the app and for AI agents, with their own connection.
 - Approvals: changes that delete or replace something wait in wp-admin unless
   the app is the operator's.
@@ -100,7 +95,7 @@ First release: the site connector for the Monks Central app.
   translation updates, posts and pages, media (upload, import, replace and
   restore), ACF fields, terms, users, comments, revisions, checksums, error log
   and site snapshots.
-- Settings > Monks Central: Allow Monks Central to connect, connected apps with their
+- The settings screen: allow the app to connect, connected apps with their
   permissions, Waiting for your approval, and Activity. Built with React and
   DataViews, loaded on that screen only.
 - Filters and abilities for a host plugin's own UI: tool groups, hints, status

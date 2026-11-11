@@ -2,10 +2,10 @@
 /**
  * The version-wins loader: which bundled copy boots.
  *
- * @package MonksCentral\Connector
+ * @package WPSitesHQ\Connector
  */
 
-namespace MonksCentral\Connector\Tests;
+namespace WPSitesHQ\Connector\Tests;
 
 use Brain\Monkey;
 use PHPUnit\Framework\TestCase;
@@ -64,8 +64,8 @@ final class LoaderTest extends TestCase {
 			array( 'dir' => 'b', 'connector' => '1.10.0' ),
 			array( 'dir' => 'c', 'connector' => '1.2.0' ),
 		);
-		$this->assertSame( 'b', monks_central_connector_pick( $copies )['dir'] );
-		$this->assertSame( 'b', monks_central_connector_pick( array_reverse( $copies ) )['dir'] );
+		$this->assertSame( 'b', wpshq_connector_pick( $copies )['dir'] );
+		$this->assertSame( 'b', wpshq_connector_pick( array_reverse( $copies ) )['dir'] );
 	}
 
 	public function test_first_registered_wins_a_tie(): void {
@@ -73,17 +73,17 @@ final class LoaderTest extends TestCase {
 			array( 'dir' => 'free', 'connector' => '1.0.0' ),
 			array( 'dir' => 'wp-sites-hq', 'connector' => '1.0.0' ),
 		);
-		$this->assertSame( 'free', monks_central_connector_pick( $copies )['dir'] );
+		$this->assertSame( 'free', wpshq_connector_pick( $copies )['dir'] );
 	}
 
 	public function test_nothing_registered_boots_nothing(): void {
-		$this->assertNull( monks_central_connector_pick( array() ) );
+		$this->assertNull( wpshq_connector_pick( array() ) );
 	}
 
 	public function test_register_reads_each_copys_version_once_per_folder(): void {
 		$old = $this->copy( '1.0.0' );
 		$new = $this->copy( '1.1.0' );
-		monks_central_connector_register(
+		wpshq_connector_register(
 			array(
 				'dir'     => $old . '/',
 				'file'    => 'free/free.php',
@@ -91,14 +91,14 @@ final class LoaderTest extends TestCase {
 				'version' => '2.3.4',
 			)
 		);
-		monks_central_connector_register(
+		wpshq_connector_register(
 			array(
 				'dir'  => $new,
 				'file' => 'pro/pro.php',
 				'name' => 'New',
 			)
 		);
-		monks_central_connector_register(
+		wpshq_connector_register(
 			array(
 				'dir'  => $new,
 				'file' => 'pro/pro.php',
@@ -108,13 +108,13 @@ final class LoaderTest extends TestCase {
 
 		$mine = array_values(
 			array_filter(
-				monks_central_connector_copies(),
+				wpshq_connector_copies(),
 				fn( $copy ) => in_array( $copy['dir'], array( $old, $new ), true )
 			)
 		);
 		$this->assertCount( 2, $mine );
 		$this->assertSame( '1.0.0', $mine[0]['connector'] );
 		$this->assertSame( '2.3.4', $mine[0]['version'], 'the host keeps its own version' );
-		$this->assertSame( 'New', monks_central_connector_pick( $mine )['name'] );
+		$this->assertSame( 'New', wpshq_connector_pick( $mine )['name'] );
 	}
 }

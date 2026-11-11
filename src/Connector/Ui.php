@@ -2,19 +2,19 @@
 /**
  * The connector's screens in this plugin.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral\Connector;
+namespace WPSitesHQ\Connector;
 
-use MonksCentral\Admin\Page;
-use MonksCentral\Plugin;
+use WPSitesHQ\Admin\Page;
+use WPSitesHQ\Plugin;
 
 /**
  * Renders the OAuth consent page and the approval page from the connector's view data.
  * The connection screen itself is the React app on Settings > WP Sites HQ.
  */
-final class Ui implements \Monks_Central_Connector_UI {
+final class Ui implements \WPSHQ_Connector_UI {
 
 	/**
 	 * Settings > WP Sites HQ.
@@ -33,8 +33,8 @@ final class Ui implements \Monks_Central_Connector_UI {
 	 */
 	public function render_consent( array $view ) {
 		$asset = Plugin::asset( 'consent' );
-		wp_register_style( 'monks-central-consent', MONKS_CENTRAL_URL . 'build/consent.css', array(), $asset['version'] ?? MONKS_CENTRAL_VERSION );
-		require MONKS_CENTRAL_DIR . 'templates/consent.php';
+		wp_register_style( 'wp-sites-hq-consent', WPSHQ_URL . 'build/consent.css', array(), $asset['version'] ?? WPSHQ_VERSION );
+		require WPSHQ_DIR . 'templates/consent.php';
 	}
 
 	/**

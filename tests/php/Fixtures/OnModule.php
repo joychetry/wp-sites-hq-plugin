@@ -2,10 +2,10 @@
 /**
  * Test module "on".
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral\Tests\Fixtures;
+namespace WPSitesHQ\Tests\Fixtures;
 
 final class OnModule extends RecordingModule {
 

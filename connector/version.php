@@ -2,11 +2,11 @@
 /**
  * The connector library's version. The highest version among the bundled copies boots.
  *
- * @package MonksCentral\Connector
+ * @package WPSitesHQ\Connector
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-return '2.0.1';
+return '1.0.0';

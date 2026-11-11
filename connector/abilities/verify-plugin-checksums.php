@@ -4,7 +4,7 @@
  *
  * Compares an installed plugin's files with the official WordPress.org release.
  *
- * @package MonksCentral\Connector
+ * @package WPSitesHQ\Connector
  * @requires WordPress 6.9+ (Abilities API)
  */
 

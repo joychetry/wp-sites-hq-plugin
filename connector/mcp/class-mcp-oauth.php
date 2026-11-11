@@ -16,7 +16,7 @@
  * Loaded by class-mcp-server.php, so none of it exists while MCP is off.
  *
  * @package ClassicMonks
- * @subpackage MonksCentral
+ * @subpackage WPSitesHQ
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -88,24 +88,8 @@ class WPSHQ_MCP_OAuth {
             KEY expires_at (expires_at)
         ) " . $wpdb->get_charset_collate() . ';'
 		);
-		self::rename_app_grants();
 
 		update_option( self::DB_VERSION_OPTION, self::DB_VERSION );
-	}
-
-	/**
-	 * DB 1.1.0: grants the app made as Monks Central show its new name on the Connections list.
-	 * Refreshes copy the stored name forward, so without this they would keep the old one.
-	 */
-	public static function rename_app_grants() {
-		global $wpdb;
-		$names = array(
-			'Monks Central'             => 'WP Sites HQ',
-			'Monks Central (AI agents)' => 'WP Sites HQ (AI agents)',
-		);
-		foreach ( $names as $old => $new ) {
-			$wpdb->update( self::table(), array( 'client_name' => $new ), array( 'client_name' => $old ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one-time rename in our own table
-		}
 	}
 
 	/*
@@ -572,7 +556,7 @@ class WPSHQ_MCP_OAuth {
 			? self::validate_request( wp_unslash( $_GET ) ) // phpcs:ignore WordPress.Security.NonceVerification -- read-only render; the decision is nonce-checked
 			: new WP_Error( 'access_denied', __( 'Your account cannot connect AI apps to this site. Sign in as an author, editor or administrator.', 'wp-sites-hq' ) );
 
-		$ui = Monks_Central_Connector::ui();
+		$ui = WPSHQ_Connector::ui();
 		if ( ! $ui ) {
 			wp_die( esc_html__( 'The plugin running the connection has no consent page.', 'wp-sites-hq' ), '', 500 );
 		}
@@ -588,7 +572,7 @@ class WPSHQ_MCP_OAuth {
 	 *
 	 * @param array|WP_Error $ctx Validated authorization request, or why it can't proceed.
 	 * @param array          $q   The request's query.
-	 * @return array See Monks_Central_Connector_UI::render_consent().
+	 * @return array See WPSHQ_Connector_UI::render_consent().
 	 */
 	private static function consent_view( $ctx, array $q ) {
 		$view = array(

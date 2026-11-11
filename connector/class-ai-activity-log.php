@@ -8,7 +8,7 @@
  * Read-only abilities are skipped unless the wpshq_ai_log_reads filter says otherwise.
  *
  * @package ClassicMonks
- * @subpackage MonksCentral
+ * @subpackage WPSitesHQ
  * @requires WordPress 7.1+ (wp_ability_invoked)
  */
 
@@ -110,7 +110,7 @@ class WPSHQ_AI_Activity_Log {
 			 * A signed-in user's own REST call. Hosts that run abilities over REST for their own UI (a chat) name it.
 			 */
 			return apply_filters(
-				'monks_central_activity_caller',
+				'wpshq_activity_caller',
 				array(
 					'source' => 'rest',
 					'uuid'   => '',

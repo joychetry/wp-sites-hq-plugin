@@ -38,7 +38,7 @@ Never:
 - Register a REST route or ability without a real `permission_callback`.
 - Enqueue assets globally. Admin assets load on the plugin's own screen;
   front-end assets load only where their markup renders.
-- Autoload options. Settings live in `monks_central_settings` (autoload off).
+- Autoload options. Settings live in `wpshq_settings` (autoload off).
 - Commit `build/`, `vendor/`, `node_modules/` or `dist/`.
 - Use em dashes in copy, comments or docs.
 
@@ -59,11 +59,10 @@ Always:
   route.
 - Escape output (`esc_html`, `esc_attr`, `esc_url`), sanitize input, check
   capabilities. REST nonces come from core via `apiFetch`.
-- Plain CSS scoped under a `.monks-central-` class, tweakables as custom properties.
-- Prefix: namespace `MonksCentral`, hooks and options `monks_central_`, handles
-  and CSS classes `monks-central-`, constants `MONKS_CENTRAL_`, REST namespace
-  `monks-central/v1`, text domain `wp-sites-hq` (the `monks_central` names stay
-  so sites keep their data).
+- Plain CSS scoped under a `.wp-sites-hq-` class, tweakables as custom properties.
+- Prefix: namespace `WPSitesHQ`, hooks and options `wpshq_`, handles
+  and CSS classes `wp-sites-hq-`, constants `WPSHQ_`, REST namespace
+  `wp-sites-hq/v1`, text domain `wp-sites-hq`.
 - Delete everything the plugin stores in `uninstall.php`.
 - One logical change per commit, with a clear message; tests in the same commit.
 

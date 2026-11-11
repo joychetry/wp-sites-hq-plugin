@@ -2,7 +2,7 @@
 /**
  * Signatures of the optional plugin APIs the connector calls when those plugins are active, for PHPStan.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
 // Advanced Custom Fields / Secure Custom Fields.
@@ -18,6 +18,3 @@ function acf_get_validation_errors() {}
 function acf_flush_value_cache( $post_id = 0, $field_name = '' ): void {}
 function update_field( $selector, $value, $post_id = false ): bool {}
 function delete_field( $selector, $post_id = false ): bool {}
-
-// Classic Monks Pro's SVG sanitizer.
-function cm_sanitize_svg( string $svg ) {}

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Monks Central M5 (list-updates, update-translations) and M13 (update-core target). Signs in as admin/admin.
+# WP Sites HQ M5 (list-updates, update-translations) and M13 (update-core target). Signs in as admin/admin.
 # Fake offers are written into WordPress's update transients, so nothing depends on WordPress.org. Run: bash tests/mcp/updates.sh
 . "$(dirname "$0")/lib.sh"
 . "$(dirname "$0")/oauth-lib.sh"
@@ -44,7 +44,7 @@ check 'nothing to update'                  "$(sc "$(call update-translations)" .
 # --- M13 update-core target (operator grant: always-ask tools run directly)
 fake_updates # installing translations cleared WordPress's update cache
 check 'app password still needs approval'  "$(call update-core '{"version":"9.9.0"}')" '~"cause":"approval"'
-T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'Monks Central' -d operator=1)
+T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'WP Sites HQ' -d operator=1)
 OP=$(jq -r .access_token <<<"$T")
 check 'version not offered is refused'     "$(bcall "$OP" update-core '{"version":"9.9.9"}')" '~does not offer 9.9.9 for this site. Offered: 9.9.0 (en_US), 9.9.0 (de_DE)'
 check 'locale not offered is refused'      "$(bcall "$OP" update-core '{"version":"9.9.0","locale":"fr_FR"}')" '~does not offer 9.9.0 fr_FR'

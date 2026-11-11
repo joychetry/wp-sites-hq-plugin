@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Monks Central M2: operator grants. Signs in as admin/admin (CM_ADMIN_USER / CM_ADMIN_PASS). Run: bash tests/mcp/operator.sh
+# WP Sites HQ M2: operator grants. Signs in as admin/admin (CM_ADMIN_USER / CM_ADMIN_PASS). Run: bash tests/mcp/operator.sh
 . "$(dirname "$0")/lib.sh"
 . "$(dirname "$0")/oauth-lib.sh"
 ADMIN=${CM_ADMIN_USER:-admin}; ADMIN_PASS=${CM_ADMIN_PASS:-admin}
@@ -9,7 +9,7 @@ hq() { bcall "$1" get-hq-status | jq -c ".result.structuredContent.connection$2"
 newpost() { wpe 'echo wp_insert_post(["post_title" => "cm operator test", "post_status" => "draft"]);'; }
 
 # Ticked by an admin: full scope, site toolset, trusted, and the always-ask tools run directly.
-T=$(connect "$ADMIN" "$ADMIN_PASS" 'Monks Central' -d scope=content -d 'toolsets[]=content' -d 'toolsets[]=modules' -d operator=1)
+T=$(connect "$ADMIN" "$ADMIN_PASS" 'WP Sites HQ' -d scope=content -d 'toolsets[]=content' -d 'toolsets[]=modules' -d operator=1)
 check 'consent page offers operator to admins' "$(cat "$CONSENT_FILE")" '~This is my WP Sites HQ app (operator)'
 AT=$(jq -r .access_token <<<"$T"); FAM=$(jq -r .family <<<"$T")
 check 'operator grant gets full scope'      "$(jq -r .scope <<<"$T")" full
@@ -18,7 +18,7 @@ check 'every tool group'                   "$(hq "$AT" '.toolsets | sort')" "$(w
 P=$(newpost)
 check 'always-ask tool runs directly'       "$(bcall "$AT" delete-post "{\"post_id\":$P,\"force\":true}")" '!~isError'
 check 'post really deleted'                 "$(wpe "echo get_post($P) ? 'kept' : 'gone';")" gone
-check 'run tagged [operator]'               "$(wpe "global \$wpdb; echo \$wpdb->get_var(\"SELECT CONCAT(status, ' ', client_label) FROM {\$wpdb->prefix}cm_ai_log WHERE connection_uuid = 'oauth:$FAM' ORDER BY id DESC LIMIT 1\");")" '~ok Monks Central [operator]'
+check 'run tagged [operator]'               "$(wpe "global \$wpdb; echo \$wpdb->get_var(\"SELECT CONCAT(status, ' ', client_label) FROM {\$wpdb->prefix}cm_ai_log WHERE connection_uuid = 'oauth:$FAM' ORDER BY id DESC LIMIT 1\");")" '~ok WP Sites HQ [operator]'
 # An update over HTTP keeps an active plugin on: core's upgrade() turns it off for a wp-admin page to turn back on.
 AKA=$(wpe 'echo is_plugin_active("akismet/akismet.php") ? 1 : 0;')
 (cd "$SITE_ROOT" && $WP_CMD plugin install akismet --version=5.0 --force --activate >/dev/null 2>&1)
@@ -26,7 +26,7 @@ check 'update-plugin runs over HTTP'        "$(bcall "$AT" update-plugin '{"plug
 check '... and the plugin is still active'  "$(wpe 'echo is_plugin_active("akismet/akismet.php") ? "active" : "inactive";')" active
 [[ $AKA == 1 ]] || wpe 'deactivate_plugins("akismet/akismet.php");' >/dev/null
 
-# The owner turns the always-ask skip off on Settings > Monks Central.
+# The owner turns the always-ask skip off on Settings > WP Sites HQ.
 JAR=$(mktemp); OAUTH_JARS+=("$JAR")
 login "$JAR" "$ADMIN" "$ADMIN_PASS"
 SCREEN=$(mc_rest "$JAR" GET '')
@@ -48,20 +48,20 @@ revoke_grant "$FAM"
 check 'revoke drops the operator flag'      "$(wpe "echo isset(get_user_meta(1, 'cm_mcp_operator', true)['oauth:$FAM']) ? 'kept' : 'gone';")" gone
 
 # The client's own name proves nothing: same name, box not ticked.
-T=$(connect "$ADMIN" "$ADMIN_PASS" 'Monks Central' -d scope=content -d 'toolsets[]=content' -d 'toolsets[]=modules')
+T=$(connect "$ADMIN" "$ADMIN_PASS" 'WP Sites HQ' -d scope=content -d 'toolsets[]=content' -d 'toolsets[]=modules')
 AT=$(jq -r .access_token <<<"$T")
 check 'unticked: not an operator'           "$(hq "$AT" '| [.operator, .trusted]')" '[false,false]'
 check 'unticked: scope as chosen'           "$(jq -r .scope <<<"$T")" content
 revoke_grant "$(jq -r .family <<<"$T")"
 
 # A web app (an https return address) is never an operator, even when it posts the box: only an app on this computer.
-T=$(OAUTH_REDIRECT=https://app.example/callback connect "$ADMIN" "$ADMIN_PASS" 'Monks Central' -d scope=content -d 'toolsets[]=content' -d 'toolsets[]=modules' -d operator=1)
+T=$(OAUTH_REDIRECT=https://app.example/callback connect "$ADMIN" "$ADMIN_PASS" 'WP Sites HQ' -d scope=content -d 'toolsets[]=content' -d 'toolsets[]=modules' -d operator=1)
 check 'web app: no operator box'            "$(cat "$CONSENT_FILE")" '!~This is my WP Sites HQ app (operator)'
 check 'web app: not an operator'            "$(hq "$(jq -r .access_token <<<"$T")" '| [.operator, .trusted]')" '[false,false]'
 revoke_grant "$(jq -r .family <<<"$T")"
 
 # Only admins can make an operator grant, even by posting the field.
-T=$(connect cm_op_editor cm-op-editor-pass 'Monks Central' -d scope=content -d 'toolsets[]=content' -d 'toolsets[]=modules' -d operator=1)
+T=$(connect cm_op_editor cm-op-editor-pass 'WP Sites HQ' -d scope=content -d 'toolsets[]=content' -d 'toolsets[]=modules' -d operator=1)
 check 'consent page hides operator from editors' "$(cat "$CONSENT_FILE")" '!~WP Sites HQ app (operator)'
 AT=$(jq -r .access_token <<<"$T")
 check 'editor posting operator=1 is ignored' "$(hq "$AT" .operator)" false

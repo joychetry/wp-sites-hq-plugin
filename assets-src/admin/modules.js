@@ -66,7 +66,7 @@ export default function Modules( { modules, enabled, onToggle } ) {
 	);
 
 	return (
-		<Card className="monks-central-admin__card">
+		<Card className="wp-sites-hq-admin__card">
 			<CardHeader>
 				<h2>{ __( 'Modules', 'wp-sites-hq' ) }</h2>
 			</CardHeader>

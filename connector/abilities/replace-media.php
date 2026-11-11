@@ -372,23 +372,13 @@ function wpshq_media_swap_unlocked( $id, $src, $name, $mime ) {
 		);
 	}
 	wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $dest ) );
-	if ( has_action( 'wpshq_media_replaced' ) ) {
-		/**
-		 * After the connector replaced or restored an attachment's file. The host flushes page caches (they would
-		 * keep the old file's markup) and busts cached URLs here.
-		 *
-		 * @param int $id Attachment ID.
-		 */
-		do_action( 'wpshq_media_replaced', $id );
-	} else {
-		// Hosts from before the action (Classic Monks Pro until it syncs connector 2.0.0) are called by name.
-		if ( function_exists( 'cm_flush_external_caches' ) ) {
-			cm_flush_external_caches( $id );
-		}
-		if ( class_exists( 'CM_Media_Replace' ) ) {
-			CM_Media_Replace::get_instance()->update_recently_replaced( $id );
-		}
-	}
+	/**
+	 * After the connector replaced or restored an attachment's file. The host flushes page caches (they would
+	 * keep the old file's markup) and busts cached URLs here.
+	 *
+	 * @param int $id Attachment ID.
+	 */
+	do_action( 'wpshq_media_replaced', $id );
 
 	return $keep ? $token : '';
 }

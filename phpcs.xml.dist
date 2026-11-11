@@ -34,8 +34,8 @@
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
-				<element value="MonksCentral"/>
-				<element value="monks_central_"/>
+				<element value="WPSitesHQ"/>
+				<element value="wpshq_"/>
 				<element value="wpshq"/>
 			</property>
 		</properties>
