@@ -7,22 +7,22 @@
  * options and user meta are the ones Classic Monks has always used, so grants
  * survive when plugins that bundle the connector are added, removed or switched.
  *
- * Monks_Central_Connector is the data and actions the host screens use; the
- * host renders them (Monks_Central_Connector_UI).
+ * WPSHQ_Connector is the data and actions the host screens use; the
+ * host renders them (WPSHQ_Connector_UI).
  *
- * @package MonksCentral\Connector
+ * @package WPSitesHQ\Connector
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/interface-monks-central-connector-ui.php';
+require_once __DIR__ . '/interface-wpshq-connector-ui.php';
 
 /**
  * Boots the running copy and serves the host screens.
  */
-final class Monks_Central_Connector {
+final class WPSHQ_Connector {
 
 	// Same option as Classic Monks: on/off for the MCP endpoint and every ability.
 	const OPTION = 'cm_mcp_enabled';
@@ -43,7 +43,7 @@ final class Monks_Central_Connector {
 		self::$copy = $copy;
 		// The guard confines MCP credentials even while the connector is off.
 		require_once __DIR__ . '/mcp/mcp-guard.php';
-		foreach ( monks_central_connector_copies() as $host ) {
+		foreach ( wpshq_connector_copies() as $host ) {
 			register_deactivation_hook( $host['file'], array( __CLASS__, 'on_host_deactivated' ) );
 		}
 		$enabled = self::enabled();
@@ -51,7 +51,7 @@ final class Monks_Central_Connector {
 		 * Whether the abilities and the activity log load while the endpoint is off, for a host's own
 		 * UI that runs them (Classic Monks Pro's chat). Runs on plugins_loaded at priority 1.
 		 */
-		if ( ! $enabled && ! ( self::supported() && apply_filters( 'monks_central_load_abilities', false ) ) ) {
+		if ( ! $enabled && ! ( self::supported() && apply_filters( 'wpshq_load_abilities', false ) ) ) {
 			return;
 		}
 		require_once __DIR__ . '/cm-abilities-categories.php';
@@ -68,7 +68,7 @@ final class Monks_Central_Connector {
 	 * Abilities named classic-monks/* are tools of every connection; others need their namespace allowed.
 	 */
 	public static function register_host_abilities() {
-		do_action( 'monks_central_register_abilities', MONKS_CENTRAL_CONNECTOR_VERSION );
+		do_action( 'wpshq_register_abilities', WPSHQ_CONNECTOR_VERSION );
 	}
 
 	/**
@@ -76,7 +76,7 @@ final class Monks_Central_Connector {
 	 * once no copy runs, nothing confines MCP credentials any more.
 	 */
 	public static function on_host_deactivated() {
-		if ( count( monks_central_connector_copies() ) < 2 ) {
+		if ( count( wpshq_connector_copies() ) < 2 ) {
 			wpshq_mcp_revoke_all_connections();
 		}
 	}
@@ -120,12 +120,12 @@ final class Monks_Central_Connector {
 	/**
 	 * The running host's screens, or null when its UI class is missing.
 	 *
-	 * @return Monks_Central_Connector_UI|null
+	 * @return WPSHQ_Connector_UI|null
 	 */
 	public static function ui() {
 		static $ui = null;
 		$class     = self::$copy['ui'] ?? '';
-		if ( null === $ui && is_string( $class ) && class_exists( $class ) && is_subclass_of( $class, 'Monks_Central_Connector_UI' ) ) {
+		if ( null === $ui && is_string( $class ) && class_exists( $class ) && is_subclass_of( $class, 'WPSHQ_Connector_UI' ) ) {
 			$ui = new $class();
 		}
 		return $ui;
@@ -139,7 +139,7 @@ final class Monks_Central_Connector {
 	public static function state() {
 		$enabled = self::enabled();
 		return array(
-			'version'   => MONKS_CENTRAL_CONNECTOR_VERSION,
+			'version'   => WPSHQ_CONNECTOR_VERSION,
 			'host'      => self::$copy['name'] ?? '',
 			'hosts'     => array_map(
 				function ( $copy ) {
@@ -149,7 +149,7 @@ final class Monks_Central_Connector {
 						'connector' => $copy['connector'],
 					);
 				},
-				monks_central_connector_copies()
+				wpshq_connector_copies()
 			),
 			'page_url'  => self::ui() ? self::ui()->page_url() : '',
 			'supported' => self::supported(),

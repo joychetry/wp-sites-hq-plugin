@@ -4,7 +4,7 @@
  *
  * Compares WordPress core files with the official release checksums.
  *
- * @package MonksCentral\Connector
+ * @package WPSitesHQ\Connector
  * @requires WordPress 6.9+ (Abilities API)
  */
 

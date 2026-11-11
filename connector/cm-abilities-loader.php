@@ -7,7 +7,7 @@
  * same name, schema and annotations as in Classic Monks Pro.
  *
  * @package ClassicMonks
- * @subpackage MonksCentral
+ * @subpackage WPSitesHQ
  * @requires WordPress 7.1+ (Abilities API)
  */
 

@@ -2,10 +2,10 @@
 /**
  * wpshq_ability_date(): MySQL datetimes become the RFC 3339 a `date-time` output schema promises.
  *
- * @package MonksCentral\Connector
+ * @package WPSitesHQ\Connector
  */
 
-namespace MonksCentral\Connector\Tests;
+namespace WPSitesHQ\Connector\Tests;
 
 use Brain\Monkey;
 use PHPUnit\Framework\TestCase;

@@ -285,7 +285,7 @@ function wpshq_ai_resolve_plugin_install_source( $input ) {
  * @return bool
  */
 function wpshq_ai_is_current_plugin( $plugin_file ) {
-	return plugin_basename( (string) $plugin_file ) === plugin_basename( Monks_Central_Connector::host()['file'] );
+	return plugin_basename( (string) $plugin_file ) === plugin_basename( WPSHQ_Connector::host()['file'] );
 }
 
 /**

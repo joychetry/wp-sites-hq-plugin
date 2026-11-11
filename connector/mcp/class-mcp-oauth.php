@@ -16,7 +16,7 @@
  * Loaded by class-mcp-server.php, so none of it exists while MCP is off.
  *
  * @package ClassicMonks
- * @subpackage MonksCentral
+ * @subpackage WPSitesHQ
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -556,7 +556,7 @@ class WPSHQ_MCP_OAuth {
 			? self::validate_request( wp_unslash( $_GET ) ) // phpcs:ignore WordPress.Security.NonceVerification -- read-only render; the decision is nonce-checked
 			: new WP_Error( 'access_denied', __( 'Your account cannot connect AI apps to this site. Sign in as an author, editor or administrator.', 'wp-sites-hq' ) );
 
-		$ui = Monks_Central_Connector::ui();
+		$ui = WPSHQ_Connector::ui();
 		if ( ! $ui ) {
 			wp_die( esc_html__( 'The plugin running the connection has no consent page.', 'wp-sites-hq' ), '', 500 );
 		}
@@ -572,7 +572,7 @@ class WPSHQ_MCP_OAuth {
 	 *
 	 * @param array|WP_Error $ctx Validated authorization request, or why it can't proceed.
 	 * @param array          $q   The request's query.
-	 * @return array See Monks_Central_Connector_UI::render_consent().
+	 * @return array See WPSHQ_Connector_UI::render_consent().
 	 */
 	private static function consent_view( $ctx, array $q ) {
 		$view = array(

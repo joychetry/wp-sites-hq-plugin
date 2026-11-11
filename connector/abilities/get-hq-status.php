@@ -6,7 +6,7 @@
  * caller's role and connection, and pending approvals.
  *
  * @package ClassicMonks
- * @subpackage MonksCentral
+ * @subpackage WPSitesHQ
  * @requires WordPress 6.9+ (Abilities API)
  */
 
@@ -72,15 +72,15 @@ function wpshq_execute_get_hq_status( $input = array() ) {
 	 * @param array $status The status.
 	 */
 	return apply_filters(
-		'monks_central_hq_status',
+		'wpshq_hq_status',
 		array(
 			'plugin'            => array(
-				'name'    => Monks_Central_Connector::host()['name'],
-				'version' => Monks_Central_Connector::host()['version'],
+				'name'    => WPSHQ_Connector::host()['name'],
+				'version' => WPSHQ_Connector::host()['version'],
 			),
 			'connector'         => array(
-				'version' => MONKS_CENTRAL_CONNECTOR_VERSION,
-				'hosts'   => Monks_Central_Connector::state()['hosts'],
+				'version' => WPSHQ_CONNECTOR_VERSION,
+				'hosts'   => WPSHQ_Connector::state()['hosts'],
 			),
 			'wordpress'         => array(
 				'version'     => get_bloginfo( 'version' ),
@@ -100,7 +100,7 @@ function wpshq_execute_get_hq_status( $input = array() ) {
 			 * @param array $modules Module => on.
 			 */
 			'modules'           => apply_filters(
-				'monks_central_hq_modules',
+				'wpshq_hq_modules',
 				array(
 					'woocommerce' => class_exists( 'WooCommerce' ),
 					'bricks'      => defined( 'BRICKS_VERSION' ),
