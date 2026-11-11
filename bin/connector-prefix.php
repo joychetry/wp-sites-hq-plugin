@@ -16,7 +16,7 @@
  * constants), string literals that name a renamed function or class (callbacks, class_exists()), the hook argument of
  * the hook functions when it names a renamed hook, and comments. In other files (shell suites that run PHP through
  * wp eval, docs) whole-word matches change, except the names listed in the map's "ambiguous" list, which are also
- * stored names and need a look by hand. It also deletes the blanket PrefixAllGlobals phpcs:disable / enable comments.
+ * stored names and need a look by hand.
  *
  * @package MonksCentral
  */
@@ -269,20 +269,15 @@ function wpshq_prefix_apply_php( string $code, array $map, array &$log ): string
 	$words   = $symbols + $map['hooks'];
 	$t       = token_get_all( $code );
 	$out     = array();
-	$drop_nl = false;
 	wpshq_prefix_walk(
 		$t,
-		function ( $i, $in_class ) use ( $t, $map, $symbols, $words, &$out, &$log, &$drop_nl ) {
+		function ( $i, $in_class ) use ( $t, $map, $symbols, $words, &$out, &$log ) {
 			$tok = $t[ $i ];
 			if ( ! is_array( $tok ) ) {
 				$out[] = $tok;
 				return;
 			}
 			list( $id, $text, $line ) = $tok;
-			if ( $drop_nl && T_WHITESPACE === $id ) {
-				$text = preg_replace( '/^\r?\n/', '', $text );
-			}
-			$drop_nl = false;
 			switch ( $id ) {
 				case T_STRING:
 				case T_NAME_FULLY_QUALIFIED:
@@ -334,13 +329,6 @@ function wpshq_prefix_apply_php( string $code, array $map, array &$log ): string
 					}
 					break;
 				case T_COMMENT:
-					if ( preg_match( '#^//\s*phpcs:(disable|enable)\s+WordPress\.NamingConventions\.PrefixAllGlobals(\s|$)#', $text ) ) {
-						$log[]   = array( $line, 'phpcs', trim( $text ), '' );
-						$text    = '';
-						$drop_nl = true;
-						break;
-					}
-					// Falls through.
 				case T_DOC_COMMENT:
 					$text = wpshq_prefix_apply_words( $text, $words, $log, $line, 'comment' );
 					break;
@@ -434,6 +422,7 @@ add_action( 'monks_central_x_ready', 'monks_central_x_go' ); is_subclass_of( 'A'
 PHP;
 	$want = <<<'PHP'
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- old reason.
 const WPSHQ_TTL = 5;
 // Calls wpshq_go() for WPSHQ_Thing.
 function wpshq_go() { return WPSHQ_TTL; }
