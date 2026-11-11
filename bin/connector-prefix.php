@@ -1,11 +1,13 @@
 <?php
 /**
- * Renames the connector library's global symbols from the cm_ / CM_ prefix to wpshq_ / WPSHQ_, with PHP's tokenizer,
+ * Renames the connector library's global symbols from the cm_ / CM_ (2.0.0) and monks_central_ / Monks_Central_ /
+ * MONKS_CENTRAL_ (3.0.0) prefixes to wpshq_ / WPSHQ_, with PHP's tokenizer,
  * so stored and wire names (options, meta, tables, REST routes, ability names, cron hooks, nonces, error codes) that
  * share the old prefix keep their exact text.
  *
  * Run: php bin/connector-prefix.php map <connector-dir> <map.json>    collect the symbols the connector declares and
  *                                                                     the hooks it fires; write the old => new map
+ *                                                                     (entries already in map.json are kept)
  *      php bin/connector-prefix.php apply <map.json> <path>...        rename them in every .php, .sh, .js and .md
  *                                                                     file under each path; prints what changed
  *      php bin/connector-prefix.php --self-test
@@ -49,14 +51,18 @@ const WPSHQ_PREFIX_HOOK_ARG = array(
 
 const WPSHQ_PREFIX_FIRES = array( 'do_action', 'do_action_ref_array', 'apply_filters', 'apply_filters_ref_array' );
 
+// Old prefixes, matched case-insensitively.
+const WPSHQ_PREFIX_OLD = '/^(cm_|monks_central_)/i';
+
 /**
- * New name for an old one: cm_x => wpshq_x, CM_X => WPSHQ_X.
+ * New name for an old one: cm_x / monks_central_x => wpshq_x, CM_X / Monks_Central_X / MONKS_CENTRAL_X => WPSHQ_X.
  *
  * @param string $old Old name.
  * @return string
  */
 function wpshq_prefix_new_name( string $old ): string {
-	return ( 'CM_' === substr( $old, 0, 3 ) ? 'WPSHQ_' : 'wpshq_' ) . substr( $old, 3 );
+	preg_match( WPSHQ_PREFIX_OLD, $old, $m );
+	return ( ctype_upper( $old[0] ) ? 'WPSHQ_' : 'wpshq_' ) . substr( $old, strlen( $m[0] ) );
 }
 
 /**
@@ -182,7 +188,7 @@ function wpshq_prefix_walk( array $t, callable $visit ) {
 }
 
 /**
- * Collect the cm_ / CM_ symbols a set of files declares, and the hooks they fire.
+ * Collect the old-prefixed symbols a set of files declares, and the hooks they fire.
  *
  * @param string[] $files PHP files.
  * @return array
@@ -234,9 +240,9 @@ function wpshq_prefix_build_map( array $files ): array {
 					return;
 				}
 				$name = 'globals' === $type ? ltrim( $next[1], '$' ) : $next[1];
-				if ( preg_match( '/^cm_/i', $name ) ) {
+				if ( preg_match( WPSHQ_PREFIX_OLD, $name ) ) {
 					$map[ $type ][ $name ] = wpshq_prefix_new_name( $name );
-				} elseif ( 'hooks' !== $type ) {
+				} elseif ( 'hooks' !== $type && ! preg_match( '/^wpshq_/i', $name ) ) {
 					$kept[ $name ] = $type; // Already prefixed (or not ours): listed so a person can check.
 				}
 			}
@@ -423,6 +429,8 @@ $x = apply_filters( 'cm_hook', 'CM_Thing::cm_go' );
 update_option( 'cm_hook', 1 );
 $y = new CM_Thing(); $y->cm_go(); \cm_go(); class_exists( 'CM_Thing' ); defined( 'CM_TTL' ); defined( 'CM_OTHER' );
 $GLOBALS['cm_level'] = 1; global $cm_list; $cm_list = $GLOBALS['cm_level']; $cm_local = 2;
+define( 'MONKS_CENTRAL_X_DIR', 1 ); interface Monks_Central_X_UI {} function monks_central_x_go() { do_action( 'monks_central_x_ready', MONKS_CENTRAL_X_DIR ); }
+add_action( 'monks_central_x_ready', 'monks_central_x_go' ); is_subclass_of( 'A', 'Monks_Central_X_UI' ); class B implements \Monks_Central_X_UI {}
 PHP;
 	$want = <<<'PHP'
 <?php
@@ -437,6 +445,8 @@ $x = apply_filters( 'wpshq_hook', 'WPSHQ_Thing::cm_go' );
 update_option( 'cm_hook', 1 );
 $y = new WPSHQ_Thing(); $y->cm_go(); \wpshq_go(); class_exists( 'WPSHQ_Thing' ); defined( 'WPSHQ_TTL' ); defined( 'CM_OTHER' );
 $GLOBALS['wpshq_level'] = 1; global $wpshq_list; $wpshq_list = $GLOBALS['wpshq_level']; $cm_local = 2;
+define( 'WPSHQ_X_DIR', 1 ); interface WPSHQ_X_UI {} function wpshq_x_go() { do_action( 'wpshq_x_ready', WPSHQ_X_DIR ); }
+add_action( 'wpshq_x_ready', 'wpshq_x_go' ); is_subclass_of( 'A', 'WPSHQ_X_UI' ); class B implements \WPSHQ_X_UI {}
 PHP;
 	$tmp = tempnam( sys_get_temp_dir(), 'wpshq' );
 	file_put_contents( $tmp, $src );
@@ -462,6 +472,12 @@ if ( '--self-test' === $cmd ) {
 if ( 'map' === $cmd && isset( $argv[2], $argv[3] ) ) {
 	$php = array_values( array_filter( wpshq_prefix_files( $argv[2] ), fn( $f ) => '.php' === substr( $f, -4 ) && false === strpos( $f, '/tests/' ) ) );
 	$map = wpshq_prefix_build_map( $php );
+	// Keep what an earlier run mapped (the source no longer declares those old names).
+	$prev = is_file( $argv[3] ) ? (array) json_decode( (string) file_get_contents( $argv[3] ), true ) : array();
+	foreach ( array( 'functions', 'classes', 'constants', 'globals', 'hooks' ) as $type ) {
+		$map[ $type ] += (array) ( $prev[ $type ] ?? array() );
+		ksort( $map[ $type ] );
+	}
 	// Function names that are also cron hooks or other stored names: renamed in PHP code, left alone in free text.
 	$stored = array();
 	foreach ( $php as $f ) {
@@ -476,6 +492,7 @@ if ( 'map' === $cmd && isset( $argv[2], $argv[3] ) ) {
 			}
 		}
 	}
+	$stored += (array) ( $prev['ambiguous'] ?? array() );
 	ksort( $stored );
 	$map['ambiguous'] = $stored;
 	file_put_contents( $argv[3], json_encode( $map, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "\n" );
