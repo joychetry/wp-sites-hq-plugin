@@ -2,7 +2,7 @@
 /**
  * Signatures of the optional plugin APIs the connector calls when those plugins are active, for PHPStan.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
 // Advanced Custom Fields / Secure Custom Fields.

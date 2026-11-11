@@ -9,10 +9,10 @@ wpcli() { (cd "$SITE_ROOT" && $WP_CMD "$@" >/dev/null 2>&1); }
 JAR=$(mktemp)
 trap 'wpcli plugin activate wp-sites-hq; wpcli plugin deactivate mc-fixture; rm -rf "$FX" "$JAR"; revoke "$MCP_UUID"; revoke "$PLAIN_UUID"' EXIT
 ping() { code -u "$AUTH" -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"ping"}' "$MCP"; }
-running() { wpe 'echo MONKS_CENTRAL_CONNECTOR_VERSION, " ", Monks_Central_Connector::host()["name"];'; }
+running() { wpe 'echo WPSHQ_CONNECTOR_VERSION, " ", WPSHQ_Connector::host()["name"];'; }
 
 LIB=$(sed -n "s/^return '\(.*\)';/\1/p" "$P/wp-sites-hq/connector/version.php")
-MC=$(sed -n "s/^define( 'MONKS_CENTRAL_VERSION', '\(.*\)' );/\1/p" "$P/wp-sites-hq/wp-sites-hq.php")
+MC=$(sed -n "s/^define( 'WPSHQ_VERSION', '\(.*\)' );/\1/p" "$P/wp-sites-hq/wp-sites-hq.php")
 mkdir -p "$FX"
 cp -r "$P/wp-sites-hq/connector" "$FX/connector"
 echo "<?php if ( ! defined( 'ABSPATH' ) ) { exit; } return '9.9.9';" >"$FX/connector/version.php"
@@ -24,8 +24,8 @@ cat >"$FX/mc-fixture.php" <<'PHP'
  * Version: 0.1.0
  */
 require_once __DIR__ . '/connector/load.php';
-monks_central_connector_register( array( 'dir' => __DIR__ . '/connector', 'file' => __FILE__, 'name' => 'MC Fixture', 'version' => '0.1.0', 'ui' => 'MonksCentral\Connector\Ui' ) );
-add_action( 'monks_central_register_abilities', function ( $version ) {
+wpshq_connector_register( array( 'dir' => __DIR__ . '/connector', 'file' => __FILE__, 'name' => 'MC Fixture', 'version' => '0.1.0', 'ui' => 'WPSitesHQ\Connector\Ui' ) );
+add_action( 'wpshq_register_abilities', function ( $version ) {
 	wp_register_ability( 'mc-fixture/hello', array( 'label' => 'Hello', 'description' => 'Says which connector asked.', 'category' => 'classic-monks', 'execute_callback' => function () use ( $version ) { return $version; }, 'permission_callback' => '__return_true' ) );
 } );
 PHP
@@ -34,9 +34,9 @@ login "$JAR"
 check 'alone: the bundled copy runs'           "$(running)" "$LIB WP Sites HQ"
 wpcli plugin activate mc-fixture
 check 'both active: the newer copy runs'       "$(running)" '9.9.9 MC Fixture'
-check '... from its own folder'                "$(wpe 'echo MONKS_CENTRAL_CONNECTOR_DIR;')" "$FX/connector/"
+check '... from its own folder'                "$(wpe 'echo WPSHQ_CONNECTOR_DIR;')" "$FX/connector/"
 check '... the older copy sleeps'              "$(wpe 'echo in_array(WP_PLUGIN_DIR . "/wp-sites-hq/connector/connector.php", get_included_files(), true) ? "loaded" : "asleep";')" asleep
-check 'hosts keep their own versions'          "$(wpe 'echo wp_json_encode(array_map(function ($h) { return [$h["name"], $h["version"], $h["connector"]]; }, Monks_Central_Connector::state()["hosts"]));')" '[["MC Fixture","0.1.0","9.9.9"],["WP Sites HQ","'"$MC"'","'"$LIB"'"]]'
+check 'hosts keep their own versions'          "$(wpe 'echo wp_json_encode(array_map(function ($h) { return [$h["name"], $h["version"], $h["connector"]]; }, WPSHQ_Connector::state()["hosts"]));')" '[["MC Fixture","0.1.0","9.9.9"],["WP Sites HQ","'"$MC"'","'"$LIB"'"]]'
 check 'host abilities registered via the hook' "$(wpe 'echo wp_get_ability("mc-fixture/hello")->execute();')" 9.9.9
 check 'existing grant still works'             "$(ping)" 200
 HQ=$(call get-hq-status)

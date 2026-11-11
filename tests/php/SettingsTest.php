@@ -2,13 +2,13 @@
 /**
  * Settings tests.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral\Tests;
+namespace WPSitesHQ\Tests;
 
 use Brain\Monkey\Functions;
-use MonksCentral\Settings;
+use WPSitesHQ\Settings;
 
 final class SettingsTest extends TestCase {
 

@@ -2,16 +2,16 @@
 /**
  * Base test case: Brain Monkey stubs WordPress functions, so no WordPress install is needed.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral\Tests;
+namespace WPSitesHQ\Tests;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
-use MonksCentral\Settings;
+use WPSitesHQ\Settings;
 
 /**
  * Sets up and tears down Brain Monkey around every test.

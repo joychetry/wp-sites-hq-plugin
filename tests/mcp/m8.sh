@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Monks Central M8 install-zip over MCP: a plugin or theme zip sent in chunks, retries, overwrite, activate,
+# WP Sites HQ M8 install-zip over MCP: a plugin or theme zip sent in chunks, retries, overwrite, activate,
 # refusals and cleanup of abandoned uploads. Run: bash tests/mcp/m8.sh
 . "$(dirname "$0")/lib.sh"
 . "$(dirname "$0")/oauth-lib.sh"
@@ -36,7 +36,7 @@ upid() { sc "$1" .upload_id; }
 
 check 'install-zip is hidden from a full app password' "$(rpc tools/list)" '!~"name":"install-zip"'
 check 'and unknown to it' "$(call install-zip "{\"filename\":\"p.zip\",\"kind\":\"plugin\",\"data\":\"$(b64 "$TMP/p1.zip")\",\"done\":true}")" '~Unknown tool'
-T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'Monks Central' -d operator=1)
+T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'WP Sites HQ' -d operator=1)
 OP=$(jq -r .access_token <<<"$T"); FAM=$(jq -r .family <<<"$T")
 rpc() { brpc "$OP" "$@"; }
 check 'install-zip is listed for the operator' "$(rpc tools/list)" '~"name":"install-zip"'
@@ -106,7 +106,7 @@ check 'but not a theme' "$(perm "['data' => 'eA==', 'kind' => 'theme']")" false
 check 'nor overwrite without update_plugins' "$(perm "['data' => 'eA==', 'kind' => 'plugin', 'overwrite' => true]")" false
 check 'nor activate without activate_plugins' "$(perm "['data' => 'eA==', 'kind' => 'plugin', 'activate' => true]")" false
 
-# Outside Monks Central's connection (the wp-admin chat, an app password over REST) it never runs.
+# Outside WP Sites HQ's connection (the wp-admin chat, an app password over REST) it never runs.
 check 'not in the REST list' "$(wpe "var_export(wp_get_ability('classic-monks/install-zip')->get_meta_item('show_in_rest'));")" false
 check 'and refused when run as an administrator' "$(wpe "wp_set_current_user(1); \$r = wp_get_ability('classic-monks/install-zip')->execute(['filename' => 'p.zip', 'kind' => 'plugin', 'data' => 'eA==']); echo is_wp_error(\$r) ? \$r->get_error_code() : 'ran';")" cm_operator_only
 

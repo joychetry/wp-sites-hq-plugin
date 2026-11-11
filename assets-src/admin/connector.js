@@ -1,6 +1,6 @@
 /**
  * The connection screen: the on/off switch, connected apps, approval requests
- * and the activity log. Data and actions come from /monks-central/v1/connector,
+ * and the activity log. Data and actions come from /wp-sites-hq/v1/connector,
  * which hands them through from the shared connector library.
  */
 import apiFetch from '@wordpress/api-fetch';
@@ -18,7 +18,7 @@ import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
-const API = '/monks-central/v1/connector';
+const API = '/wp-sites-hq/v1/connector';
 
 function ConfirmRevoke( { items, closeModal, onRevoke } ) {
 	const [ busy, setBusy ] = useState( false );
@@ -133,7 +133,7 @@ function Connections( { rows, onRevoke, onOperator } ) {
 	);
 
 	return (
-		<Card className="monks-central-admin__card">
+		<Card className="wp-sites-hq-admin__card">
 			<CardHeader>
 				<h2>{ __( 'Connected apps', 'wp-sites-hq' ) }</h2>
 			</CardHeader>
@@ -177,12 +177,12 @@ function Pending( { rows } ) {
 		return null;
 	}
 	return (
-		<Card className="monks-central-admin__card">
+		<Card className="wp-sites-hq-admin__card">
 			<CardHeader>
 				<h2>{ __( 'Waiting for your approval', 'wp-sites-hq' ) }</h2>
 			</CardHeader>
 			<CardBody>
-				<ul className="monks-central-admin__pending">
+				<ul className="wp-sites-hq-admin__pending">
 					{ rows.map( ( row ) => (
 						<li key={ row.id }>
 							<a href={ row.approve_url }>{ row.tool }</a>{ ' ' }
@@ -302,7 +302,7 @@ function Activity( { version, onNotice } ) {
 	);
 
 	return (
-		<Card className="monks-central-admin__card">
+		<Card className="wp-sites-hq-admin__card">
 			<CardHeader>
 				<h2>{ __( 'Activity', 'wp-sites-hq' ) }</h2>
 			</CardHeader>
@@ -358,7 +358,7 @@ function Status( { state, runsHere, onToggle } ) {
 		);
 	}
 	return (
-		<Card className="monks-central-admin__card">
+		<Card className="wp-sites-hq-admin__card">
 			<CardHeader>
 				<h2>{ __( 'Connect to WP Sites HQ', 'wp-sites-hq' ) }</h2>
 			</CardHeader>
@@ -388,7 +388,7 @@ function Status( { state, runsHere, onToggle } ) {
 					</Notice>
 				) }
 				{ state.enabled && (
-					<div className="monks-central-admin__address">
+					<div className="wp-sites-hq-admin__address">
 						<p>
 							{ __(
 								'Add this site in WP Sites HQ with its address:',
@@ -396,7 +396,7 @@ function Status( { state, runsHere, onToggle } ) {
 							) }{ ' ' }
 							<code>{ state.site }</code>
 						</p>
-						<p className="monks-central-admin__muted">
+						<p className="wp-sites-hq-admin__muted">
 							{ __(
 								'Other MCP clients use the endpoint:',
 								'wp-sites-hq'
@@ -413,7 +413,7 @@ function Status( { state, runsHere, onToggle } ) {
 						) }
 					</div>
 				) }
-				<p className="monks-central-admin__version">
+				<p className="wp-sites-hq-admin__version">
 					{ sprintf(
 						/* translators: %s: version number */
 						__( 'Connector %s', 'wp-sites-hq' ),

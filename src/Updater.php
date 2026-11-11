@@ -6,10 +6,10 @@
  * forbids plugins that update themselves, and Plugin::register() only hooks it
  * when the class exists.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral;
+namespace WPSitesHQ;
 
 use WP_Error;
 
@@ -24,7 +24,7 @@ final class Updater {
 
 	public const REPO  = 'joychetry/wp-sites-hq-plugin';
 	public const ZIP   = 'wp-sites-hq.zip';
-	public const CACHE = 'monks_central_release';
+	public const CACHE = 'wpshq_release';
 	private const SLUG = 'wp-sites-hq';
 	// 12 hours.
 	private const CHECKED = 43200;
@@ -52,7 +52,7 @@ final class Updater {
 		if ( null === $release ) {
 			return $transient;
 		}
-		$file = plugin_basename( MONKS_CENTRAL_FILE );
+		$file = plugin_basename( WPSHQ_FILE );
 		$item = (object) array(
 			'id'           => 'github.com/' . self::REPO,
 			'slug'         => self::SLUG,
@@ -64,7 +64,7 @@ final class Updater {
 			'requires_php' => '8.1',
 		);
 		// Core fills `checked` from disk; the constant is stale in the request that just installed the update.
-		$installed = (string) ( $transient->checked[ $file ] ?? MONKS_CENTRAL_VERSION );
+		$installed = (string) ( $transient->checked[ $file ] ?? WPSHQ_VERSION );
 		if ( version_compare( $release['version'], $installed, '>' ) ) {
 			$transient->response[ $file ] = $item;
 		} else {
@@ -116,7 +116,7 @@ final class Updater {
 		}
 		$expected = $this->checksum( $release['checksum'] );
 		if ( null === $expected ) {
-			return new WP_Error( 'monks_central_no_checksum', __( 'The update has no SHA-256 checksum, so it was not installed.', 'wp-sites-hq' ) );
+			return new WP_Error( 'wpshq_no_checksum', __( 'The update has no SHA-256 checksum, so it was not installed.', 'wp-sites-hq' ) );
 		}
 		if ( ! function_exists( 'download_url' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -127,7 +127,7 @@ final class Updater {
 		}
 		if ( ! self::matches( $file, $expected ) ) {
 			wp_delete_file( $file );
-			return new WP_Error( 'monks_central_checksum_mismatch', __( 'The downloaded update does not match its SHA-256 checksum, so it was not installed.', 'wp-sites-hq' ) );
+			return new WP_Error( 'wpshq_checksum_mismatch', __( 'The downloaded update does not match its SHA-256 checksum, so it was not installed.', 'wp-sites-hq' ) );
 		}
 		return $file;
 	}

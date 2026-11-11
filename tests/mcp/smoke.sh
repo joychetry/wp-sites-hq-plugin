@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Smoke test for the MCP endpoint. Needs Connect to Monks Central on. Run: bash tests/mcp/smoke.sh
+# Smoke test for the MCP endpoint. Needs Connect to WP Sites HQ on. Run: bash tests/mcp/smoke.sh
 . "$(dirname "$0")/lib.sh"
 # Approvals have their own suite; skip them here.
 wpe "update_user_meta(1, 'cm_mcp_trusted', ['$MCP_UUID' => true]);" >/dev/null

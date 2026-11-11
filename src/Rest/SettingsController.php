@@ -2,20 +2,20 @@
 /**
  * REST endpoint for the settings screen.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral\Rest;
+namespace WPSitesHQ\Rest;
 
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
-use MonksCentral\Settings;
+use WPSitesHQ\Settings;
 
 /**
- * GET and POST `/monks-central/v1/settings`. Admins only. The nonce is checked by core's REST cookie auth.
+ * GET and POST `/wp-sites-hq/v1/settings`. Admins only. The nonce is checked by core's REST cookie auth.
  */
 final class SettingsController extends WP_REST_Controller {
 
@@ -25,7 +25,7 @@ final class SettingsController extends WP_REST_Controller {
 	 * @param Settings $settings Plugin settings.
 	 */
 	public function __construct( private Settings $settings ) {
-		$this->namespace = 'monks-central/v1';
+		$this->namespace = 'wp-sites-hq/v1';
 		$this->rest_base = 'settings';
 	}
 
@@ -103,7 +103,7 @@ final class SettingsController extends WP_REST_Controller {
 		if ( ! $this->schema ) {
 			$this->schema = array(
 				'$schema'    => 'http://json-schema.org/draft-04/schema#',
-				'title'      => 'monks-central-settings',
+				'title'      => 'wp-sites-hq-settings',
 				'type'       => 'object',
 				'properties' => Settings::fields(),
 			);
@@ -119,7 +119,7 @@ final class SettingsController extends WP_REST_Controller {
 			return true;
 		}
 		return new WP_Error(
-			'monks_central_forbidden',
+			'wpshq_forbidden',
 			__( 'Sorry, you are not allowed to manage these settings.', 'wp-sites-hq' ),
 			array( 'status' => rest_authorization_required_code() )
 		);

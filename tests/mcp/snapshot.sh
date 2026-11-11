@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Monks Central M4: get-site-snapshot. Run: bash tests/mcp/snapshot.sh
+# WP Sites HQ M4: get-site-snapshot. Run: bash tests/mcp/snapshot.sh
 . "$(dirname "$0")/lib.sh"
 trap 'wpe "delete_site_transient(\"update_plugins\"); delete_transient(\"health-check-site-status-result\");" >/dev/null; revoke "$MCP_UUID"; revoke "$PLAIN_UUID"' EXIT
 sc() { jq -c ".result.structuredContent$2" <<<"$1"; }

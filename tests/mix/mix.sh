@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Every mix of the plugins that bundle the connector, on throwaway php -S sites: Classic Monks (Free), Classic Monks
-# Pro and Monks Central, each alone, Free + Monks Central, Pro + Monks Central, and all three. Checks that exactly one
+# Pro and WP Sites HQ, each alone, Free + WP Sites HQ, Pro + WP Sites HQ, and all three. Checks that exactly one
 # connector boots, the highest version wins (a tie goes to the first plugin loaded), and an MCP grant made at the start
 # keeps working, with its settings, while plugins are added, removed and switched.
 # Run: bash tests/mix/mix.sh   (env: CM_PORT (8888), CM_KEEP=1 keeps the last site, CM_WP_VERSION, CM_FREE and CM_PRO (repo paths, default ../classic-monks-lite
@@ -51,7 +51,7 @@ off() { $CM_WP --path="$ROOT" plugin deactivate "$@" --quiet 2>/dev/null; }
 # What booted: how many connector copies loaded, the running version and the plugin that runs it.
 booted() {
     wpe '$n = count(array_filter(get_included_files(), function ($f) { return "/connector/connector.php" === substr($f, -24); }));
-        echo $n, " ", defined("MONKS_CENTRAL_CONNECTOR_VERSION") && class_exists("Monks_Central_Connector") ? MONKS_CENTRAL_CONNECTOR_VERSION . " " . Monks_Central_Connector::host()["name"] : "none";'
+        echo $n, " ", defined("WPSHQ_CONNECTOR_VERSION") && class_exists("WPSHQ_Connector") ? WPSHQ_CONNECTOR_VERSION . " " . WPSHQ_Connector::host()["name"] : "none";'
 }
 # The MCP switch: every copy reads it from wp_options (Pro mirrors it into its own settings).
 enable() { wpe 'update_option("cm_mcp_enabled", 1, false);'; }
@@ -60,7 +60,7 @@ pro_ai() { wpe 'cm_update_option("enable_cm_ai", 1);'; }
 # grant: an MCP connection for admin with scope "site" (as the app's operator grants are minted, an Application
 # Password tagged with the MCP app id, which every copy accepts). Sets $AUTH and $UUID.
 grant() {
-    read -r UUID PASS <<<"$(wpe '$r = WP_Application_Passwords::create_new_application_password(1, ["name" => "Monks Central MCP · mix", "app_id" => "285c2739-211b-4f6f-98fb-121e7d24d97b"]); update_user_meta(1, "cm_mcp_scopes", [$r[1]["uuid"] => "site"]); echo $r[1]["uuid"], " ", $r[0];')"
+    read -r UUID PASS <<<"$(wpe '$r = WP_Application_Passwords::create_new_application_password(1, ["name" => "WP Sites HQ MCP · mix", "app_id" => "285c2739-211b-4f6f-98fb-121e7d24d97b"]); update_user_meta(1, "cm_mcp_scopes", [$r[1]["uuid"] => "site"]); echo $r[1]["uuid"], " ", $r[0];')"
     AUTH="admin:$PASS"
 }
 rpc() { curl -sk -u "$AUTH" -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"$1\",\"params\":${2:-{\}}}" "$MCP"; }
@@ -78,7 +78,7 @@ LIB=$(ver "$MC_DIR") FREE_LIB=$(ver "$FREE") PRO_LIB=$(ver "$PRO")
 # win NAME1 VERSION1 NAME2 VERSION2: what booted() shows for two copies loaded in this order (higher wins, a tie the first).
 win() { [[ $(printf '%s\n' "$2" "$4" | sort -V | tail -1) == "$2" ]] && echo "1 $2 $1" || echo "1 $4 $3"; }
 
-site 'Monks Central alone, then Free'
+site 'WP Sites HQ alone, then Free'
 on wp-sites-hq; enable; grant
 check 'MC alone boots one copy'        "$(booted)" "1 $LIB WP Sites HQ"
 works 'MC alone'
@@ -93,7 +93,7 @@ check 'Free alone after MC removed'    "$(booted)" "1 $FREE_LIB Classic Monks"
 works 'Free alone'
 echo "::endgroup::"
 
-site 'Pro alone, then Monks Central'
+site 'Pro alone, then WP Sites HQ'
 on classic-monks-pro; enable; pro_ai; grant
 check 'Pro alone boots one copy'       "$(booted)" "1 $PRO_LIB Classic Monks Pro"
 check '... its switch is the shared one' "$(wpe 'global $wpdb; echo $wpdb->get_var("SELECT option_value FROM {$wpdb->options} WHERE option_name = \"cm_mcp_enabled\"");')" 1

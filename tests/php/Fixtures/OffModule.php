@@ -2,10 +2,10 @@
 /**
  * Test module "off".
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral\Tests\Fixtures;
+namespace WPSitesHQ\Tests\Fixtures;
 
 final class OffModule extends RecordingModule {
 

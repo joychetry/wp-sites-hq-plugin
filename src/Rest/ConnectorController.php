@@ -2,24 +2,24 @@
 /**
  * REST endpoints for the connection screen.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral\Rest;
+namespace WPSitesHQ\Rest;
 
-use Monks_Central_Connector;
+use WPSHQ_Connector;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * `/monks-central/v1/connector`: the connector's data and actions for the React screen.
+ * `/wp-sites-hq/v1/connector`: the connector's data and actions for the React screen.
  * Admins only; the connector checks capabilities again for every action.
  */
 final class ConnectorController {
 
-	public const NAMESPACE = 'monks-central/v1';
+	public const NAMESPACE = 'wp-sites-hq/v1';
 
 	/**
 	 * Register the routes.
@@ -126,8 +126,8 @@ final class ConnectorController {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'You are not allowed to manage WP Sites HQ.', 'wp-sites-hq' ), array( 'status' => rest_authorization_required_code() ) );
 		}
-		if ( ! class_exists( 'Monks_Central_Connector' ) ) {
-			return new WP_Error( 'monks_central_no_connector', __( 'The connector is not loaded.', 'wp-sites-hq' ), array( 'status' => 503 ) );
+		if ( ! class_exists( 'WPSHQ_Connector' ) ) {
+			return new WP_Error( 'wpshq_no_connector', __( 'The connector is not loaded.', 'wp-sites-hq' ), array( 'status' => 503 ) );
 		}
 		return true;
 	}
@@ -138,11 +138,11 @@ final class ConnectorController {
 	public function get_screen(): WP_REST_Response {
 		return new WP_REST_Response(
 			array(
-				'state'       => Monks_Central_Connector::state(),
+				'state'       => WPSHQ_Connector::state(),
 				// Whether this plugin's copy runs; otherwise the running plugin's screen manages the connection.
-				'runs_here'   => ( Monks_Central_Connector::host()['file'] ?? '' ) === MONKS_CENTRAL_FILE,
-				'connections' => Monks_Central_Connector::connections(),
-				'pending'     => Monks_Central_Connector::pending(),
+				'runs_here'   => ( WPSHQ_Connector::host()['file'] ?? '' ) === WPSHQ_FILE,
+				'connections' => WPSHQ_Connector::connections(),
+				'pending'     => WPSHQ_Connector::pending(),
 			)
 		);
 	}
@@ -155,7 +155,7 @@ final class ConnectorController {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function set_enabled( WP_REST_Request $request ) {
-		$result = Monks_Central_Connector::set_enabled( (bool) $request['enabled'] );
+		$result = WPSHQ_Connector::set_enabled( (bool) $request['enabled'] );
 		return is_wp_error( $result ) ? $result : new WP_REST_Response( array( 'enabled' => (bool) $request['enabled'] ) );
 	}
 
@@ -167,7 +167,7 @@ final class ConnectorController {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function revoke( WP_REST_Request $request ) {
-		return $this->respond( Monks_Central_Connector::revoke( (int) $request['user_id'], (string) $request['id'] ) );
+		return $this->respond( WPSHQ_Connector::revoke( (int) $request['user_id'], (string) $request['id'] ) );
 	}
 
 	/**
@@ -178,7 +178,7 @@ final class ConnectorController {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function set_operator( WP_REST_Request $request ) {
-		return $this->respond( Monks_Central_Connector::set_operator_skip( (int) $request['user_id'], (string) $request['id'], (bool) $request['skip'] ) );
+		return $this->respond( WPSHQ_Connector::set_operator_skip( (int) $request['user_id'], (string) $request['id'], (bool) $request['skip'] ) );
 	}
 
 	/**
@@ -190,7 +190,7 @@ final class ConnectorController {
 	public function get_activity( WP_REST_Request $request ): WP_REST_Response {
 		$per_page = (int) $request['per_page'];
 		return new WP_REST_Response(
-			Monks_Central_Connector::activity(
+			WPSHQ_Connector::activity(
 				array(
 					'limit'  => $per_page,
 					'offset' => ( (int) $request['page'] - 1 ) * $per_page,
@@ -207,7 +207,7 @@ final class ConnectorController {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function undo( WP_REST_Request $request ) {
-		$result = Monks_Central_Connector::undo( (int) $request['row'] );
+		$result = WPSHQ_Connector::undo( (int) $request['row'] );
 		if ( is_wp_error( $result ) && ! isset( ( (array) $result->get_error_data() )['status'] ) ) {
 			$result->add_data( array( 'status' => 409 ) );
 		}

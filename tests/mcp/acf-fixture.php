@@ -1,6 +1,6 @@
 <?php
 /**
- * ACF test fixture: a field group on posts with one field of every type Monks Central edits, plus a few it
+ * ACF test fixture: a field group on posts with one field of every type WP Sites HQ edits, plus a few it
  * shows read-only, and optionally a post filled in. Used by acf.sh and to set up Studio sites.
  * Run: wp eval-file tests/mcp/acf-fixture.php "<group title>" [<post ID to fill>]
  * Prints the group key. Types missing from the active ACF build (repeater, gallery, flexible content in ACF free) are skipped.
@@ -40,7 +40,7 @@ $fields = array(
     $f( 'user' ),
     $f( 'group', array( 'sub_fields' => array( $f( 'group_line', array( 'name' => 'line', 'label' => 'Line', 'type' => 'text' ) ), $f( 'group_count', array( 'name' => 'count', 'label' => 'Count', 'type' => 'number', 'max' => 5 ) ) ) ) ),
     $f( 'oembed' ),
-    $f( 'message', array( 'message' => 'Fields Monks Central edits are above.' ) ),
+    $f( 'message', array( 'message' => 'Fields WP Sites HQ edits are above.' ) ),
 );
 if ( acf_get_field_type( 'repeater' ) ) {
     $fields[] = $f( 'repeater', array( 'sub_fields' => array( $f( 'repeater_label', array( 'name' => 'label', 'label' => 'Label', 'type' => 'text', 'required' => 1 ) ), $f( 'repeater_photo', array( 'name' => 'photo', 'label' => 'Photo', 'type' => 'image' ) ) ) ) );
@@ -63,7 +63,7 @@ if ( ! empty( $args[1] ) ) {
     $other = (int) ( get_posts( array( 'numberposts' => 1, 'exclude' => array( $post ), 'fields' => 'ids' ) )[0] ?? 0 );
     $page  = (int) ( get_posts( array( 'post_type' => 'page', 'numberposts' => 1, 'fields' => 'ids' ) )[0] ?? 0 );
     $values = array(
-        'text'             => 'Hello from Monks Central',
+        'text'             => 'Hello from WP Sites HQ',
         'textarea'         => "Two\nlines",
         'number'           => 7,
         'range'            => 40,

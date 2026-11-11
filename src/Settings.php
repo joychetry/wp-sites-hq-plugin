@@ -2,20 +2,20 @@
 /**
  * Plugin settings, stored in one non-autoloaded option.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral;
+namespace WPSitesHQ;
 
 /**
- * Reads, sanitizes and saves the `monks_central_settings` option.
+ * Reads, sanitizes and saves the `wpshq_settings` option.
  *
  * The fields() list is the single source of truth: defaults, sanitizing and the REST schema all come from it.
  * To add a setting, add a field here and a matching control on the admin screen.
  */
 final class Settings {
 
-	public const OPTION = 'monks_central_settings';
+	public const OPTION = 'wpshq_settings';
 
 	/**
 	 * Setting fields as JSON Schema. Supported types: boolean, integer, string, and the

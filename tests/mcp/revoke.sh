@@ -43,8 +43,8 @@ pw() { wpe "echo WP_Application_Passwords::create_new_application_password($1, [
 P1=$(pw "$A" agent1)
 P2=$(pw "$A" agent2)
 AP=$(wpe "echo wp_insert_post(['post_title' => 'cm agent post', 'post_author' => $A]);")
-flag() { wpe "wp_set_current_user(1); foreach (Monks_Central_Connector::connections() as \$r) { if (\$r['uuid'] === '$1') { echo \$r['agent_user'] ? 'yes' : 'no'; } }"; }
-rv() { wpe "wp_set_current_user(1); \$r = Monks_Central_Connector::revoke($1, '$2'); echo is_wp_error(\$r) ? \$r->get_error_code() : 'ok';"; }
+flag() { wpe "wp_set_current_user(1); foreach (WPSHQ_Connector::connections() as \$r) { if (\$r['uuid'] === '$1') { echo \$r['agent_user'] ? 'yes' : 'no'; } }"; }
+rv() { wpe "wp_set_current_user(1); \$r = WPSHQ_Connector::revoke($1, '$2'); echo is_wp_error(\$r) ? \$r->get_error_code() : 'ok';"; }
 exists() { wpe "echo get_userdata($1) ? 'yes' : 'no';"; }
 check 'agent with two connections is not flagged' "$(flag "$P1")" no
 check 'revoking one of two connections'           "$(rv "$A" "$P1")" ok

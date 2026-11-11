@@ -2,13 +2,13 @@
 /**
  * GitHub release updates and the SHA-256 check.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
-namespace MonksCentral\Tests;
+namespace WPSitesHQ\Tests;
 
 use Brain\Monkey\Functions;
-use MonksCentral\Updater;
+use WPSitesHQ\Updater;
 
 /**
  * Release parsing, the update offer and the checksum gate.
@@ -132,7 +132,7 @@ final class UpdaterTest extends TestCase {
 		$result = ( new Updater() )->download( false, self::ZIP );
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'monks_central_checksum_mismatch', $result->get_error_code() );
+		$this->assertSame( 'wpshq_checksum_mismatch', $result->get_error_code() );
 		$this->assertFileDoesNotExist( $file );
 	}
 

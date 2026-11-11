@@ -44,8 +44,8 @@ login() {
     curl -sk -c "$1" -b 'wordpress_test_cookie=WP%20Cookie%20check' -o /dev/null \
         --data-urlencode "log=${2:-${CM_ADMIN_USER:-admin}}" --data-urlencode "pwd=${3:-${CM_ADMIN_PASS:-admin}}" -d 'testcookie=1' "$SITE/wp-login.php"
 }
-MC_PAGE="$SITE/wp-admin/options-general.php?page=monks-central"
-MC_API="$SITE/wp-json/monks-central/v1/connector"
+MC_PAGE="$SITE/wp-admin/options-general.php?page=wp-sites-hq"
+MC_API="$SITE/wp-json/wp-sites-hq/v1/connector"
 # mc_rest JAR METHOD PATH [JSON]: calls the connection screen's REST route (PATH after /connector) as the jar's user,
 # with a REST nonce for that session; prints the HTTP status, a space and the body.
 mc_rest() {

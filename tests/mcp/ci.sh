@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Boots a throwaway WordPress (SQLite, PHP built-in server, like Studio) with this plugin and runs the Monks Central suites.
+# Boots a throwaway WordPress (SQLite, PHP built-in server, like Studio) with this plugin and runs the WP Sites HQ suites.
 # Runs locally; needs php (pdo_sqlite), wp-cli, curl, unzip, jq, openssl, python3, rsync.
 # Run: bash tests/mcp/ci.sh [suite ...]   (default: every suite below; env: CM_WP_VERSION, CM_PORT, CM_SITE_ROOT, CM_WOO, CM_ELEMENTOR)
 # CM_WOO=1 installs WooCommerce, CM_ELEMENTOR=1 Elementor; CM_BRICKS_ZIP=<path to the Bricks theme zip> installs and activates
@@ -34,7 +34,7 @@ define( 'WP_DEBUG', true );
 define( 'WP_DEBUG_LOG', true );
 define( 'WP_DEBUG_DISPLAY', false );
 PHP
-w core install --url="$CM_SITE" --title='Monks Central CI' --admin_user=admin --admin_password=admin --admin_email=admin@example.com --skip-email --quiet
+w core install --url="$CM_SITE" --title='WP Sites HQ CI' --admin_user=admin --admin_password=admin --admin_email=admin@example.com --skip-email --quiet
 w rewrite structure '/%postname%/' --quiet
 # The plugin runs from vendor/ (autoload) and build/ (screens): composer install and npm run build first.
 [[ -f $PLUGIN_DIR/vendor/autoload.php && -f $PLUGIN_DIR/build/admin.js ]] || { echo "run composer install and npm run build first"; exit 1; }
@@ -55,10 +55,10 @@ if [[ -n ${CM_ELEMENTOR:-} ]]; then
     w transient delete elementor_activation_redirect --quiet # else the first wp-admin visit lands on its onboarding
 fi
 [[ -z ${CM_BRICKS_ZIP:-} ]] || w theme install "$CM_BRICKS_ZIP" --activate --quiet
-# Connect to Monks Central is off by default.
+# Connect to WP Sites HQ is off by default.
 w option update cm_mcp_enabled 1 --quiet
 if [[ $(printf '%s\n' 7.1 "$WP_VERSION" | sort -V | head -1) == 7.1 ]]; then
-    [[ $(w eval 'echo class_exists("WPSHQ_MCP_Server") ? "on" : "off";') == on ]] || { echo "Monks Central did not load"; exit 1; }
+    [[ $(w eval 'echo class_exists("WPSHQ_MCP_Server") ? "on" : "off";') == on ]] || { echo "WP Sites HQ did not load"; exit 1; }
 fi
 set +e
 

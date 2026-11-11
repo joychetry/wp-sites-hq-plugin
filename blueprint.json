@@ -1,6 +1,6 @@
 {
 	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
-	"landingPage": "/wp-admin/options-general.php?page=monks-central",
+	"landingPage": "/wp-admin/options-general.php?page=wp-sites-hq",
 	"preferredVersions": {
 		"php": "8.3",
 		"wp": "latest"

@@ -1,7 +1,7 @@
 /**
  * Admin app for Settings > WP Sites HQ. Initial data comes from
- * window.monksCentralAdmin (Admin/Page.php); the connection screen talks to
- * /monks-central/v1/connector, module toggles are saved to /monks-central/v1/settings.
+ * window.wpshqAdmin (Admin/Page.php); the connection screen talks to
+ * /wp-sites-hq/v1/connector, module toggles are saved to /wp-sites-hq/v1/settings.
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Notice } from '@wordpress/components';
@@ -12,16 +12,14 @@ import Modules from './modules';
 import './admin.css';
 
 function App() {
-	const [ settings, setSettings ] = useState(
-		window.monksCentralAdmin.settings
-	);
+	const [ settings, setSettings ] = useState( window.wpshqAdmin.settings );
 	const [ notice, setNotice ] = useState( null );
 
 	const save = async ( changes ) => {
 		setNotice( null );
 		try {
 			const saved = await apiFetch( {
-				path: '/monks-central/v1/settings',
+				path: '/wp-sites-hq/v1/settings',
 				method: 'POST',
 				data: changes,
 			} );
@@ -36,7 +34,7 @@ function App() {
 	};
 
 	return (
-		<div className="monks-central-admin">
+		<div className="wp-sites-hq-admin">
 			{ notice && (
 				<Notice
 					status={ notice.status }
@@ -45,9 +43,9 @@ function App() {
 					{ notice.text }
 				</Notice>
 			) }
-			{ window.monksCentralAdmin.connector ? (
+			{ window.wpshqAdmin.connector ? (
 				<Connector
-					initial={ window.monksCentralAdmin.connector }
+					initial={ window.wpshqAdmin.connector }
 					onNotice={ setNotice }
 				/>
 			) : (
@@ -55,9 +53,9 @@ function App() {
 					{ __( 'The connector is not loaded.', 'wp-sites-hq' ) }
 				</Notice>
 			) }
-			{ window.monksCentralAdmin.modules.length > 0 && (
+			{ window.wpshqAdmin.modules.length > 0 && (
 				<Modules
-					modules={ window.monksCentralAdmin.modules }
+					modules={ window.wpshqAdmin.modules }
 					enabled={ settings.modules }
 					onToggle={ ( id, on ) =>
 						save( { modules: { [ id ]: on } } )
@@ -68,6 +66,4 @@ function App() {
 	);
 }
 
-createRoot( document.getElementById( 'monks-central-admin' ) ).render(
-	<App />
-);
+createRoot( document.getElementById( 'wp-sites-hq-admin' ) ).render( <App /> );

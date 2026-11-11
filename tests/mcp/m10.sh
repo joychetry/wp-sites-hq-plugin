@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Monks Central M10 safe update helpers over MCP: get-http-status, get-error-log-since, set-maintenance-mode and
+# WP Sites HQ M10 safe update helpers over MCP: get-http-status, get-error-log-since, set-maintenance-mode and
 # update-plugin's safe mode (roll back an update that fatals). Run: bash tests/mcp/m10.sh
 . "$(dirname "$0")/lib.sh"
 . "$(dirname "$0")/oauth-lib.sh"
@@ -74,7 +74,7 @@ L=$(rpc tools/list)
 for t in get-http-status get-error-log-since set-maintenance-mode; do
     check "$t is hidden from a full app password" "$L" "!~\"name\":\"$t\""
 done
-T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'Monks Central' -d operator=1)
+T=$(connect "${CM_ADMIN_USER:-admin}" "${CM_ADMIN_PASS:-admin}" 'WP Sites HQ' -d operator=1)
 OP=$(jq -r .access_token <<<"$T"); FAM=$(jq -r .family <<<"$T")
 rpc() { brpc "$OP" "$@"; }
 L=$(rpc tools/list)
@@ -123,7 +123,7 @@ R=$(call get-error-log-since "{\"offset\":$M}")
 check 'a rotated log is read from the start' "$(sc "$R" '[(.lines | length), .fatal] | @json')" '[1,1]'
 cat "$LOG" >>"$SAVED"; mv "$SAVED" "$LOG"
 
-# set-maintenance-mode outside Monks Central's connection never runs, and isn't in the REST list.
+# set-maintenance-mode outside WP Sites HQ's connection never runs, and isn't in the REST list.
 check 'maintenance mode is not in the REST list' "$(wpe "var_export(wp_get_ability('classic-monks/set-maintenance-mode')->get_meta_item('show_in_rest'));")" false
 check 'nor run for an administrator outside MCP' "$(wpe "wp_set_current_user(1); \$r = wp_get_ability('classic-monks/set-maintenance-mode')->execute(['on' => true]); echo is_wp_error(\$r) ? \$r->get_error_code() : 'ran';")" cm_operator_only
 

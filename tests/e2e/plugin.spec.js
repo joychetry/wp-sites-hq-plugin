@@ -32,14 +32,14 @@ test( 'plugin is active', async ( { page } ) => {
 } );
 
 test( 'admin screen renders', async ( { page } ) => {
-	await visit( page, '/wp-admin/options-general.php?page=monks-central' );
+	await visit( page, '/wp-admin/options-general.php?page=wp-sites-hq' );
 	await expect(
 		page.getByRole( 'heading', { name: 'Connect to WP Sites HQ' } )
 	).toBeVisible();
 } );
 
 test( 'connector switches on and off', async ( { page } ) => {
-	await visit( page, '/wp-admin/options-general.php?page=monks-central' );
+	await visit( page, '/wp-admin/options-general.php?page=wp-sites-hq' );
 	const toggle = page.getByLabel( 'Allow WP Sites HQ to connect' );
 	await toggle.click();
 	await expect(

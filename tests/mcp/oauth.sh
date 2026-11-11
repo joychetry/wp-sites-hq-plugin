@@ -149,8 +149,8 @@ wpe "global \$wpdb; \$wpdb->query(\"UPDATE {\$wpdb->prefix}cm_mcp_oauth_tokens S
 H=$(curl -sk -D - -H "Authorization: Bearer $AT3" -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' "$MCP")
 check 'expired token is 401 + WWW-Authenticate' "$(tr '[:upper:]' '[:lower:]' <<<"$H")" '~www-authenticate: bearer resource_metadata='
 
-# --- Revoke on Settings > Monks Central (its REST route, as admin)
-check 'revoke from the Monks Central screen' "$(mc_rest "$JAR" DELETE /connections "{\"user_id\":1,\"id\":\"oauth:$FAM3\"}")" '~200 {"state"'
+# --- Revoke on Settings > WP Sites HQ (its REST route, as admin)
+check 'revoke from the WP Sites HQ screen' "$(mc_rest "$JAR" DELETE /connections "{\"user_id\":1,\"id\":\"oauth:$FAM3\"}")" '~200 {"state"'
 check 'revoked grant is gone'                "$(wpe "global \$wpdb; echo (int) \$wpdb->get_var(\"SELECT COUNT(*) FROM {\$wpdb->prefix}cm_mcp_oauth_tokens WHERE family = '$FAM3'\");")" 0
 check 'revoked grant settings forgotten'     "$(wpe "echo isset(get_user_meta(1, 'cm_mcp_scopes', true)['oauth:$FAM3']) ? 'kept' : 'gone';")" gone
 
