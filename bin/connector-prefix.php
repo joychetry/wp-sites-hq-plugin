@@ -18,7 +18,7 @@
  * wp eval, docs) whole-word matches change, except the names listed in the map's "ambiguous" list, which are also
  * stored names and need a look by hand.
  *
- * @package MonksCentral
+ * @package WPSitesHQ
  */
 
 // Hook functions => zero-based position of the hook name argument.
