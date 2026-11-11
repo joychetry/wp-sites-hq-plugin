@@ -19,9 +19,16 @@ check 'site toolset hides content tools'      "$L" '!~"name":"get-posts"'
 settoolsets "array_keys(WPSHQ_MCP_Server::toolsets())"
 check 'get-plugins lists WP Sites HQ'      "$(call get-plugins)" '~"name":"WP Sites HQ"'
 check 'search-plugins'                        "$(call search-plugins '{"search":"classic monks"}')" '!~"isError":true'
+MU="$SITE_ROOT/wp-content/mu-plugins/zz-cm-test-site.php"
+trap 'rm -f "$MU"; revoke "$MCP_UUID"; revoke "$PLAIN_UUID"' EXIT
+mkdir -p "$(dirname "$MU")" # forces auto-updates off/on whatever wp-config says
+echo "<?php add_filter('automatic_updater_disabled', '__return_true');" >"$MU"
+check 'auto-update refused when updates off'  "$(call set-plugin-auto-update '{"slug":"wp-sites-hq","enabled":true}')" '~cm_auto_updates_disabled'
+echo "<?php add_filter('automatic_updater_disabled', '__return_false');" >"$MU"
 check 'set-plugin-auto-update'                "$(call set-plugin-auto-update '{"slug":"wp-sites-hq","enabled":true}')" '!~"isError":true'
 check '... stored'                            "$(wpe 'echo in_array("wp-sites-hq/wp-sites-hq.php", (array) get_site_option("auto_update_plugins"), true) ? "on" : "off";')" on
 call set-plugin-auto-update '{"slug":"wp-sites-hq","enabled":false}' >/dev/null
+rm -f "$MU"
 # wp.org guideline 8: Free installs from WordPress.org by slug only.
 check 'install-plugin has no source_url'      "$L" '!~source_url'
 check 'install-plugin refuses source_url'     "$(call install-plugin '{"source_url":"https://example.com/x.zip"}')" '~source_url is not a valid property'

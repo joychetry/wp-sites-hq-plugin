@@ -48,6 +48,9 @@ define( 'WP_ENVIRONMENT_TYPE', 'local' );
 define( 'WP_DEBUG', true );
 define( 'WP_DEBUG_LOG', true );
 define( 'WP_DEBUG_DISPLAY', false );
+// Throwaway test site: never auto-update core, plugins, themes or translations from cron mid-run (it answers 503 while it does).
+define( 'AUTOMATIC_UPDATER_DISABLED', true );
+define( 'WP_AUTO_UPDATE_CORE', false );
 PHP
 w core install --url="$SITE" --title='WP Sites HQ fresh site' --admin_user=admin --admin_password=admin --admin_email=admin@example.com --skip-email --quiet
 w rewrite structure '/%postname%/' --quiet
