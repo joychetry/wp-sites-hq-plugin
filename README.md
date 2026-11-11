@@ -52,10 +52,10 @@ with `WP_DEBUG` on.
 - `wp-sites-hq.php`: header, constants, autoloader, boot on `plugins_loaded`.
 - `src/Plugin.php`: the module registry. Modules are listed in one array; only
   enabled ones register hooks.
-- `src/Settings.php`: the `monks_central_settings` option (not autoloaded).
+- `src/Settings.php`: the `wpshq_settings` option (not autoloaded).
   Fields are declared once as JSON Schema; defaults, sanitizing and the REST
   schema follow.
-- `src/Rest/SettingsController.php`: `GET`/`POST /monks-central/v1/settings`,
+- `src/Rest/SettingsController.php`: `GET`/`POST /wp-sites-hq/v1/settings`,
   admins only.
 - `src/Admin/Page.php` + `assets-src/admin/`: Settings > WP Sites HQ, a React
   app (connected apps, approvals, activity). Loads on that screen only.
@@ -63,7 +63,7 @@ with `WP_DEBUG` on.
   `templates/consent.php`: this plugin's side of the connector's UI interface.
 - `src/Updater.php`: updates from GitHub releases, SHA-256 checked. Left out of
   the wp.org build (`bin/build-zip.sh --wporg`).
-- `connector/`: the shared `monks-central-connector` library, with its own
+- `connector/`: the shared WP Sites HQ connector library, with its own
   version (`connector/version.php`) and suites in `connector/tests/`.
 - `tests/php/`: PHPUnit with Brain Monkey. `tests/e2e/`: Playwright on Playground.
   `tests/mcp/ci.sh`: the connector suites on a throwaway site. `tests/mix/`: every

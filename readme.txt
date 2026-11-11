@@ -75,7 +75,7 @@ Other requests happen only when a connected app or you ask for them, and only to
 * Connector 1.2.1: dates from the read tools (posts, pages, users, comments, media) now use the standard RFC 3339 format, so strict AI clients no longer reject them.
 
 = 0.2.0 - 2026-10-31 =
-* Renamed WP Sites HQ, in folder wp-sites-hq. Sites on Monks Central 0.1.x get the 0.1.4 bridge, whose Move this site button moves them in one click. Settings and connections stay.
+* Renamed WP Sites HQ, in folder wp-sites-hq.
 * Connector 1.2.0: WP Sites HQ in every visible string; the app's old grants show the new name.
 
 = 0.1.3 - 2026-10-29 =
@@ -92,8 +92,8 @@ Other requests happen only when a connected app or you ask for them, and only to
 * Connector 1.1.1: an agent account is removed when its last connection is revoked, and its content goes to the administrator who revoked it.
 
 = 0.1.0 =
-* First release: the Monks Central site connector (connector 1.1.0) with OAuth 2.1 sign-in, the MCP endpoint, approvals, the activity log with Undo, login links, and tools for plugins, themes, updates, content, media, custom fields, users, comments and site snapshots.
-* Settings > Monks Central: connected apps and their permissions, changes waiting for approval, and activity.
+* First release: the WP Sites HQ site connector (connector 1.1.0) with OAuth 2.1 sign-in, the MCP endpoint, approvals, the activity log with Undo, login links, and tools for plugins, themes, updates, content, media, custom fields, users, comments and site snapshots.
+* Settings > WP Sites HQ: connected apps and their permissions, changes waiting for approval, and activity.
 * Its own consent page for apps signing in.
 * Updates from GitHub releases, installed only when the SHA-256 checksum matches.
 * Runs alongside Classic Monks and Classic Monks Pro: one connector runs, connections are kept.

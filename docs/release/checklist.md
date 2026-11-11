@@ -16,7 +16,7 @@ download. Releases stay non-draft and non-pre-release once published, so
    `bash tests/mcp/ci.sh`, then `bin/build-zip.sh` and
    `bash tests/release/fresh-site.sh <app checkout>`.
 2. Check the version and date in `wp-sites-hq.php` (header and
-   `MONKS_CENTRAL_VERSION`), `readme.txt` (Stable tag and changelog),
+   `WPSHQ_VERSION`), `readme.txt` (Stable tag and changelog),
    `package.json` and its lock, the PHP test bootstraps and `CHANGELOG.md`.
    The release workflow refuses a tag that does not match the header and the
    Stable tag.
