@@ -247,21 +247,13 @@
         "cm_undo_update_post_metadata": "wpshq_undo_update_post_metadata",
         "cm_undo_update_term": "wpshq_undo_update_term",
         "cm_undo_update_user": "wpshq_undo_update_user",
-        "cm_update_term_fields": "wpshq_update_term_fields",
-        "monks_central_connector_boot": "wpshq_connector_boot",
-        "monks_central_connector_copies": "wpshq_connector_copies",
-        "monks_central_connector_other_hosts": "wpshq_connector_other_hosts",
-        "monks_central_connector_pick": "wpshq_connector_pick",
-        "monks_central_connector_register": "wpshq_connector_register",
-        "monks_central_connector_uninstall": "wpshq_connector_uninstall"
+        "cm_update_term_fields": "wpshq_update_term_fields"
     },
     "classes": {
         "CM_AI_Activity_Log": "WPSHQ_AI_Activity_Log",
         "CM_MCP_Approvals": "WPSHQ_MCP_Approvals",
         "CM_MCP_OAuth": "WPSHQ_MCP_OAuth",
-        "CM_MCP_Server": "WPSHQ_MCP_Server",
-        "Monks_Central_Connector": "WPSHQ_Connector",
-        "Monks_Central_Connector_UI": "WPSHQ_Connector_UI"
+        "CM_MCP_Server": "WPSHQ_MCP_Server"
     },
     "constants": {
         "CM_ACF_EDITABLE": "WPSHQ_ACF_EDITABLE",
@@ -271,9 +263,7 @@
         "CM_LOGIN_LINK_TTL": "WPSHQ_LOGIN_LINK_TTL",
         "CM_MCP_APP_ID": "WPSHQ_MCP_APP_ID",
         "CM_MCP_ROUTE": "WPSHQ_MCP_ROUTE",
-        "CM_UPLOAD_CHUNK_MAX": "WPSHQ_UPLOAD_CHUNK_MAX",
-        "MONKS_CENTRAL_CONNECTOR_DIR": "WPSHQ_CONNECTOR_DIR",
-        "MONKS_CENTRAL_CONNECTOR_VERSION": "WPSHQ_CONNECTOR_VERSION"
+        "CM_UPLOAD_CHUNK_MAX": "WPSHQ_UPLOAD_CHUNK_MAX"
     },
     "globals": {
         "cm_mcp_buffer_level": "wpshq_mcp_buffer_level"
@@ -282,18 +272,7 @@
         "cm_ai_log_reads": "wpshq_ai_log_reads",
         "cm_ai_operation_logged": "wpshq_ai_operation_logged",
         "cm_mcp_skills": "wpshq_mcp_skills",
-        "cm_theme_sandbox_check_url": "wpshq_theme_sandbox_check_url",
-        "monks_central_activity_caller": "wpshq_activity_caller",
-        "monks_central_default_toolsets": "wpshq_default_toolsets",
-        "monks_central_error_hints": "wpshq_error_hints",
-        "monks_central_hq_modules": "wpshq_hq_modules",
-        "monks_central_hq_status": "wpshq_hq_status",
-        "monks_central_instructions": "wpshq_instructions",
-        "monks_central_load_abilities": "wpshq_load_abilities",
-        "monks_central_register_abilities": "wpshq_register_abilities",
-        "monks_central_scope_descriptions": "wpshq_scope_descriptions",
-        "monks_central_tool_enabled": "wpshq_tool_enabled",
-        "monks_central_toolsets": "wpshq_toolsets"
+        "cm_theme_sandbox_check_url": "wpshq_theme_sandbox_check_url"
     },
     "kept_prefixed": {
         "title": "globals",
