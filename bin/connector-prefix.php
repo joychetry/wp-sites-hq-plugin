@@ -1,7 +1,7 @@
 <?php
 /**
- * Renames the connector library's global symbols from the cm_ / CM_ and monks_central_ / Monks_Central_ /
- * MONKS_CENTRAL_ development-build prefixes to wpshq_ / WPSHQ_, with PHP's tokenizer,
+ * Renames the connector library's global symbols from the cm_ / CM_ prefixes to wpshq_ / WPSHQ_, with PHP's
+ * tokenizer,
  * so stored and wire names (options, meta, tables, REST routes, ability names, cron hooks, nonces, error codes) that
  * share the old prefix keep their exact text.
  *
@@ -52,10 +52,10 @@ const WPSHQ_PREFIX_HOOK_ARG = array(
 const WPSHQ_PREFIX_FIRES = array( 'do_action', 'do_action_ref_array', 'apply_filters', 'apply_filters_ref_array' );
 
 // Old prefixes, matched case-insensitively.
-const WPSHQ_PREFIX_OLD = '/^(cm_|monks_central_)/i';
+const WPSHQ_PREFIX_OLD = '/^cm_/i';
 
 /**
- * New name for an old one: cm_x / monks_central_x => wpshq_x, CM_X / Monks_Central_X / MONKS_CENTRAL_X => WPSHQ_X.
+ * New name for an old one: cm_x => wpshq_x, CM_X => WPSHQ_X.
  *
  * @param string $old Old name.
  * @return string
@@ -417,8 +417,8 @@ $x = apply_filters( 'cm_hook', 'CM_Thing::cm_go' );
 update_option( 'cm_hook', 1 );
 $y = new CM_Thing(); $y->cm_go(); \cm_go(); class_exists( 'CM_Thing' ); defined( 'CM_TTL' ); defined( 'CM_OTHER' );
 $GLOBALS['cm_level'] = 1; global $cm_list; $cm_list = $GLOBALS['cm_level']; $cm_local = 2;
-define( 'MONKS_CENTRAL_X_DIR', 1 ); interface Monks_Central_X_UI {} function monks_central_x_go() { do_action( 'monks_central_x_ready', MONKS_CENTRAL_X_DIR ); }
-add_action( 'monks_central_x_ready', 'monks_central_x_go' ); is_subclass_of( 'A', 'Monks_Central_X_UI' ); class B implements \Monks_Central_X_UI {}
+define( 'CM_X_DIR', 1 ); interface CM_X_UI {} function cm_x_go() { do_action( 'cm_x_ready', CM_X_DIR ); }
+add_action( 'cm_x_ready', 'cm_x_go' ); is_subclass_of( 'A', 'CM_X_UI' ); class B implements \CM_X_UI {}
 PHP;
 	$want = <<<'PHP'
 <?php
