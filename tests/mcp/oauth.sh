@@ -13,14 +13,17 @@ VERIFIER=$(openssl rand -hex 40)
 CHALLENGE=$(printf %s "$VERIFIER" | openssl dgst -sha256 -binary | b64url)
 REDIRECT=http://127.0.0.1/callback
 RES_ENC=$(urlenc "$MCP")
+ISS="$SITE/classic-monks/v1"
 
 # --- Discovery
 PRM=$(curl -sk "$SITE/.well-known/oauth-protected-resource/wp-json/classic-monks/v1/mcp")
 check 'PRM resource is the MCP URL'          "$(jq -r .resource <<<"$PRM")" "$MCP"
-check 'PRM names this site as AS'            "$(jq -r '.authorization_servers[0]' <<<"$PRM")" "$SITE"
+check 'PRM names our own issuer as AS'       "$(jq -r '.authorization_servers[0]' <<<"$PRM")" "$ISS"
 check 'root PRM works too'                   "$(curl -sk "$SITE/.well-known/oauth-protected-resource" | jq -r .resource)" "$MCP"
-ASM=$(curl -sk "$SITE/.well-known/oauth-authorization-server")
-check 'AS issuer'                            "$(jq -r .issuer <<<"$ASM")" "$SITE"
+ASM=$(curl -sk "$SITE/.well-known/oauth-authorization-server/classic-monks/v1")
+check 'AS issuer'                            "$(jq -r .issuer <<<"$ASM")" "$ISS"
+check 'AS on OIDC append form'               "$(curl -sk "$ISS/.well-known/openid-configuration" | jq -r .issuer)" "$ISS"
+check 'other resources not answered'         "$(curl -sk -o /dev/null -w '%{http_code}' "$SITE/.well-known/oauth-protected-resource/wp-json/novamira/v1/mcp")" '!~200'
 check 'AS advertises S256 only'              "$(jq -c .code_challenge_methods_supported <<<"$ASM")" '["S256"]'
 check 'AS advertises CIMD + none'            "$(jq -c '[.client_id_metadata_document_supported, .token_endpoint_auth_methods_supported]' <<<"$ASM")" '[true,["none"]]'
 check 'AS advertises iss'                    "$(jq -r .authorization_response_iss_parameter_supported <<<"$ASM")" true
@@ -78,7 +81,7 @@ check 'GET cannot grant'                     "$(curl -sk -b "$JAR" -o /dev/null 
 CB=$(decide approve -d scope=content -d 'toolsets[]=content' -d 'toolsets[]=site')
 check 'approve redirects to loopback (any port)' "$CB" '~http://127.0.0.1:53682/callback?code='
 check 'approve echoes state'                 "$CB" '~state=xyz123'
-check 'approve carries iss'                  "$CB" "~iss=$(urlenc "$SITE")"
+check 'approve carries iss'                  "$CB" "~iss=$(urlenc "$ISS")"
 CODE=$(sed -E 's/.*code=([a-f0-9]+).*/\1/' <<<"$CB")
 
 # --- Token exchange

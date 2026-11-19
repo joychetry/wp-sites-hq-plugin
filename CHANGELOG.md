@@ -5,6 +5,15 @@ connector library in `connector/` has its own version, named in each entry.
 
 ## Unreleased
 
+- Connector 1.0.1: the MCP OAuth server now has its own issuer,
+  `{home}/classic-monks/v1`, and answers discovery only on exact paths built
+  from that issuer and the MCP endpoint URL. Another OAuth server on the same
+  site (such as Novamira, whose issuer is the home URL) no longer hijacks
+  sign-in. Server metadata is served on the RFC 8414 and OIDC insert forms
+  and on the `{issuer}/.well-known/...` append forms. The 401 challenge always
+  points at the resource-specific protected-resource URL, including on
+  subfolder installs. Existing grants and tokens keep working. Bundle 1.0.1
+  so the fixed copy wins over older ones.
 - Connector 1.0.0, the first public version of the shared connector library.
   Every name uses the WP Sites HQ prefix: functions and hooks `wpshq_*`,
   classes and constants `WPSHQ_*`, the loader `wpshq_connector_register()`
