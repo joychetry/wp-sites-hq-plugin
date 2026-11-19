@@ -97,8 +97,13 @@ class WPSHQ_MCP_OAuth {
 	 * Identity of this server
 	 * ------------------------------------------------------------------ */
 
+	/**
+	 * Our own issuer, under the REST namespace, so our metadata URLs never collide with
+	 * another OAuth server on the same site (e.g. one whose issuer is home_url()).
+	 * An identifier only: nothing answers at this URL itself.
+	 */
 	public static function issuer() {
-		return untrailingslashit( home_url() );
+		return untrailingslashit( home_url() ) . '/' . WPSHQ_MCP_Server::REST_NAMESPACE;
 	}
 
 	/** The MCP endpoint URL is the protected resource (RFC 8707 audience). */
@@ -106,14 +111,12 @@ class WPSHQ_MCP_OAuth {
 		return WPSHQ_MCP_Server::endpoint_url();
 	}
 
+	/** Always resource-specific, so another plugin's bare discovery document can't answer for us. */
 	public static function resource_metadata_url() {
-		// A site in a subfolder never receives requests to the host root: point at its own path instead.
-		if ( self::home_path() ) {
-			return home_url( '/.well-known/oauth-protected-resource' );
-		}
-		$parts = wp_parse_url( self::resource() );
+		$paths = self::discovery_paths( home_url(), self::resource(), self::issuer() );
+		$parts = wp_parse_url( home_url() );
 		$port  = isset( $parts['port'] ) ? ':' . $parts['port'] : '';
-		return $parts['scheme'] . '://' . $parts['host'] . $port . '/.well-known/oauth-protected-resource' . ( $parts['path'] ?? '' );
+		return $parts['scheme'] . '://' . $parts['host'] . $port . $paths['resource'][0];
 	}
 
 	private static function endpoint( $name ) {
@@ -139,28 +142,42 @@ class WPSHQ_MCP_OAuth {
 	 * Discovery (/.well-known/* live at the site root, outside /wp-json)
 	 * ------------------------------------------------------------------ */
 
-	/** Path of a site that lives in a subfolder (e.g. "/blog"), or "". */
-	private static function home_path() {
-		return untrailingslashit( (string) wp_parse_url( home_url(), PHP_URL_PATH ) );
+	/**
+	 * Exact request paths for each discovery document. The first resource path is the one
+	 * the 401 challenge advertises: the RFC 9728 insert form, under the home path on subfolder
+	 * installs (a subfolder site never receives requests to the host root).
+	 * Plain permalinks: the resource URL path is "/", so the insert form is the bare one.
+	 *
+	 * @return array{resource: string[], server: string[]}
+	 */
+	public static function discovery_paths( $home_url, $resource_url, $issuer ) {
+		$home     = rtrim( (string) wp_parse_url( $home_url, PHP_URL_PATH ), '/' );
+		$resource = rtrim( (string) wp_parse_url( $resource_url, PHP_URL_PATH ), '/' );
+		$iss      = rtrim( (string) wp_parse_url( $issuer, PHP_URL_PATH ), '/' );
+		$pr       = '/.well-known/oauth-protected-resource';
+		$as       = '/.well-known/oauth-authorization-server';
+		$oidc     = '/.well-known/openid-configuration';
+		return array(
+			'resource' => array_values( array_unique( array( $home . $pr . $resource, $pr . $resource, $home . $pr ) ) ),
+			// RFC 8414 and OIDC insert forms, their append forms, then the old bare form (back-compat).
+			'server'   => array_values( array_unique( array( $as . $iss, $oidc . $iss, $iss . $as, $iss . $oidc, $home . $as ) ) ),
+		);
 	}
 
 	public static function serve_well_known() {
 		$path = (string) wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ), PHP_URL_PATH );
-		$home = self::home_path();
-		if ( $home && 0 === strpos( $path, $home . '/.well-known/' ) ) {
-			$path = substr( $path, strlen( $home ) );
+		if ( '/' === substr( $path, -1 ) ) {
+			$path = substr( $path, 0, -1 );
 		}
-		if ( 0 !== strpos( $path, '/.well-known/oauth-' ) ) {
-			return;
-		}
-		if ( 0 === strpos( $path, '/.well-known/oauth-protected-resource' ) ) {
+		$paths = self::discovery_paths( home_url(), self::resource(), self::issuer() );
+		if ( in_array( $path, $paths['resource'], true ) ) {
 			$doc = array(
 				'resource'                 => self::resource(),
 				'authorization_servers'    => array( self::issuer() ),
 				'bearer_methods_supported' => array( 'header' ),
 				'resource_name'            => get_bloginfo( 'name' ),
 			);
-		} elseif ( 0 === strpos( $path, '/.well-known/oauth-authorization-server' ) ) {
+		} elseif ( in_array( $path, $paths['server'], true ) ) {
 			$doc = self::server_metadata();
 		} else {
 			return;
