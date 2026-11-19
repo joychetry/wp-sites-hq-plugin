@@ -146,7 +146,8 @@ class WPSHQ_MCP_OAuth {
 	 * Exact request paths for each discovery document. The first resource path is the one
 	 * the 401 challenge advertises: the RFC 9728 insert form, under the home path on subfolder
 	 * installs (a subfolder site never receives requests to the host root).
-	 * Plain permalinks: the resource URL path is "/", so the insert form is the bare one.
+	 * Plain permalinks (?rest_route=, path "/" or "/index.php") use the rest_route value as the
+	 * suffix, so the advertised path is still one only we answer. The bare form is kept, last, for back-compat.
 	 *
 	 * @return array{resource: string[], server: string[]}
 	 */
@@ -154,9 +155,13 @@ class WPSHQ_MCP_OAuth {
 		$home     = rtrim( (string) wp_parse_url( $home_url, PHP_URL_PATH ), '/' );
 		$resource = rtrim( (string) wp_parse_url( $resource_url, PHP_URL_PATH ), '/' );
 		$iss      = rtrim( (string) wp_parse_url( $issuer, PHP_URL_PATH ), '/' );
-		$pr       = '/.well-known/oauth-protected-resource';
-		$as       = '/.well-known/oauth-authorization-server';
-		$oidc     = '/.well-known/openid-configuration';
+		parse_str( (string) wp_parse_url( $resource_url, PHP_URL_QUERY ), $query );
+		if ( ! empty( $query['rest_route'] ) && is_string( $query['rest_route'] ) ) {
+			$resource = $home . '/' . trim( $query['rest_route'], '/' );
+		}
+		$pr   = '/.well-known/oauth-protected-resource';
+		$as   = '/.well-known/oauth-authorization-server';
+		$oidc = '/.well-known/openid-configuration';
 		return array(
 			'resource' => array_values( array_unique( array( $home . $pr . $resource, $pr . $resource, $home . $pr ) ) ),
 			// RFC 8414 and OIDC insert forms, their append forms, then the old bare form (back-compat).

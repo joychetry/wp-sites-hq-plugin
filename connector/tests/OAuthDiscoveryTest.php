@@ -77,10 +77,25 @@ final class OAuthDiscoveryTest extends TestCase {
 		);
 	}
 
-	public function test_plain_permalinks_fall_back_to_the_bare_resource_form(): void {
+	public function test_plain_permalinks_root(): void {
 		$p = \WPSHQ_MCP_OAuth::discovery_paths( 'https://ex.com', 'https://ex.com/?rest_route=/classic-monks/v1/mcp', 'https://ex.com/classic-monks/v1' );
-		$this->assertSame( array( '/.well-known/oauth-protected-resource' ), $p['resource'] );
+		$this->assertSame(
+			array( '/.well-known/oauth-protected-resource/classic-monks/v1/mcp', '/.well-known/oauth-protected-resource' ),
+			$p['resource']
+		);
 		$this->assertContains( '/classic-monks/v1/.well-known/openid-configuration', $p['server'] );
+	}
+
+	public function test_plain_permalinks_subfolder(): void {
+		$p = \WPSHQ_MCP_OAuth::discovery_paths( 'https://ex.com/blog', 'https://ex.com/blog/index.php?rest_route=%2Fclassic-monks%2Fv1%2Fmcp', 'https://ex.com/blog/classic-monks/v1' );
+		$this->assertSame(
+			array(
+				'/blog/.well-known/oauth-protected-resource/blog/classic-monks/v1/mcp',
+				'/.well-known/oauth-protected-resource/blog/classic-monks/v1/mcp',
+				'/blog/.well-known/oauth-protected-resource',
+			),
+			$p['resource']
+		);
 	}
 
 	public function test_novamira_paths_are_not_ours(): void {
