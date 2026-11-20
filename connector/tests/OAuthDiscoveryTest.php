@@ -27,7 +27,7 @@ final class OAuthDiscoveryTest extends TestCase {
 			}
 		}
 		// The file boots on include: report the table as current so install() never runs.
-		Monkey\Functions\when( 'get_option' )->justReturn( '1.1.0' );
+		Monkey\Functions\when( 'get_option' )->justReturn( '1.2.0' );
 		require_once dirname( __DIR__ ) . '/mcp/class-mcp-oauth.php';
 		Monkey\Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
 	}

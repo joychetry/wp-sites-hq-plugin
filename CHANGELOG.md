@@ -5,6 +5,11 @@ connector library in `connector/` has its own version, named in each entry.
 
 ## Unreleased
 
+- Connector 1.0.2: sign-in no longer fails with "The authorization code is
+  invalid, expired or already used" on sites whose object cache loses or does
+  not share transients between wp-admin and the REST API. Authorization codes
+  now live in the connector's own token table and are redeemed once with a
+  single database update.
 - Connector 1.0.1: the MCP OAuth server now has its own issuer,
   `{home}/classic-monks/v1`, and answers discovery only on exact paths built
   from that issuer and the MCP endpoint URL. Another OAuth server on the same
