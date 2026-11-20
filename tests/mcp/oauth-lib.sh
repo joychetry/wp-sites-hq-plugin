@@ -6,6 +6,7 @@ b64url() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
 urlenc() { jq -rn --arg v "$1" '$v|@uri'; }
 OAUTH_JARS=()
 CONSENT_FILE=$(mktemp); OAUTH_JARS+=("$CONSENT_FILE")
+CODE_FILE=$(mktemp); OAUTH_JARS+=("$CODE_FILE") # connect() leaves "code client_id verifier redirect_uri" here
 
 # connect LOGIN PASSWORD CLIENT_NAME [consent form args...]  (OAUTH_REDIRECT: the return address; loopback by default)
 # Signs in, registers a client, loads the consent page (saved to $CONSENT_FILE), approves it with the form args and
@@ -28,6 +29,7 @@ connect() {
         --data-urlencode "code_challenge=$challenge" --data-urlencode code_challenge_method=S256 --data-urlencode "resource=$MCP" \
         --data-urlencode response_type=code --data-urlencode "_wpnonce=$nonce" --data-urlencode decision=approve "$@" "$SITE/wp-admin/admin-post.php")
     code=$(sed -E 's/.*code=([a-f0-9]+).*/\1/' <<<"$cb")
+    echo "$code $cid $verifier $back" >"$CODE_FILE"
     curl -sk -d grant_type=authorization_code -d "code=$code" --data-urlencode "client_id=$cid" --data-urlencode "redirect_uri=$back" -d "code_verifier=$verifier" "$OA/token" \
         | jq -c --arg f "$(wpe "global \$wpdb; echo \$wpdb->get_var(\"SELECT family FROM {\$wpdb->prefix}cm_mcp_oauth_tokens ORDER BY id DESC LIMIT 1\");")" '. + {family: $f}'
 }

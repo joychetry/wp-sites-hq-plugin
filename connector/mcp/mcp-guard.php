@@ -213,7 +213,7 @@ function wpshq_mcp_deactivation_notice() {
 	$count = count( wpshq_mcp_app_passwords() );
 	$table = wpshq_mcp_oauth_table();
 	if ( $table ) {
-		$count += (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(DISTINCT family) FROM %i WHERE expires_at > %d', $table, time() ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; tokens must never be read from a cache
+		$count += (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(DISTINCT family) FROM %i WHERE type <> 'code' AND expires_at > %d", $table, time() ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; tokens must never be read from a cache
 	}
 	if ( ! $count ) {
 		return;

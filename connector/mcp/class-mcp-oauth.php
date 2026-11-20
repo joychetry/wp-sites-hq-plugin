@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class WPSHQ_MCP_OAuth {
 
-	const DB_VERSION        = '1.1.0';
+	const DB_VERSION        = '1.2.0';
 	const DB_VERSION_OPTION = 'cm_mcp_oauth_db_version';
 	const PAGE              = 'cm-mcp-authorize';
 	const ID_PREFIX         = 'oauth:';
@@ -82,6 +82,7 @@ class WPSHQ_MCP_OAuth {
             expires_at bigint(20) unsigned NOT NULL,
             last_used bigint(20) unsigned NOT NULL DEFAULT 0,
             used tinyint(1) NOT NULL DEFAULT 0,
+            data longtext NULL,
             PRIMARY KEY  (id),
             UNIQUE KEY token_hash (token_hash),
             KEY family (family),
@@ -678,22 +679,34 @@ class WPSHQ_MCP_OAuth {
 			$scope    = 'full';
 			$toolsets = array_keys( WPSHQ_MCP_Server::toolsets() );
 		}
-		$code = bin2hex( random_bytes( 32 ) );
-		set_transient(
-			'cm_mcp_oauth_code_' . hash( 'sha256', $code ),
+		$code        = bin2hex( random_bytes( 32 ) );
+		$client_name = $ctx['client']['name'] ? $ctx['client']['name'] : wp_parse_url( $ctx['redirect_uri'], PHP_URL_HOST );
+		$now         = time();
+		// Our own table, not a transient: object caches that skip wp-admin or lose data between requests broke sign-in.
+		global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; codes must never be read from a cache
+		$wpdb->insert(
+			self::table(),
 			array(
-				'client_key'     => hash( 'sha256', $ctx['client_id'] ),
-				'client_name'    => $ctx['client']['name'] ? $ctx['client']['name'] : wp_parse_url( $ctx['redirect_uri'], PHP_URL_HOST ),
-				'redirect_uri'   => $ctx['redirect_uri'],
-				'code_challenge' => $ctx['code_challenge'],
-				'resource'       => $ctx['resource'],
-				'user_id'        => get_current_user_id(),
-				'scope'          => $scope,
-				'toolsets'       => $toolsets,
-				'operator'       => $operator,
-				'expires'        => time() + self::CODE_TTL,
-			),
-			self::CODE_TTL
+				'token_hash'  => hash( 'sha256', $code ),
+				'type'        => 'code',
+				'family'      => bin2hex( random_bytes( 16 ) ),
+				'user_id'     => get_current_user_id(),
+				'client_key'  => hash( 'sha256', $ctx['client_id'] ),
+				'client_name' => substr( (string) $client_name, 0, 190 ),
+				'created_at'  => $now,
+				'expires_at'  => $now + self::CODE_TTL,
+				'data'        => wp_json_encode(
+					array(
+						'redirect_uri'   => $ctx['redirect_uri'],
+						'code_challenge' => $ctx['code_challenge'],
+						'resource'       => $ctx['resource'],
+						'scope'          => $scope,
+						'toolsets'       => $toolsets,
+						'operator'       => $operator,
+					)
+				),
+			)
 		);
 
 		self::redirect_with( $ctx, array( 'code' => $code ) );
@@ -739,7 +752,7 @@ class WPSHQ_MCP_OAuth {
 			return self::oauth_error( 'invalid_request', 'The token parameter is required.' );
 		}
 		global $wpdb;
-		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT family, client_key FROM %i WHERE token_hash = %s', self::table(), hash( 'sha256', $token ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; tokens must never be read from a cache
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT family, client_key FROM %i WHERE token_hash = %s AND type <> 'code'", self::table(), hash( 'sha256', $token ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; tokens must never be read from a cache
 		if ( $row && hash_equals( $row->client_key, hash( 'sha256', self::param( $request, 'client_id' ) ) ) ) {
 			self::revoke_family( $row->family );
 		}
@@ -754,14 +767,24 @@ class WPSHQ_MCP_OAuth {
 	}
 
 	private static function exchange_code( WP_REST_Request $request, $client_key ) {
-		$key  = 'cm_mcp_oauth_code_' . hash( 'sha256', self::param( $request, 'code' ) );
-		$data = get_transient( $key );
-		// Single use: only the request that actually deletes the code may redeem it.
-		if ( ! is_array( $data ) || ! delete_transient( $key ) || $data['expires'] < time() ) {
+		global $wpdb;
+		$table = self::table();
+		$hash  = hash( 'sha256', self::param( $request, 'code' ) );
+		// Single use: only the request whose update flips the row may redeem it.
+		$won  = 1 === (int) $wpdb->query( $wpdb->prepare( "UPDATE %i SET used = 1 WHERE token_hash = %s AND type = 'code' AND used = 0 AND expires_at >= %d", $table, $hash, time() ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; codes must never be read from a cache
+		$row  = $won ? $wpdb->get_row( $wpdb->prepare( "SELECT * FROM %i WHERE token_hash = %s AND type = 'code'", $table, $hash ) ) : null; // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; codes must never be read from a cache
+		$data = $row ? json_decode( (string) $row->data, true ) : null;
+		if ( $row ) {
+			$wpdb->delete( $table, array( 'id' => $row->id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; codes must never be read from a cache
+		}
+		if ( ! is_array( $data ) ) {
 			return self::oauth_error( 'invalid_grant', 'The authorization code is invalid, expired or already used.' );
 		}
-		$verifier  = self::param( $request, 'code_verifier' );
-		$challenge = self::b64url( hash( 'sha256', $verifier, true ) );
+		$data['client_key']  = $row->client_key;
+		$data['client_name'] = $row->client_name;
+		$data['user_id']     = (int) $row->user_id;
+		$verifier            = self::param( $request, 'code_verifier' );
+		$challenge           = self::b64url( hash( 'sha256', $verifier, true ) );
 		if ( ! hash_equals( $data['client_key'], $client_key )
 			|| self::param( $request, 'redirect_uri' ) !== $data['redirect_uri']
 			|| ! preg_match( '/^[A-Za-z0-9._~-]{43,128}$/', $verifier )
@@ -772,7 +795,7 @@ class WPSHQ_MCP_OAuth {
 			return self::oauth_error( 'invalid_grant', 'The user can no longer connect AI apps.' );
 		}
 
-		$family = bin2hex( random_bytes( 16 ) );
+		$family = $row->family;
 		$id     = self::ID_PREFIX . $family;
 		WPSHQ_MCP_Server::save_connection_settings( $data['user_id'], $id, $data['scope'], $data['toolsets'] );
 		if ( ! empty( $data['operator'] ) ) {
@@ -1006,7 +1029,7 @@ class WPSHQ_MCP_OAuth {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; tokens must never be read from a cache
 		return self::is_oauth_id( $id ) && (bool) $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT 1 FROM %i WHERE family = %s AND user_id = %d AND expires_at > %d LIMIT 1',
+				"SELECT 1 FROM %i WHERE family = %s AND user_id = %d AND type <> 'code' AND expires_at > %d LIMIT 1",
 				$table,
 				substr( $id, strlen( self::ID_PREFIX ) ),
 				$user_id,
@@ -1024,7 +1047,7 @@ class WPSHQ_MCP_OAuth {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; tokens must never be read from a cache
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				'SELECT family, user_id, MAX(client_name) AS client_name, MIN(created_at) AS created, MAX(last_used) AS last_used FROM %i WHERE expires_at > %d GROUP BY family, user_id ORDER BY created',
+				"SELECT family, user_id, MAX(client_name) AS client_name, MIN(created_at) AS created, MAX(last_used) AS last_used FROM %i WHERE type <> 'code' AND expires_at > %d GROUP BY family, user_id ORDER BY created",
 				$table,
 				time()
 			)
