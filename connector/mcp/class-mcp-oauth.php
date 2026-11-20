@@ -684,7 +684,7 @@ class WPSHQ_MCP_OAuth {
 		$now         = time();
 		// Our own table, not a transient: object caches that skip wp-admin or lose data between requests broke sign-in.
 		global $wpdb;
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; codes must never be read from a cache
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own token table; codes must never be read from a cache
 		$wpdb->insert(
 			self::table(),
 			array(
