@@ -5,6 +5,11 @@ connector library in `connector/` has its own version, named in each entry.
 
 ## Unreleased
 
+## 0.3.0 - 2026-11-21
+
+Sign-in fixes for the WP Sites HQ app. Reported by Medeon-68, Miran Zgec,
+Manny Contales and William Hoffmann.
+
 - Connector 1.0.2: sign-in no longer fails with "The authorization code is
   invalid, expired or already used" on sites whose object cache loses or does
   not share transients between wp-admin and the REST API. Authorization codes
