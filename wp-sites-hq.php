@@ -3,7 +3,7 @@
  * Plugin Name:       WP Sites HQ
  * Plugin URI:        https://wpsiteshq.com
  * Description:       Connects this site to the WP Sites HQ app, so you can manage it with your other WordPress sites from one place.
- * Version:           0.2.1
+ * Version:           0.3.0
  * Requires at least: 7.1
  * Requires PHP:      8.1
  * Author:            Good Monks
@@ -46,7 +46,7 @@ if ( defined( 'WPSHQ_VERSION' ) ) {
 	return;
 }//end if
 
-define( 'WPSHQ_VERSION', '0.2.1' );
+define( 'WPSHQ_VERSION', '0.3.0' );
 define( 'WPSHQ_FILE', __FILE__ );
 define( 'WPSHQ_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPSHQ_URL', plugin_dir_url( __FILE__ ) );
