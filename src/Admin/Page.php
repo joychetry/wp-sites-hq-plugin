@@ -37,6 +37,8 @@ final class Page {
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_page' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
+		// The screen sits under Settings, where nobody looks after installing. Link it from the plugin's row too.
+		add_filter( 'plugin_action_links_' . plugin_basename( WPSHQ_FILE ), array( $this, 'action_links' ) );
 	}
 
 	/**
@@ -50,6 +52,31 @@ final class Page {
 			self::SLUG,
 			array( $this, 'render' )
 		);
+	}
+
+	/**
+	 * Put a Settings link before Deactivate on the Plugins screen.
+	 *
+	 * Only for users who can open the screen (same capability as the menu item),
+	 * so nobody gets a link to a page that refuses them. Keyed `settings`, so other
+	 * code can find or remove it. Network Admin uses a different filter and has no
+	 * such screen, so the link shows on each site's Plugins screen only.
+	 *
+	 * @param array<string|int, string> $links Action links WordPress built for the row.
+	 * @return array<string|int, string>
+	 */
+	public function action_links( array $links ): array {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $links;
+		}
+
+		$settings = sprintf(
+			'<a href="%s">%s</a>',
+			esc_url( admin_url( 'options-general.php?page=' . self::SLUG ) ),
+			esc_html__( 'Settings', 'wp-sites-hq' )
+		);
+
+		return array( 'settings' => $settings ) + $links;
 	}
 
 	/**
