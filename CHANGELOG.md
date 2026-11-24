@@ -5,6 +5,10 @@ connector library in `connector/` has its own version, named in each entry.
 
 ## Unreleased
 
+- The Plugins screen shows a Settings link next to Deactivate, so people who
+  just installed the plugin can find Settings > WP Sites HQ. It shows only to
+  users who can open that screen.
+
 ## 0.3.0 - 2026-11-21
 
 Sign-in fixes for the WP Sites HQ app. Reported by Medeon-68, Miran Zgec,
