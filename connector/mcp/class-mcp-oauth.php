@@ -177,12 +177,7 @@ class WPSHQ_MCP_OAuth {
 		}
 		$paths = self::discovery_paths( home_url(), self::resource(), self::issuer() );
 		if ( in_array( $path, $paths['resource'], true ) ) {
-			$doc = array(
-				'resource'                 => self::resource(),
-				'authorization_servers'    => array( self::issuer() ),
-				'bearer_methods_supported' => array( 'header' ),
-				'resource_name'            => get_bloginfo( 'name' ),
-			);
+			$doc = self::resource_metadata();
 		} elseif ( in_array( $path, $paths['server'], true ) ) {
 			$doc = self::server_metadata();
 		} else {
@@ -194,6 +189,39 @@ class WPSHQ_MCP_OAuth {
 		header( 'Cache-Control: public, max-age=3600' );
 		echo wp_json_encode( $doc, JSON_UNESCAPED_SLASHES );
 		exit;
+	}
+
+	/** RFC 9728 protected-resource metadata, served on /.well-known/ and on the REST route. */
+	public static function resource_metadata() {
+		return array(
+			'resource'                 => self::resource(),
+			'authorization_servers'    => array( self::issuer() ),
+			'bearer_methods_supported' => array( 'header' ),
+			'resource_name'            => get_bloginfo( 'name' ),
+		);
+	}
+
+	/**
+	 * The discovery documents as REST routes, for hosts that block /.well-known/ (or any dot-folder)
+	 * before WordPress runs. Same documents and headers as serve_well_known().
+	 */
+	public static function rest_resource_metadata() {
+		return self::discovery_response( self::resource_metadata() );
+	}
+
+	public static function rest_server_metadata() {
+		return self::discovery_response( self::server_metadata() );
+	}
+
+	private static function discovery_response( array $doc ) {
+		return new WP_REST_Response(
+			$doc,
+			200,
+			array(
+				'Access-Control-Allow-Origin' => '*',
+				'Cache-Control'               => 'public, max-age=3600',
+			)
+		);
 	}
 
 	public static function server_metadata() {
@@ -221,6 +249,24 @@ class WPSHQ_MCP_OAuth {
 
 	public static function register_routes() {
 		$ns = WPSHQ_MCP_Server::REST_NAMESPACE;
+		register_rest_route(
+			$ns,
+			'/oauth/protected-resource',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'rest_resource_metadata' ),
+				'permission_callback' => '__return_true', // Public: the same document /.well-known/ serves.
+			)
+		);
+		register_rest_route(
+			$ns,
+			'/oauth/server-metadata',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'rest_server_metadata' ),
+				'permission_callback' => '__return_true', // Public: the same document /.well-known/ serves.
+			)
+		);
 		register_rest_route(
 			$ns,
 			'/oauth/authorize',

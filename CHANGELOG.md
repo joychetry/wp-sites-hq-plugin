@@ -5,6 +5,15 @@ connector library in `connector/` has its own version, named in each entry.
 
 ## Unreleased
 
+- Connector: sites on hosts that block `/.well-known/` (many LiteSpeed,
+  Hostinger and nginx setups refuse any dot-folder before WordPress runs) can
+  now connect to the WP Sites HQ app. The OAuth discovery documents are also
+  served as normal REST routes, `/wp-json/classic-monks/v1/oauth/protected-resource`
+  and `/wp-json/classic-monks/v1/oauth/server-metadata` (or
+  `?rest_route=/classic-monks/v1/oauth/...` with plain permalinks). The
+  `/.well-known/` URLs keep working for standard MCP clients. Reported in
+  joychetry/wp-sites-hq#25 and #30.
+
 ## 0.3.0 - 2026-11-21
 
 Sign-in fixes for the WP Sites HQ app. Reported by Medeon-68, Miran Zgec,
