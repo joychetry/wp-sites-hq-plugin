@@ -5,7 +5,12 @@ connector library in `connector/` has its own version, named in each entry.
 
 ## Unreleased
 
-- Connector: sites on hosts that block `/.well-known/` (many LiteSpeed,
+## 0.3.1 - 2026-11-26
+
+Connection fix for hosts that block `/.well-known/`. Reported by Mike Murphy
+(Mike080453) and in joychetry/wp-sites-hq#30.
+
+- Connector 1.0.3: sites on hosts that block `/.well-known/` (many LiteSpeed,
   Hostinger and nginx setups refuse any dot-folder before WordPress runs) can
   now connect to the WP Sites HQ app. The OAuth discovery documents are also
   served as normal REST routes, `/wp-json/classic-monks/v1/oauth/protected-resource`

@@ -4,7 +4,7 @@ Tags: site management, remote management, updates, mcp, oauth
 Requires at least: 7.1
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.3.0
+Stable tag: 0.3.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,6 +70,9 @@ This plugin checks GitHub for updates. It sends nothing else anywhere on its own
 Other requests happen only when a connected app or you ask for them, and only to the address that task needs: verifying a plugin's files fetches its checksums from downloads.wordpress.org, importing an image fetches the image link the app gives, an app signing in has its client details read from its own address, and health checks load this site's own pages. Plugin, theme and core installs and updates go through WordPress itself.
 
 == Changelog ==
+
+= 0.3.1 - 2026-11-26 =
+* Connecting the WP Sites HQ app works on hosts that block /.well-known/ addresses (many LiteSpeed, Hostinger and nginx setups). Before, the app said "This site has no WP Sites HQ connection" even with the plugin installed and on.
 
 = 0.3.0 - 2026-11-21 =
 * Connecting the WP Sites HQ app works on sites that also run Novamira. Before, Novamira's sign-in page opened and the app failed with "Missing Mcp-Session-Id header".
